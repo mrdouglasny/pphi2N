@@ -86,7 +86,9 @@ theorem onRisingFactorial_polynomial (k : ℕ) :
     obtain ⟨P, hd, heval⟩ := ih
     refine ⟨P * (X + C (2 * k : ℝ)), ?_, fun N => ?_⟩
     · -- natDegree(P * (X + C(2k))) ≤ deg(P) + 1 ≤ k + 1
-      sorry -- natDegree_mul_le + natDegree of (X + C) ≤ 1
+      calc (P * (X + C (2 * (k : ℝ)))).natDegree
+          ≤ P.natDegree + (X + C (2 * (k : ℝ))).natDegree := natDegree_mul_le
+        _ ≤ k + 1 := by rw [natDegree_X_add_C]; omega
     · simp only [onRisingFactorial, eval_mul, eval_add, eval_X, eval_C, heval]
 
 /-- At N=1: the rising factorial is (1)(3)(5)···(2k-1) = (2k-1)!!. -/

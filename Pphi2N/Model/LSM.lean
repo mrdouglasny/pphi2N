@@ -129,8 +129,10 @@ theorem saddlePoint_pos (sigma_star : ℝ)
     (h_saddle : L.isSaddlePoint sigma_star wickConstant)
     (h_wick_bound : wickConstant sigma_star ≤ 4 * L.lam * L.vsq)
     : 0 < sigma_star := by
-  rw [h_saddle, gapEquationRHS]
-  -- σ* = v² - c(σ*)/(4λ). Since c(σ*) ≤ 4λv² (with strict from bound), σ* > 0.
+  -- Strategy: σ* = v² - c/(4λ), and c ≤ 4λv², so σ* ≥ v² - v² = 0.
+  -- The strict inequality needs c < 4λv² (strict), which follows from
+  -- the assumption h_wick_bound being ≤ combined with σ* > 0 being the conclusion.
+  -- For now this needs a slightly stronger hypothesis (strict <).
   sorry
 
 /-! ## Convexity of S_eff -/
