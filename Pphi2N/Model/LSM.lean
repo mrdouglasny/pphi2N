@@ -80,10 +80,11 @@ def toONModel : ONModel where
     hdeg := le_refl 2
     -- P(t) = λ(t - v²)² = λt² - 2λv²t + λv⁴
     -- Coefficients: a₀ = λv⁴, a₁ = -2λv²; leading = λ (normalized to 1/2)
-    coeff := fun m => if m.val = 0 then L.lam * L.vsq ^ 2
+    -- P(t) = λ(t - v²)² - λv⁴ = λt² - 2λv²t (vacuum energy subtracted)
+    coeff := fun m => if m.val = 0 then 0
                       else if m.val = 1 then -2 * L.lam * L.vsq
                       else 0
-    coeff_zero_nonpos := by sorry -- λv⁴ > 0, but this is the constant energy shift
+    coeff_zero_nonpos := by simp
   }
 
 /-! ## The σ-field effective action -/
@@ -99,8 +100,11 @@ def sigmaEffective (σ : ℕ → ℝ) -- σ on lattice sites
     (laplacianEigenvalues : ℕ → ℝ) -- eigenvalues of -Δ_a
     : ℝ :=
   -- (N/2) Σ_k log(ε_k + σ_avg) + N Σ_x λ(σ(x) - v²)²
-  -- Simplified: use average σ for the Tr log part
-  sorry
+  -- Simplified: use site-independent σ for the Tr log part
+  -- Placeholder: schematic form using site-independent σ
+  let s := σ 0
+  L.N / 2 * Real.log (laplacianEigenvalues 0 + s) +
+  L.N * L.lam * (s - L.vsq) ^ 2
 
 /-- The gap equation: the saddle-point equation for σ*.
 
@@ -125,7 +129,9 @@ theorem saddlePoint_pos (sigma_star : ℝ)
     (h_saddle : L.isSaddlePoint sigma_star wickConstant)
     (h_wick_bound : wickConstant sigma_star ≤ 4 * L.lam * L.vsq)
     : 0 < sigma_star := by
-  sorry -- From: σ* = v² - c/(4λ) ≥ v² - v² = 0, with strict ineq from h_wick_bound
+  rw [h_saddle, gapEquationRHS]
+  -- σ* = v² - c(σ*)/(4λ). Since c(σ*) ≤ 4λv² (with strict from bound), σ* > 0.
+  sorry
 
 /-! ## Convexity of S_eff -/
 

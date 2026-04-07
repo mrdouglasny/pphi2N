@@ -34,10 +34,12 @@ factorial (N)(N+2)···(N+2k-2), which is polynomial in N of degree k.
 -/
 
 import Pphi2N.LatticeField.NComponentField
+import Mathlib.Algebra.Polynomial.Basic
+import Mathlib.Algebra.Polynomial.Degree.Lemmas
 
 noncomputable section
 
-open MeasureTheory BigOperators
+open MeasureTheory BigOperators Polynomial
 
 namespace Pphi2N
 
@@ -78,12 +80,23 @@ def onRisingFactorial (N : ℕ) : ℕ → ℝ
 theorem onRisingFactorial_polynomial (k : ℕ) :
     ∃ (P : Polynomial ℝ), P.natDegree ≤ k ∧
       ∀ (N : ℕ), onRisingFactorial N k = P.eval (N : ℝ) := by
-  sorry -- induction on k: multiply by (N + 2k) increases degree by 1
+  induction k with
+  | zero => exact ⟨1, by simp, fun _ => by simp [onRisingFactorial]⟩
+  | succ k ih =>
+    obtain ⟨P, hd, heval⟩ := ih
+    refine ⟨P * (X + C (2 * k : ℝ)), ?_, fun N => ?_⟩
+    · -- natDegree(P * (X + C(2k))) ≤ deg(P) + 1 ≤ k + 1
+      sorry -- natDegree_mul_le + natDegree of (X + C) ≤ 1
+    · simp only [onRisingFactorial, eval_mul, eval_add, eval_X, eval_C, heval]
 
 /-- At N=1: the rising factorial is (1)(3)(5)···(2k-1) = (2k-1)!!. -/
 theorem onRisingFactorial_one (k : ℕ) :
     onRisingFactorial 1 k = ∏ j ∈ Finset.range k, (1 + 2 * (j : ℝ)) := by
-  sorry
+  induction k with
+  | zero => simp [onRisingFactorial]
+  | succ k ih =>
+    simp only [onRisingFactorial, Finset.prod_range_succ]
+    rw [ih]; ring
 
 end Pphi2N
 
