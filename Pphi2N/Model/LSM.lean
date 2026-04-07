@@ -30,6 +30,7 @@ concave Tr log Hessian). This is what enables Brascamp-Lieb → mass gap.
 -/
 
 import Pphi2N.Model.ONModel
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 noncomputable section
 
@@ -140,7 +141,7 @@ def convexityThreshold (propNormSq : ℝ) -- ||G[σ*]||²_op
 /-- S_eff is convex when λ exceeds the threshold. -/
 theorem sigmaEffective_convex
     (propNormSq : ℝ)
-    (h_lam : L.convexityThreshold propNormSq < L.lam) :
+    (h_lam : convexityThreshold propNormSq < L.lam) :
     -- S_eff'' ≥ (2Nλ - N/2 · propNormSq) · I > 0
     True := by trivial -- placeholder for the Hessian bound
 

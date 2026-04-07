@@ -32,6 +32,7 @@ encodes the effective potential and controls the mass gap.
 -/
 
 import Pphi2N.Model.LSM
+import Mathlib.MeasureTheory.Measure.MeasureSpace
 
 open MeasureTheory
 
@@ -74,7 +75,7 @@ structure SigmaEffAction (Sites : Type*) [Fintype Sites] where
   /-- The potential V(σ). For LSM: V(σ) = λ(σ - v²)². -/
   potential : ℝ → ℝ
   /-- V is C² and convex: V'' ≥ 0. -/
-  potential_convex : ∀ σ, 0 ≤ sorry -- V''(σ), placeholder
+  potential_convex : ∀ σ : ℝ, 0 ≤ sorry -- V''(σ), placeholder
   /-- The entropic Hessian norm: ||G[σ]²||_op.
   This bounds the concave part of S_eff''. -/
   entropicHessianNorm : ℝ → ℝ
@@ -142,8 +143,8 @@ theorem massGap_of_concentration
     (sigma_star : ℝ) (h_pos : 0 < sigma_star)
     (kappa : ℝ) (h_kappa : 0 < kappa)
     (nSites : ℕ)
-    (h_conc : S.linftyBound sigma_star kappa nSites < sigma_star / 2) :
-    0 < S.conditionalMassGap (sigma_star / 2) (by linarith) := by
+    (h_conc : linftyBound sigma_star kappa nSites < sigma_star / 2) :
+    0 < conditionalMassGap (sigma_star / 2) (by linarith) := by
   unfold conditionalMassGap
   exact Real.sqrt_pos_of_pos (by linarith)
 
