@@ -9,3 +9,4 @@ import Pphi2N.LatticeField.ProductGFF
 import Pphi2N.InteractingMeasure.ONLatticeAction
 import Pphi2N.InteractingMeasure.ONTorusMeasure
 import Pphi2N.ContinuumLimit.NComponentEmbedding
+import Pphi2N.ContinuumLimit.LSMTorusMeasure
