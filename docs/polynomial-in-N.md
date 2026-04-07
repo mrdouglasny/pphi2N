@@ -1,24 +1,29 @@
-# The Schwinger Functions Are Polynomials in N
+# The 1/N Expansion of the Schwinger Functions
 
-## Statement
+## Corrected Statement
 
 **Theorem.** Let P(t) = Σ_{k=2}^d a_k t^k be a polynomial bounded
 below (a_d > 0, d even). For each integer N ≥ 1, let μ_N be the
 O(N) P(φ)₂ measure on T²_L with interaction :P(φ·φ): and mass m > 0.
 
-For any O(N)-invariant test functions f₁, ..., f_p ∈ S(T²), the
-Schwinger function:
+For any O(N)-invariant observable F of the invariant field
+σ(x,y) = φ(x)·φ(y), the expectation ⟨F⟩_N has an asymptotic
+expansion in 1/N:
 
-$$S_p(f_1, \ldots, f_p; N) := \int \prod_{j=1}^p (\phi \cdot f_j) \, d\mu_N$$
+$$\langle F \rangle_N = \langle F \rangle_\infty + \frac{a_1(F)}{N} + \frac{a_2(F)}{N^2} + \cdots$$
 
-is a polynomial in N of degree ≤ p.
+with controlled remainder: for each k ≥ 0,
 
-More generally, for any O(N)-invariant observable F:
+$$\left|\langle F \rangle_N - \sum_{j=0}^{k} \frac{a_j(F)}{N^j}\right| \leq \frac{C_k(F)}{N^{k+1}}$$
 
-$$\langle F \rangle_{\mu_N} = \sum_{q=0}^{\deg(F)} c_q(F) \cdot N^q$$
+The leading term ⟨F⟩_∞ is the saddle-point (mean-field) value.
 
-where the coefficients c_q depend on the test functions, coupling
-constants, mass, and lattice parameters, but NOT on N.
+**Important correction:** The Schwinger functions are NOT polynomials
+in N (as previously claimed). The partition function involves
+vol(S^{N-1}) = 2π^{N/2}/Γ(N/2), which is transcendental in N. What
+IS polynomial in N at each finite order in λ (perturbation theory) are
+the Wick contractions. The full nonperturbative expectation values are
+power series in 1/N with controlled remainders.
 
 ## Proof outline
 

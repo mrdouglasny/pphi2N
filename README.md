@@ -1,104 +1,82 @@
-# O(N) P(φ)₂: Large N, Non-Integer N, and Categorical QFT
+# pphi2N: O(N) P(φ)₂ and the NLSM Mass Gap
 
 ## What this project is
 
-The O(N)-symmetric P(φ)₂ Euclidean quantum field theory in two
-dimensions, studied as a function of N. Building on the rigorous
-pphi2 construction (Glimm-Jaffe/pphi2 in Lean 4), we:
+The O(N)-symmetric P(φ)₂ and nonlinear sigma model in two dimensions,
+studied rigorously as a function of N. Building on the pphi2
+construction (Glimm-Jaffe in Lean 4), we develop the σ-field
+(invariant field) approach to prove mass gaps at large N.
 
-1. Prove the Schwinger functions are polynomials in N
-2. Define the nonperturbative theory at non-integer n via
-   polynomial interpolation (a signed measure, not a probability
-   measure)
-3. Study the mass gap m(n) as a function of n
-4. Connect to Deligne categories and the Binder-Rychkov framework
-5. Explore the space of O(n)-saturated theories and RG flow
+## The three results
 
-## The main theorem (near-term goal)
+### Result 1: 1/N expansion with controlled remainders
 
-**Theorem.** *The O(N)-invariant Schwinger functions of the P(φ)₂
-theory with interaction P(φ·φ) on T² are polynomials in N. The
-polynomial interpolation to n ∈ ℂ defines a nonperturbative
-signed measure ω_n on the observable algebra. At each integer
-N ≥ 1, ω_N agrees with the Glimm-Jaffe probability measure μ_N.*
+The O(N)-invariant Schwinger functions have an asymptotic 1/N
+expansion with rigorous error bounds (Brascamp-Lieb on the convex
+σ-integral). Details: `docs/polynomial-in-N.md`
 
-Proof: trace the N-dependence through each step of the pphi2
-construction (lattice GFF, Wick ordering, Nelson estimate,
-tightness, continuum limit, OS axioms).
+### Result 2: The invariant-field measure and FRG
 
-## The research program (longer-term)
+The σ-field σ(x,y) = φ(x)·φ(y) carries a rigorous measure ν_N =
+π_*μ_N. Its log-density is the effective potential V(σ), which
+satisfies the Wetterich FRG equation. At non-integer n: ν_n is a
+signed measure (nonperturbative but indefinite). At integer N: ν_N is
+a genuine probability measure. Details: `docs/frg-invariant-field.md`
 
-### The mass gap m(n)
+### Result 3: NLSM mass gap via LSM → NLSM limit
 
-At integer N ≥ 1: the mass gap is positive (proved in pphi2).
-As a function of n:
-- Is m(n) a polynomial in n? (Probably not — it involves a
-  nonlinear eigenvalue problem.)
-- Is m(n) analytic in n? (Probably yes for P(φ)₂; less clear
-  for the NLSM where BKT physics at n=2 might create a branch
-  point.)
-- What is the behavior as n → 0, n → ∞?
+The O(N) NLSM is the λ → ∞ limit of the O(N) linear sigma model
+(LSM) with potential λ(|φ|² - Nv²)². The LSM σ-integral IS convex
+(Brascamp-Lieb applies). The mass gap transfers to the NLSM in the
+limit. Combined with Balaban's block-spin RG for the continuum limit:
 
-### The signed measure ω_n
+**Target theorem.** *The O(N) NLSM on T² has a mass gap for
+N ≥ N₀, via:*
+1. *LSM mass gap at finite λ (convex σ-measure, Brascamp-Lieb)*
+2. *LSM → NLSM as λ → ∞ (finite-dim weak convergence)*
+3. *Continuum limit a → 0 (Balaban block-spin, asymptotic freedom)*
+4. *Infinite volume L → ∞ (gap equation monotonicity)*
 
-At non-integer n: ω_n is a signed measure (indefinite linear
-functional on observables). Properties:
-- Polynomial in n (by construction)
-- Positive at integer N (= probability measure μ_N)
-- Indefinite at non-integer n (non-unitarity, Binder-Rychkov)
-- Determines all O(n)-invariant observables nonperturbatively
+Details: `docs/lsm-to-nlsm.md`
 
-The signed measure is the "Level 1.5" framework between the
-algebraic Brauer computation (Level 1) and the probability
-measure (Level 2).
+## The key idea: σ gives mass to all modes
 
-### Deligne categories and saturated theories
+The σ-field σ(x) = |φ(x)|²/N acts as a common mass for ALL N
+components of φ (radial and Goldstone alike). The conditional
+φ-measure (Gaussian with covariance (-Δ + σ)⁻¹) has mass √σ.
 
-A saturated theory w.r.t. O(n): every d.o.f. is an object in
-Rep̃(O(n)), every interaction is a morphism, Z is polynomial in n.
-The O(N) P(φ)₂ theory IS saturated (the field φ^i is the
-fundamental object [1], the interaction (φ·φ)^k is a Brauer
-morphism).
+If the σ-measure concentrates near σ* > 0 (from Brascamp-Lieb:
+Var(σ) ≤ C/(Nλ) for the LSM), then σ(x) ≥ σ*/2 everywhere with
+high probability, and ALL modes have mass ≥ √(σ*/2). Goldstone
+modes don't cause trouble because σ is a scalar potential.
 
-Connection to Binder-Rychkov (arXiv:1911.07895): their framework
-for lattice models with categorical O(n) symmetry applies to the
-lattice regularization of P(φ)₂. Our theorem extends this to the
-continuum limit.
+## Documents
 
-### The space of theories
-
-For M O(N) vector fields with general O(N)-invariant interactions:
-the theory space at quartic order has dimension growing with M.
-The RG flow acts on this space, preserving the O(n) categorical
-symmetry (Binder-Rychkov). Fixed points = O(n) CFTs.
-
-### O(N) NLSM
-
-The nonlinear sigma model with target S^{N-1}. Asymptotically
-free for N ≥ 3 in 2D. Mass gap generated nonperturbatively.
-The n-dependence of the mass gap is a deep question — possible
-non-analyticity at n = 2 (BKT).
+| Doc | Content |
+|-----|---------|
+| `docs/polynomial-in-N.md` | 1/N expansion: corrected statement, proof outline, degree bounds |
+| `docs/frg-invariant-field.md` | FRG on σ-field: Wetterich equation, LPA, lattice derivation, mass gap bounds, NLSM caveats |
+| `docs/lsm-to-nlsm.md` | LSM → NLSM limit: convexity, Brascamp-Lieb, λ→∞, Balaban continuum limit, three-step program |
 
 ## Dependencies
 
-- [pphi2](https://github.com/mrdouglasny/pphi2) — the P(φ)₂
-  construction (Lean 4)
-- [gaussian-field](https://github.com/mrdouglasny/gaussian-field) —
-  GFF infrastructure
-- [graphops-qft](https://github.com/mrdouglasny/graphops-qft) —
-  graphop framework, TRG, cobordisms
+- [pphi2](https://github.com/mrdouglasny/pphi2) — P(φ)₂ construction
+- [gaussian-field](https://github.com/mrdouglasny/gaussian-field) — GFF
+- [graphops-qft](https://github.com/mrdouglasny/graphops-qft) — graphops, TRG
 
 ## Related
 
-- `~/Desktop/work/categorical-qft/` — research notes on saturated
-  theories, Deligne categories, the space of QFTs
-- `~/Documents/Github/rg/` — numerical TRG, RP/CP preservation,
-  EKR proofs
+- `~/Desktop/work/categorical-qft/` — Deligne categories, saturated
+  theories, space of QFTs (conceptual framework)
+- `~/Documents/Github/rg/` — numerical TRG, RP/CP preservation, EKR
 
 ## References
 
 - Glimm and Jaffe, *Quantum Physics*, Springer, 1987
-- Binder and Rychkov, "Deligne Categories in Lattice Models and QFT,"
-  JHEP 04 (2020) 117, arXiv:1911.07895
-- Ebel, Kennedy, Rychkov, arXiv:2506.03247 (rigorous TRG)
 - Simon, *The P(φ)₂ Euclidean QFT*, Princeton, 1974
+- Brascamp and Lieb, JFA 22 (1976) — the inequality
+- Kupiainen, CMP 73 (1980) — NLSM at N = ∞
+- Balaban, CMP 96-122 (1983-1998) — block-spin RG for NLSM
+- Moshe and Zinn-Justin, Phys. Rep. 385 (2003) — large N review
+- Wetterich, Phys. Lett. B 301 (1993) — FRG equation
+- Binder and Rychkov, JHEP 04 (2020) 117, arXiv:1911.07895 — Deligne categories
