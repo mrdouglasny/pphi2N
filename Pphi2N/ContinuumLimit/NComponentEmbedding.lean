@@ -113,11 +113,15 @@ pushforward of the lattice measure under the N-component embedding.
 where μ_{lat,N} is the O(N) interacting measure from ONTorusMeasure.lean. -/
 def nComponentTorusMeasure
     (P : ONInteraction) (c a : ℝ)
-    (μ_scalar : Measure ((Fin 2 → Fin M) → ℝ))
+    (μ_scalar : Measure (FinLatticeField 2 M))
     [IsProbabilityMeasure μ_scalar] :
     Measure (NComponentTorusConfig L Nc) :=
-  -- Pushforward of O(N) lattice interacting measure under componentwise embedding
-  sorry
+  -- onInteractingMeasure produces Measure (Fin Nc → (Fin 2 → Fin M) → ℝ)
+  -- nComponentTorusEmbedLift expects Fin Nc → FinLatticeField 2 M
+  -- These are definitionally equal (FinLatticeField = FinLatticeSites → ℝ)
+  Measure.map (show (Fin Nc → FinLatticeField 2 M) → NComponentTorusConfig L Nc from
+    nComponentTorusEmbedLift L Nc M)
+    (Pphi2N.onInteractingMeasure Nc 2 M P c a μ_scalar)
 
 /-! ## Tightness and limit (outline)
 
