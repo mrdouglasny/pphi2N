@@ -5,3 +5,4 @@ import Pphi2N.LatticeField.NComponentField
 import Pphi2N.LatticeField.ONGaussian
 import Pphi2N.WickOrdering.ONWick
 import Pphi2N.SigmaMeasure.Basic
+import Pphi2N.InteractingMeasure.ONLatticeAction
