@@ -41,7 +41,7 @@ import Pphi2N.LatticeField.ProductGFF
 
 noncomputable section
 
-open GaussianField MeasureTheory BigOperators
+open GaussianField MeasureTheory BigOperators Pphi2N
 
 namespace Pphi2N
 
@@ -138,6 +138,61 @@ def onInteractingMeasure (P : ONInteraction) (c a : ℝ)
   (ENNReal.ofReal Z)⁻¹ •
     μ_N.withDensity (fun φ => ENNReal.ofReal (onBoltzmannWeight N d M P c a φ))
 
+/-! ## Continuity and measurability of the interaction -/
+
+/-- Induction pair for continuity of Wick monomials (carries consecutive degrees). -/
+private def wickMonomial_contPair (N : ℕ) (c : ℝ) (k : ℕ) : Prop :=
+  Continuous (fun t : ℝ => wickMonomial_ON N c k t) ∧
+  Continuous (fun t : ℝ => wickMonomial_ON N c (k + 1) t)
+
+private lemma wickMonomial_contPair_inductive (N : ℕ) (c : ℝ) (k : ℕ) :
+    wickMonomial_contPair N c k := by
+  induction k with
+  | zero =>
+    exact ⟨by simp [wickMonomial_ON]; exact continuous_const,
+           by show Continuous (fun t : ℝ => t - ↑N * c); fun_prop⟩
+  | succ k ih =>
+    obtain ⟨hk, hk1⟩ := ih
+    exact ⟨hk1, by
+      show Continuous (fun t : ℝ =>
+        (t - wickShiftCoeff N (k + 1) * c) * wickMonomial_ON N c (k + 1) t -
+        wickLowerCoeff N (k + 1) * c ^ 2 * wickMonomial_ON N c k t)
+      exact ((continuous_id.sub continuous_const).mul hk1).sub
+        (continuous_const.mul hk)⟩
+
+/-- Each Wick monomial is continuous in its argument t. -/
+private lemma wickMonomial_ON_cont (N : ℕ) (c : ℝ) (k : ℕ) :
+    Continuous (fun t : ℝ => wickMonomial_ON N c k t) :=
+  (wickMonomial_contPair_inductive N c k).1
+
+/-- The Wick interaction is continuous in t. -/
+private lemma wickInteraction_ON_cont (N : ℕ) (c : ℝ) (P : ONInteraction) :
+    Continuous (fun t : ℝ => wickInteraction_ON N P c t) := by
+  unfold wickInteraction_ON
+  exact (continuous_const.mul (wickMonomial_ON_cont N c P.degree)).add
+    (continuous_finset_sum _ (fun m _ =>
+      continuous_const.mul (wickMonomial_ON_cont N c m)))
+
+/-- The Boltzmann weight is measurable.
+
+Follows because exp(-V_N) is a composition of continuous functions
+(polynomials) of the measurable projections on the finite product space. -/
+private lemma onBoltzmannWeight_measurable (P : ONInteraction) (c a : ℝ) :
+    Measurable (onBoltzmannWeight N d M P c a) := by
+  unfold onBoltzmannWeight onInteraction
+  apply Real.measurable_exp.comp
+  apply Measurable.neg
+  apply Measurable.const_mul
+  apply Finset.measurable_sum
+  intro x _
+  -- wickInteraction_ON N P c (siteNormSq N d M φ x) is measurable in φ via continuity
+  apply (wickInteraction_ON_cont N c P).measurable.comp
+  unfold siteNormSq
+  apply Finset.measurable_sum
+  intro i _
+  apply Measurable.pow_const
+  exact (measurable_pi_apply x).comp (measurable_pi_apply i)
+
 /-- The O(N) interacting measure is a probability measure.
 
 Proof: same as scalar case. exp(-V) > 0 everywhere and bounded
@@ -148,7 +203,41 @@ theorem onInteractingMeasure_isProbability
     (μ_scalar : Measure (FinLatticeField d M))
     [IsProbabilityMeasure μ_scalar] :
     IsProbabilityMeasure (onInteractingMeasure N d M P c a μ_scalar) := by
-  sorry -- from onNelsonEstimate + Z > 0 + normalization
+  constructor
+  show (onInteractingMeasure N d M P c a μ_scalar) Set.univ = 1
+  simp only [onInteractingMeasure, Measure.smul_apply, smul_eq_mul]
+  -- Abbreviations for readability
+  let μ_N := nComponentMeasure N μ_scalar
+  let bw := onBoltzmannWeight N d M P c a
+  let Z := onPartitionFunction N d M P c a μ_scalar
+  -- Nelson bound gives: bw ≤ exp(B) everywhere
+  obtain ⟨B, hB⟩ := onNelsonEstimate N d M P c a ha hc
+  -- Boltzmann weight is strictly positive everywhere
+  have hbw_pos : ∀ φ, 0 < bw φ := onBoltzmannWeight_pos N d M P c a
+  -- Boltzmann weight is integrable (bounded above by exp(B))
+  have hbw_int : Integrable bw μ_N := by
+    apply (memLp_of_bounded (a := 0) (b := Real.exp B)
+      (ae_of_all _ (fun φ => ?_))
+      (onBoltzmannWeight_measurable N d M P c a).aestronglyMeasurable (p := 1)).integrable le_rfl
+    exact ⟨le_of_lt (hbw_pos φ), Real.exp_le_exp_of_le (by linarith [hB φ])⟩
+  -- Partition function Z > 0 (since bw > 0 and μ_N is a probability measure)
+  have hZ_pos : 0 < Z := by
+    unfold Z onPartitionFunction
+    rw [integral_pos_iff_support_of_nonneg (fun φ => le_of_lt (hbw_pos φ)) hbw_int]
+    have hsupport : Function.support bw = Set.univ := by
+      ext φ; simp [Function.mem_support, (hbw_pos φ).ne']
+    rw [hsupport, measure_univ]; norm_num
+  -- The withDensity measure has total mass = ENNReal.ofReal Z
+  have hmass : μ_N.withDensity (fun φ => ENNReal.ofReal (bw φ)) Set.univ =
+      ENNReal.ofReal Z := by
+    rw [MeasureTheory.withDensity_apply _ MeasurableSet.univ,
+        MeasureTheory.setLIntegral_univ]
+    exact (MeasureTheory.ofReal_integral_eq_lintegral_ofReal hbw_int
+      (ae_of_all _ fun φ => le_of_lt (hbw_pos φ))).symm
+  -- (1/Z) * Z = 1
+  rw [hmass]
+  exact ENNReal.inv_mul_cancel
+    (ENNReal.ofReal_ne_zero_iff.mpr hZ_pos) ENNReal.ofReal_ne_top
 
 /-! ## N-dependence -/
 

@@ -54,7 +54,7 @@ import Pphi2N.Model.Interaction
 
 noncomputable section
 
-open BigOperators
+open BigOperators Polynomial
 
 namespace Pphi2N
 
@@ -111,6 +111,64 @@ theorem wickMonomial_ON_two (N : ℕ) (c t : ℝ) :
   simp only [wickMonomial_ON, wickShiftCoeff, wickLowerCoeff]
   ring
 
+/-! ## Helper lemmas for natDegree bounds -/
+
+/-- A polynomial C(a) - C(b)*X has natDegree ≤ 1. -/
+private lemma natDegree_C_sub_C_mul_X_le (a b : ℝ) :
+    (Polynomial.C a - Polynomial.C b * Polynomial.X).natDegree ≤ 1 := by
+  apply le_trans (natDegree_sub_le _ _)
+  exact Nat.max_le.mpr ⟨(natDegree_C a).symm ▸ Nat.zero_le 1,
+    natDegree_mul_le.trans (by simp only [natDegree_C, zero_add]; exact natDegree_X_le)⟩
+
+/-- A polynomial C(a) + C(b)*X has natDegree ≤ 1. -/
+private lemma natDegree_C_add_C_mul_X_le (a b : ℝ) :
+    (Polynomial.C a + Polynomial.C b * Polynomial.X).natDegree ≤ 1 := by
+  apply le_trans (natDegree_add_le _ _)
+  exact Nat.max_le.mpr ⟨(natDegree_C a).symm ▸ Nat.zero_le 1,
+    natDegree_mul_le.trans (by simp only [natDegree_C, zero_add]; exact natDegree_X_le)⟩
+
+/-- Induction invariant: both the k-th and (k+1)-th Wick monomials
+are polynomials in N of degrees ≤ k and ≤ k+1 respectively. -/
+private def wickMonomial_goodPair (k : ℕ) (c t : ℝ) : Prop :=
+  (∃ (P : Polynomial ℝ), P.natDegree ≤ k ∧
+      ∀ N : ℕ, wickMonomial_ON N c k t = P.eval (N : ℝ)) ∧
+  (∃ (P : Polynomial ℝ), P.natDegree ≤ k + 1 ∧
+      ∀ N : ℕ, wickMonomial_ON N c (k + 1) t = P.eval (N : ℝ))
+
+private lemma wickMonomial_goodPair_inductive (k : ℕ) (c t : ℝ) :
+    wickMonomial_goodPair k c t := by
+  induction k with
+  | zero =>
+    -- k=0: P₀ = C 1 (degree 0), P₁ = C t - C c * X (degree ≤ 1)
+    exact ⟨⟨1, by simp [natDegree_one], fun N => by simp [wickMonomial_ON]⟩,
+           ⟨Polynomial.C t - Polynomial.C c * Polynomial.X,
+            natDegree_C_sub_C_mul_X_le t c,
+            fun N => by simp [wickMonomial_ON]; ring⟩⟩
+  | succ k ih =>
+    obtain ⟨⟨Pk, hPk_deg, hPk_eval⟩, ⟨Pk1, hPk1_deg, hPk1_eval⟩⟩ := ih
+    refine ⟨⟨Pk1, hPk1_deg, hPk1_eval⟩, ?_⟩
+    -- P_{k+2} = A * Pk1 - B * Pk where:
+    -- A(N) = (t - 4*(k+1)*c) - c*N  [from wickShiftCoeff N (k+1) = N + 4*(k+1)]
+    -- B(N) = 2*(k+1)*2k*c² + 2*(k+1)*c²*N  [from wickLowerCoeff N (k+1) = 2*(k+1)*(N+2k)]
+    let A : Polynomial ℝ :=
+      Polynomial.C (t - 4 * ((k : ℝ) + 1) * c) - Polynomial.C c * Polynomial.X
+    let B : Polynomial ℝ :=
+      Polynomial.C (2 * ((k : ℝ) + 1) * (2 * k) * c ^ 2) +
+      Polynomial.C (2 * ((k : ℝ) + 1) * c ^ 2) * Polynomial.X
+    refine ⟨A * Pk1 - B * Pk, ?_, ?_⟩
+    · -- natDegree ≤ k + 2
+      have hA : A.natDegree ≤ 1 := natDegree_C_sub_C_mul_X_le _ _
+      have hB : B.natDegree ≤ 1 := natDegree_C_add_C_mul_X_le _ _
+      apply le_trans (natDegree_sub_le _ _)
+      exact Nat.max_le.mpr
+        ⟨natDegree_mul_le.trans (by omega), natDegree_mul_le.trans (by omega)⟩
+    · -- eval at N equals wickMonomial_ON N c (k+2) t
+      intro N
+      simp only [A, B, eval_sub, eval_add, eval_mul, eval_C, eval_X]
+      rw [← hPk_eval N, ← hPk1_eval N]
+      simp only [wickMonomial_ON, wickShiftCoeff, wickLowerCoeff]
+      push_cast; ring
+
 /-- The Wick monomial at degree k is a polynomial in N of degree ≤ k.
 
 This is the key structural fact: each coefficient of :(|φ|²)^k:_c
@@ -119,8 +177,8 @@ of degree ≤ k. The proof is by induction: the recursion multiplies
 by coefficients linear in N, so degree increases by at most 1. -/
 theorem wickMonomial_ON_polynomial_in_N (k : ℕ) (c t : ℝ) :
     ∃ (P : Polynomial ℝ), P.natDegree ≤ k ∧
-      ∀ (N : ℕ), wickMonomial_ON N c k t = P.eval (N : ℝ) := by
-  sorry -- induction on k using the three-term recursion
+      ∀ (N : ℕ), wickMonomial_ON N c k t = P.eval (N : ℝ) :=
+  (wickMonomial_goodPair_inductive k c t).1
 
 /-- For N=1: the Wick monomial reduces to the standard scalar Wick monomial.
 
@@ -148,7 +206,30 @@ Hence the interaction is polynomial in N. -/
 theorem wickInteraction_ON_polynomial_in_N (P : ONInteraction) (c t : ℝ) :
     ∃ (Q : Polynomial ℝ), Q.natDegree ≤ P.degree ∧
       ∀ (N : ℕ), wickInteraction_ON N P c t = Q.eval (N : ℝ) := by
-  sorry -- from wickMonomial_ON_polynomial_in_N + linearity
+  -- For each monomial degree m, get a polynomial Pm of degree ≤ m
+  choose Pm hPm_deg hPm_eval using fun m : ℕ => wickMonomial_ON_polynomial_in_N m c t
+  -- Build the leading-term polynomial and the sum polynomial
+  let Qtop : Polynomial ℝ := Polynomial.C (1 / (P.degree : ℝ)) * Pm P.degree
+  let Stotal : Polynomial ℝ := ∑ m : Fin P.degree, Polynomial.C (P.coeff m) * Pm m
+  refine ⟨Qtop + Stotal, ?_, ?_⟩
+  · -- natDegree ≤ P.degree
+    apply le_trans (natDegree_add_le _ _)
+    apply Nat.max_le.mpr
+    constructor
+    · exact natDegree_mul_le.trans (by simp [natDegree_C, hPm_deg P.degree])
+    · apply le_trans (natDegree_sum_le _ _)
+      apply Finset.sup_le
+      intro m _
+      exact natDegree_mul_le.trans (by simp [natDegree_C, (hPm_deg m).trans m.isLt.le])
+  · -- eval at N equals wickInteraction_ON N P c t
+    intro N
+    simp only [Qtop, Stotal, eval_add, eval_finset_sum, eval_mul, eval_C]
+    rw [← hPm_eval P.degree N]
+    simp only [wickInteraction_ON]
+    congr 1
+    apply Finset.sum_congr rfl
+    intro m _
+    rw [← hPm_eval m N]
 
 end Pphi2N
 
