@@ -49,6 +49,7 @@ import Pphi2N.LatticeField.NComponentField
 import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.Probability.Independence.Basic
+import Mathlib.Probability.Independence.Integration
 
 noncomputable section
 
@@ -115,8 +116,10 @@ theorem nComponent_marginal (N : ℕ) (μ : Measure E)
     (i : Fin N) (f : E → ℝ) (hf : Integrable f μ) :
     ∫ φ : Fin N → E, f (φ i) ∂(nComponentMeasure N μ) =
     ∫ x, f x ∂μ := by
-  -- The i-th projection from Measure.pi preserves the measure
-  sorry -- measurePreserving_eval + integral_comp
+  -- Key facts: measurePreserving_eval says map (eval i) (pi μ) = μ
+  -- integral_map says ∫ f ∘ g dμ = ∫ f d(map g μ)
+  -- Combined: ∫ f(φ i) d(pi μ) = ∫ f d(map (eval i) (pi μ)) = ∫ f dμ
+  sorry
 
 end Pphi2N
 
