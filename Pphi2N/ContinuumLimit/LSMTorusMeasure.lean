@@ -24,6 +24,7 @@ This connects:
 import Pphi2N.ContinuumLimit.NComponentEmbedding
 import Pphi2N.Model.LSM
 import Lattice.Covariance
+import GaussianField.Density
 
 noncomputable section
 
@@ -33,28 +34,43 @@ namespace Pphi2N
 
 variable (L_phys : ℝ) [hL : Fact (0 < L_phys)]
 
-/-- The LSM interacting measure on the torus lattice (ℤ/Mℤ)².
+/-! ## LSM torus measure construction
 
-For each lattice size M, this is the O(N) interacting measure with
-the LSM potential P(t) = λ(t - v²)² (vacuum subtracted), pushed
-forward to the continuum N-component configuration space.
+For each lattice size M, the O(N) interacting measure with the LSM
+potential P(t) = λ(t - v²)² (vacuum subtracted), pushed forward to
+the continuum N-component configuration space.
 
-The construction chain:
-1. Scalar lattice GFF: latticeGaussianMeasure 2 M (L_phys/M) mass
-2. N independent copies: nComponentMeasure N μ_scalar
-3. O(N) interaction: :P(|φ|²):_c with c = G(x,x)
-4. Boltzmann weight: (1/Z) exp(-V) dμ^{⊗N}
-5. Torus embedding: componentwise torusEmbedCLM
-6. Continuum measure: pushforward to NTP(TorusTestFunction, ℝ^N) -/
+Construction chain:
+1. Scalar lattice GFF → evalMap → raw field measure on FinLatticeField
+2. N independent copies via Measure.pi
+3. O(N) Wick-ordered interaction :P(|φ|²):_c
+4. Boltzmann weight (1/Z) exp(-V) dμ^{⊗N}
+5. Componentwise torus embedding via evalCLM
+6. Continuum measure on NTP(TorusTestFunction, ℝ^N) -/
+
+/-- The scalar lattice GFF pushed to raw field space via evalMap.
+latticeGaussianMeasure gives Measure(Configuration(FinLatticeField 2 M)).
+We push forward via evalMapMeasurableEquiv to get Measure(FinLatticeField 2 M). -/
+def scalarLatticeGFF (mass spacing : ℝ) (hspacing : 0 < spacing) (hmass : 0 < mass)
+    (M : ℕ) [NeZero M] : Measure (FinLatticeField 2 M) :=
+  (latticeGaussianMeasure 2 M spacing mass hspacing hmass).map
+    (evalMapMeasurableEquiv 2 M)
+
+instance scalarLatticeGFF_isProbability (mass spacing : ℝ)
+    (hspacing : 0 < spacing) (hmass : 0 < mass) (M : ℕ) [NeZero M] :
+    IsProbabilityMeasure (scalarLatticeGFF mass spacing hspacing hmass M) := by
+  unfold scalarLatticeGFF
+  exact Measure.isProbabilityMeasure_map (evalMapMeasurableEquiv 2 M).measurable.aemeasurable
+
 def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
     Measure (NComponentTorusConfig L_phys params.N) :=
-  -- The construction: lattice GFF^{⊗N} with LSM interaction, pushed to continuum.
-  -- Type note: latticeGaussianMeasure gives Measure (Configuration (FinLatticeField 2 M))
-  -- while nComponentTorusMeasure expects Measure (FinLatticeField 2 M).
-  -- For finite lattices, Configuration E ≅ E (self-dual), but the types differ.
-  -- The bridge is via the evaluation map: ω ↦ (fun x => ω (δ_x)).
-  -- TODO: add evalMap bridge from gaussian-field (already exists in pphi2).
-  sorry
+  haveI : NeZero params.N := ⟨Nat.one_le_iff_ne_zero.mp params.hN⟩
+  let spacing := L_phys / M
+  let hspacing := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
+  let P := params.toONModel.interaction
+  let c : ℝ := 0  -- placeholder: Wick constant G(x,x)
+  nComponentTorusMeasure L_phys params.N M P c spacing
+    (scalarLatticeGFF params.mass spacing hspacing params.hmass M)
 
 /-- The LSM torus measure is a probability measure. -/
 instance lsmTorusMeasure_isProbability (params : LSMParams) (M : ℕ) [NeZero M] :
