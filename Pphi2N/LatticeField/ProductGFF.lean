@@ -48,6 +48,7 @@ base measure and the O(N) interaction as density.
 import Pphi2N.LatticeField.NComponentField
 import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Probability.Independence.Basic
 
 noncomputable section
 
@@ -103,7 +104,8 @@ theorem nComponent_independent (N : ℕ) (μ : Measure E)
     (f g : E → ℝ) (hf : Integrable f μ) (hg : Integrable g μ) :
     ∫ φ : Fin N → E, f (φ i) * g (φ j) ∂(nComponentMeasure N μ) =
     (∫ x, f x ∂μ) * (∫ x, g x ∂μ) := by
-  sorry -- from Measure.pi independence (Fubini on product measure)
+  sorry -- Independence of coordinate projections under Measure.pi
+        -- via iIndepFun_pi + IndepFun.integral_mul_of_integrable
 
 /-- Same-component expectation: for component i, the marginal is μ.
 
@@ -113,7 +115,8 @@ theorem nComponent_marginal (N : ℕ) (μ : Measure E)
     (i : Fin N) (f : E → ℝ) (hf : Integrable f μ) :
     ∫ φ : Fin N → E, f (φ i) ∂(nComponentMeasure N μ) =
     ∫ x, f x ∂μ := by
-  sorry -- marginal of product measure = original measure
+  -- The i-th projection from Measure.pi preserves the measure
+  sorry -- measurePreserving_eval + integral_comp
 
 end Pphi2N
 
