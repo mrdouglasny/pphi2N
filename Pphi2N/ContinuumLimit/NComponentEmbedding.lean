@@ -52,29 +52,56 @@ def scalarTorusEmbed (φ_scalar : FinLatticeField 2 M) :
     Configuration (TorusTestFunction L) :=
   torusEmbedCLM L M φ_scalar
 
-/-- The N-component torus embedding: applies scalar embedding to
-each component independently.
+/-! ## Site-component evaluation -/
 
-Input: φ : Fin Nc → FinLatticeField 2 M (N scalar lattice fields)
-Output: ω : NComponentTorusConfig L Nc (N-component continuum config)
+/-- Evaluation of a FinLatticeField 1 Nc at component i.
+FinLatticeField 1 Nc = (FinLatticeSites 1 Nc) → ℝ = (Fin 1 → Fin Nc) → ℝ.
+We evaluate at the lattice site corresponding to component i. -/
+def componentEvalCLM (i : Fin Nc) : FinLatticeField 1 Nc →L[ℝ] ℝ where
+  toFun v := v (fun _ => i)
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
 
-The output ω acts on test functions f ∈ NTP(TorusTestFunction L, ℝ^Nc) by:
-  ω(f) = Σₐ Σᵢ (vₐ)ᵢ · (torusEmbedLift φⁱ)(gₐ)
-where f = Σₐ pure(gₐ, vₐ). -/
+/-- Evaluation of an N-component torus test function at site x, component i.
+
+For f ∈ NTP(TorusTestFunction L, ℝ^Nc):
+  evalNComponentAtSite x i f = evalCLM (evalTorusAtSite x) (componentEval i) f
+
+On pure tensors: evalNComponentAtSite x i (pure g v) = (eval_x g) · v(i) -/
+def evalNComponentAtSite (x : FinLatticeSites 2 M) (i : Fin Nc) :
+    NComponentTorusTestFunction L Nc →L[ℝ] ℝ :=
+  NuclearTensorProduct.evalCLM
+    (evalTorusAtSite L M x)
+    (componentEvalCLM Nc i)
+
+/-- The N-component torus embedding: maps N scalar lattice fields
+into the N-component continuum configuration space.
+
+  ω(f) = Σ_{x ∈ Λ} Σ_{i=1}^{Nc} φⁱ(x) · evalNComponentAtSite(x, i, f)
+
+This is the tensor product analogue of `torusEmbedCLM`. -/
 def nComponentTorusEmbedLift
     (φ : Fin Nc → FinLatticeField 2 M) :
     NComponentTorusConfig L Nc where
-  toFun f := sorry
-    -- Σᵢ (scalarTorusEmbed L M (φ i)) (component_i_projection f)
-    -- Needs: projection from NTP(E₁, E₂) to E₁ via pairing with E₂ basis
-  map_add' := sorry
-  map_smul' := sorry
-  cont := sorry
+  toFun f := ∑ x : FinLatticeSites 2 M, ∑ i : Fin Nc,
+    φ i x * evalNComponentAtSite L Nc M x i f
+  map_add' f g := by
+    simp only [map_add, mul_add, Finset.sum_add_distrib]
+  map_smul' r f := by
+    simp only [map_smul, smul_eq_mul, mul_left_comm, Finset.mul_sum, RingHom.id_apply]
+  cont := by
+    apply continuous_finset_sum; intro x _
+    apply continuous_finset_sum; intro i _
+    exact continuous_const.mul (evalNComponentAtSite L Nc M x i).cont
 
 /-- The embedding is measurable. -/
 theorem nComponentTorusEmbedLift_measurable :
-    Measurable (nComponentTorusEmbedLift L Nc M) := by
-  sorry
+    Measurable (nComponentTorusEmbedLift L Nc M) :=
+  configuration_measurable_of_eval_measurable _ fun f =>
+    Finset.measurable_sum _ fun x _ =>
+      Finset.measurable_sum _ fun i _ =>
+        -- φ ↦ φ i x * (constant depending on f)
+        (measurable_pi_apply x |>.comp (measurable_pi_apply i)).mul measurable_const
 
 /-! ## Pushed-forward measures -/
 
