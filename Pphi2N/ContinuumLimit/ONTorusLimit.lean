@@ -30,6 +30,8 @@ via tightness + Prokhorov.
 -/
 
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
+import GaussianField.Tightness
+import GaussianField.ConfigurationEmbedding
 
 noncomputable section
 
@@ -81,7 +83,24 @@ theorem lsmTorus_tight (params : LSMParams) :
       ∃ K : Set (NComponentTorusConfig L_phys params.N),
         IsCompact K ∧ ∀ (M : ℕ) [NeZero M],
           1 - ε ≤ ((lsmTorusMeasure L_phys params M) K).toReal := by
-  sorry -- from lsmTorus_uniform_second_moment + configuration_tight_of_uniform_second_moments
+  intro ε hε
+  obtain ⟨C, q, hC, hq_cont, h_bound⟩ := lsmTorus_uniform_second_moment L_phys params
+  -- Apply Mitoma-Chebyshev with ι = {M : ℕ // 0 < M}
+  obtain ⟨K, hK_compact, hK_bound⟩ := configuration_tight_of_uniform_second_moments
+    (ι := {M : ℕ // 0 < M})
+    (fun ⟨M, hM⟩ => haveI : NeZero M := ⟨by omega⟩;
+      lsmTorusMeasure L_phys params M)
+    (fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact inferInstance)
+    (fun f ⟨M, hM⟩ => by
+      haveI : NeZero M := ⟨by omega⟩
+      -- (ω f)² is integrable: it's nonneg, measurable, and has finite integral
+      -- (bounded by C * q f² from the uniform second moment axiom)
+      sorry)
+    (fun f => ⟨C * q f ^ 2,
+      fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact h_bound M f⟩)
+    ε hε
+  exact ⟨K, hK_compact, fun M inst =>
+    hK_bound ⟨M, Nat.pos_of_ne_zero (NeZero.ne M)⟩⟩
 
 /-- **The O(N) torus continuum limit exists.**
 
@@ -91,8 +110,74 @@ converge weakly to μ. -/
 theorem lsmTorusLimit_exists (params : LSMParams) :
     ∃ (μ : Measure (NComponentTorusConfig L_phys params.N)),
       IsProbabilityMeasure μ := by
-  sorry -- from lsmTorus_tight + prokhorov_configuration
-  -- Full version: subsequence + BC convergence (same as pphi2)
+  -- Define the ℕ-indexed sequence: n ↦ lsmTorusMeasure (n+1)
+  -- (n+1 ensures NeZero)
+  set μseq : ℕ → Measure (NComponentTorusConfig L_phys params.N) :=
+    fun n => haveI : NeZero (n + 1) := ⟨by omega⟩;
+      lsmTorusMeasure L_phys params (n + 1) with hμseq_def
+  have hμseq_prob : ∀ n, IsProbabilityMeasure (μseq n) := by
+    intro n; simp only [μseq]; haveI : NeZero (n + 1) := ⟨by omega⟩
+    exact inferInstance
+  -- Tightness of the sequence (from lsmTorus_tight, reindexed)
+  have hμseq_tight : ∀ ε : ℝ, 0 < ε →
+      ∃ K : Set (NComponentTorusConfig L_phys params.N),
+        IsCompact K ∧ ∀ n, 1 - ε ≤ ((μseq n) K).toReal := by
+    intro ε hε
+    obtain ⟨K, hK, hK_bound⟩ := lsmTorus_tight L_phys params ε hε
+    exact ⟨K, hK, fun n => by
+      simp only [μseq]; haveI : NeZero (n + 1) := ⟨by omega⟩
+      exact hK_bound (n + 1)⟩
+  -- Apply Prokhorov: extract subsequence + limit
+  obtain ⟨φ, ν, _, hν_prob, _⟩ :=
+    prokhorov_configuration μseq hμseq_prob hμseq_tight
+  exact ⟨ν, hν_prob⟩
+
+/-! ## Analyticity under the integral sign
+
+This is a standard several-complex-variables result: if z ↦ F(z, ω)
+is entire for each ω, F(z, ·) is ae measurable, and F is dominated
+on compact sets by an integrable bound, then z ↦ ∫ F(z, ω) dμ is entire.
+
+Proved in pphi2's GeneralResults/ComplexAnalysis.lean via dominated
+convergence + Hartogs (coordinate-wise Goursat). Not yet in Mathlib. -/
+private axiom analyticOnNhd_integral' {n : ℕ} {α : Type*} [MeasurableSpace α]
+    {μ : Measure α} {F : (Fin n → ℂ) → α → ℂ}
+    (hF_an : ∀ ω, AnalyticOnNhd ℂ (F · ω) Set.univ)
+    (hF_meas : ∀ z, AEStronglyMeasurable (F z) μ)
+    (hF_dom : ∀ K : Set (Fin n → ℂ), IsCompact K →
+      ∃ bound : α → ℝ, Integrable bound μ ∧
+        ∀ z ∈ K, ∀ᵐ ω ∂μ, ‖F z ω‖ ≤ bound ω) :
+    AnalyticOnNhd ℂ (fun z => ∫ ω, F z ω ∂μ) Set.univ
+
+/-! ## OS0 helper lemmas -/
+
+/-- On a compact set K ⊆ (Fin n → ℂ), imaginary parts are uniformly bounded. -/
+private lemma compact_im_bound {n : ℕ} {K : Set (Fin n → ℂ)} (hK : IsCompact K) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ z ∈ K, ∀ i : Fin n, |Complex.im (z i)| ≤ C := by
+  by_cases hKe : K.Nonempty
+  · obtain ⟨M, hM⟩ := hK.isBounded.exists_norm_le
+    exact ⟨M, le_trans (norm_nonneg _) (hM _ hKe.some_mem), fun z hz i =>
+      (Complex.abs_im_le_norm (z i)).trans ((norm_le_pi_norm z i).trans (hM z hz))⟩
+  · exact ⟨0, le_refl _, fun z hz => absurd ⟨z, hz⟩ hKe⟩
+
+/-- For aᵢ ≥ 0: exp(c · Σ aᵢ) ≤ Σ exp(n·c·aᵢ). -/
+private lemma exp_mul_sum_le' {n : ℕ} (hn : 0 < n) (c : ℝ) (hc : 0 ≤ c)
+    (a : Fin n → ℝ) :
+    Real.exp (c * ∑ i : Fin n, a i) ≤
+    ∑ i : Fin n, Real.exp (↑n * c * a i) := by
+  have hne : (Finset.univ : Finset (Fin n)).Nonempty :=
+    ⟨⟨0, hn⟩, Finset.mem_univ _⟩
+  set M := Finset.univ.sup' hne a
+  have hM : ∀ i, a i ≤ M := fun i => Finset.le_sup' a (Finset.mem_univ i)
+  have h_sum_le : ∑ i : Fin n, a i ≤ ↑n * M :=
+    (Finset.sum_le_sum (fun i _ => hM i)).trans
+      (by simp [Finset.sum_const, nsmul_eq_mul])
+  have h1 : Real.exp (c * ∑ i, a i) ≤ Real.exp (↑n * c * M) :=
+    Real.exp_le_exp_of_le (by nlinarith)
+  obtain ⟨j, _, hj⟩ := Finset.exists_mem_eq_sup' hne a
+  exact h1.trans ((congr_arg Real.exp (by rw [← hj])).le.trans
+    (Finset.single_le_sum (f := fun i => Real.exp (↑n * c * a i))
+      (fun i _ => (Real.exp_pos _).le) (Finset.mem_univ j)))
 
 /-! ## OS Axioms for the continuum limit -/
 
@@ -101,7 +186,7 @@ theorem lsmTorusLimit_exists (params : LSMParams) :
 The generating functional Z[z₁J₁ + ... + zₙJₙ] is entire analytic
 in z ∈ ℂⁿ for any test functions J₁,...,Jₙ.
 
-Proof: `analyticOnNhd_integral` with exponential moment domination,
+Proof: `analyticOnNhd_integral'` with exponential moment domination,
 identical to pphi2's `cylinderIR_os0` / `asymTorusInteracting_os0`.
 The exponential moments of the limit measure follow from the uniform
 bounds via BC convergence + truncation/MCT (same as pphi2). -/
@@ -115,7 +200,65 @@ theorem lsmTorusLimit_os0 (params : LSMParams)
     (n : ℕ) (J : Fin n → NComponentTorusTestFunction L_phys params.N) :
     AnalyticOnNhd ℂ (fun z : Fin n → ℂ =>
       ∫ ω, Complex.exp (∑ i, Complex.I * z i * ↑(ω (J i))) ∂μ) Set.univ := by
-  sorry -- analyticOnNhd_integral + exponential moment domination (same as pphi2 CylinderOS)
+  apply analyticOnNhd_integral'
+  · -- Pointwise analyticity: z ↦ exp(Σ i·zⱼ·ω(Jⱼ)) is entire for each ω
+    intro ω z _
+    apply AnalyticAt.cexp'
+    apply Finset.analyticAt_fun_sum
+    intro i _
+    exact (analyticAt_const.mul
+      ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin n => ℂ) i).analyticAt z)).mul
+      analyticAt_const
+  · -- Measurability: F(z, ·) is ae strongly measurable for each z
+    intro z
+    apply (Complex.measurable_exp.comp _).aestronglyMeasurable
+    exact Finset.measurable_sum Finset.univ (fun i _ =>
+      measurable_const.mul
+        (Complex.measurable_ofReal.comp (configuration_eval_measurable (J i))))
+  · -- Domination: on compact K, ‖F(z, ω)‖ ≤ bound(ω), bound integrable
+    intro K hK
+    obtain ⟨C_K, hC_K_nn, hC_K⟩ := compact_im_bound hK
+    by_cases hn : n = 0
+    · -- n = 0: integrand is exp(0) = 1, bounded by 1
+      subst hn
+      exact ⟨fun _ => 1, integrable_const 1, fun z _ => ae_of_all μ fun ω => by
+        simp only [Finset.univ_eq_empty, Finset.sum_empty, Complex.exp_zero, norm_one]; rfl⟩
+    · -- n > 0: bound by Σᵢ exp(n · C_K · |ω(Jᵢ)|)
+      set bound := fun ω : NComponentTorusConfig L_phys params.N =>
+        ∑ i : Fin n, Real.exp (↑n * C_K * |ω (J i)|) with hbound_def
+      refine ⟨bound, ?_, fun z hz => ae_of_all μ fun ω => ?_⟩
+      · -- Integrability of bound: each term exp(n·C_K·|ω(Jᵢ)|) is integrable
+        apply integrable_finset_sum; intro i _
+        have hscale : ∀ ω : NComponentTorusConfig L_phys params.N,
+            Real.exp (↑n * C_K * |ω (J i)|) =
+            Real.exp (|ω ((↑n * C_K) • J i)|) := by
+          intro ω
+          rw [map_smul, smul_eq_mul, abs_mul,
+              abs_of_nonneg (mul_nonneg (Nat.cast_nonneg' n) hC_K_nn)]
+        simp_rw [hscale]
+        exact h_exp ((↑n * C_K) • J i)
+      · -- Pointwise bound: ‖F(z, ω)‖ ≤ bound(ω) for z ∈ K
+        rw [Complex.norm_exp]
+        have h_re : (∑ i : Fin n, Complex.I * z i * ↑(ω (J i))).re =
+            -(∑ i : Fin n, (z i).im * ω (J i)) := by
+          simp only [Complex.re_sum, Complex.mul_re, Complex.I_re, Complex.I_im,
+            Complex.ofReal_re, Complex.ofReal_im, zero_mul, mul_zero, one_mul,
+            zero_sub, neg_mul, sub_zero, Finset.sum_neg_distrib]
+        rw [h_re]
+        calc Real.exp (-(∑ i : Fin n, (z i).im * ω (J i)))
+            ≤ Real.exp (|∑ i : Fin n, (z i).im * ω (J i)|) :=
+              Real.exp_le_exp_of_le (neg_le_abs _)
+          _ ≤ Real.exp (C_K * ∑ i : Fin n, |ω (J i)|) := by
+              apply Real.exp_le_exp_of_le
+              calc |∑ i, (z i).im * ω (J i)|
+                  ≤ ∑ i, |(z i).im * ω (J i)| := Finset.abs_sum_le_sum_abs _ _
+                _ = ∑ i, |(z i).im| * |ω (J i)| := by
+                    congr 1; ext i; rw [abs_mul]
+                _ ≤ ∑ i, C_K * |ω (J i)| :=
+                    Finset.sum_le_sum (fun i _ =>
+                      mul_le_mul_of_nonneg_right (hC_K z hz i) (abs_nonneg _))
+                _ = C_K * ∑ i, |ω (J i)| := (Finset.mul_sum _ _ _).symm
+          _ ≤ bound ω := exp_mul_sum_le' (Nat.pos_of_ne_zero hn) C_K hC_K_nn _
 
 /-- **OS1: Regularity of the generating functional.**
 
@@ -128,14 +271,67 @@ theorem lsmTorusLimit_os1 (params : LSMParams)
     [IsProbabilityMeasure μ]
     (h_exp : ∀ f : NComponentTorusTestFunction L_phys params.N,
       Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
-        Real.exp (|ω f|)) μ) :
-    ∃ (q : NComponentTorusTestFunction L_phys params.N → ℝ) (_ : Continuous q)
+        Real.exp (|ω f|)) μ)
+    -- Exponential moment bound: ∫ exp(|ωf|) dμ ≤ K * exp(q(f)²)
+    -- for a continuous q and universal K > 0. From Nelson's estimate +
+    -- Cauchy-Schwarz density transfer (same as pphi2).
+    (h_exp_bound : ∃ (K : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
+      0 < K ∧ Continuous q ∧
+      ∀ f, ∫ ω : NComponentTorusConfig L_phys params.N,
+        Real.exp (|ω f|) ∂μ ≤ K * Real.exp (q f ^ 2)) :
+    ∃ (q' : NComponentTorusTestFunction L_phys params.N → ℝ) (_ : Continuous q')
       (c : ℝ) (_ : 0 < c),
     ∀ (f_re f_im : NComponentTorusTestFunction L_phys params.N),
       ‖∫ ω : NComponentTorusConfig L_phys params.N,
         Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im))) ∂μ‖ ≤
-      Real.exp (c * (q f_re + q f_im)) := by
-  sorry -- from exponential moment bound, same as pphi2 torusInteracting_os1
+      Real.exp (c * (q' f_re + q' f_im)) := by
+  obtain ⟨K, q, hK, hq_cont, hq_bound⟩ := h_exp_bound
+  -- Use q'(f) = q(f)² + |log K| to absorb the constant K
+  refine ⟨fun f => q f ^ 2 + |Real.log K|,
+          (hq_cont.pow 2).add continuous_const,
+          1, one_pos, ?_⟩
+  intro f_re f_im
+  -- Step 1: Triangle inequality
+  have h_tri : ‖∫ ω : NComponentTorusConfig L_phys params.N,
+      Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im))) ∂μ‖ ≤
+    ∫ ω, ‖Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im)))‖ ∂μ :=
+    norm_integral_le_integral_norm _
+  -- Step 2: ‖exp(I*(ωf_re + I*ωf_im))‖ = exp(-ωf_im)
+  have h_norm : ∀ ω : NComponentTorusConfig L_phys params.N,
+      ‖Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im)))‖ =
+      Real.exp (-(ω f_im)) := by
+    intro ω
+    rw [Complex.norm_exp]; congr 1
+    have : Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im)) =
+        -↑(ω f_im) + ↑(ω f_re) * Complex.I := by
+      rw [mul_add, ← mul_assoc, Complex.I_mul_I, neg_one_mul]; ring
+    rw [this, Complex.add_re, Complex.neg_re, Complex.ofReal_re,
+        Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
+        Complex.I_re, Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero]
+  -- Step 3: Chain the bounds
+  have hle_K : K ≤ Real.exp (|Real.log K|) := by
+    by_cases h1 : 1 ≤ K
+    · rw [abs_of_nonneg (Real.log_nonneg h1), Real.exp_log hK]
+    · push Not at h1
+      exact le_trans h1.le (Real.one_le_exp (abs_nonneg _))
+  calc ‖∫ ω : NComponentTorusConfig L_phys params.N,
+          Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im))) ∂μ‖
+      ≤ ∫ ω, ‖Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im)))‖ ∂μ :=
+        h_tri
+    _ = ∫ ω, Real.exp (-(ω f_im)) ∂μ := by congr 1; ext ω; exact h_norm ω
+    _ ≤ ∫ ω, Real.exp (|ω f_im|) ∂μ := by
+        apply integral_mono_of_nonneg
+        · exact ae_of_all _ (fun _ => (Real.exp_pos _).le)
+        · exact h_exp f_im
+        · exact ae_of_all _ (fun ω => Real.exp_le_exp_of_le (neg_le_abs (ω f_im)))
+    _ ≤ K * Real.exp (q f_im ^ 2) := hq_bound f_im
+    _ ≤ Real.exp (|Real.log K|) * Real.exp (q f_im ^ 2) :=
+        mul_le_mul_of_nonneg_right hle_K (Real.exp_pos _).le
+    _ = Real.exp (q f_im ^ 2 + |Real.log K|) := by
+        rw [← Real.exp_add]; ring_nf
+    _ ≤ Real.exp (1 * ((q f_re ^ 2 + |Real.log K|) + (q f_im ^ 2 + |Real.log K|))) := by
+        rw [one_mul]; apply Real.exp_le_exp_of_le
+        linarith [sq_nonneg (q f_re), abs_nonneg (Real.log K)]
 
 /-- **OS2: Translation invariance of the generating functional.**
 
@@ -184,9 +380,16 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
   have h_exp : ∀ f, Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
       Real.exp (|ω f|)) μ := by
     sorry -- from uniform exponential moment + BC convergence + truncation/MCT
+  -- Exponential moment bound: from Nelson estimate + density transfer.
+  -- K and q come from the Cauchy-Schwarz density transfer bound.
+  have h_exp_bound : ∃ (K : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
+      0 < K ∧ Continuous q ∧
+      ∀ f, ∫ ω : NComponentTorusConfig L_phys params.N,
+        Real.exp (|ω f|) ∂μ ≤ K * Real.exp (q f ^ 2) := by
+    sorry -- from Nelson's estimate + Cauchy-Schwarz + Gaussian exponential moments
   refine ⟨μ, hμ_prob, ?_, ?_⟩
   · exact fun n J => lsmTorusLimit_os0 L_phys params μ h_exp n J
-  · exact lsmTorusLimit_os1 L_phys params μ h_exp
+  · exact lsmTorusLimit_os1 L_phys params μ h_exp h_exp_bound
 
 end Pphi2N
 
