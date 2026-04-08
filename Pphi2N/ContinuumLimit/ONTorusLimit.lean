@@ -95,8 +95,8 @@ theorem lsmTorus_tight (params : LSMParams) :
     (fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact inferInstance)
     (fun f ⟨M, hM⟩ => by
       haveI : NeZero M := ⟨by omega⟩
-      -- (ω f)² is integrable: it's nonneg, measurable, and has finite integral
-      -- (bounded by C * q f² from the uniform second moment axiom)
+      -- Integrability of (ω f)²: from exponential moment domination
+      -- (ω f)² ≤ exp(2|ω f|), and exp moments are finite from Nelson
       sorry)
     (fun f => ⟨C * q f ^ 2,
       fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact h_bound M f⟩)
@@ -383,12 +383,46 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
       Complex.exp (Complex.I * ↑(ω f)) ∂μ =
     ∫ ω : NComponentTorusConfig L_phys params.N,
       Complex.exp (Complex.I * ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ := by
-  -- Strategy (same as pphi2's cylinderPullback_timeTranslation_invariant):
-  -- 1. Both integrands are bounded continuous (|exp(ix)| = 1)
-  -- 2. BC convergence: lim Z_M[f] = Z[f] and lim Z_M[T_v f] = Z[T_v f]
-  -- 3. At each M: Z_M[f] = Z_M[T_v f] (exact lattice translation invariance)
-  -- 4. tendsto_nhds_unique: Z[f] = Z[T_v f]
-  sorry
+  obtain ⟨φ, hφ, hconv⟩ := hμ_conv
+  set f' := nComponentTranslation L_phys params.N v f
+  -- cos(ω f) converges: bounded continuous (|cos| ≤ 1)
+  have hL_cos := hconv (fun ω => Real.cos (ω f))
+    (Real.continuous_cos.comp (WeakDual.eval_continuous f))
+    ⟨1, fun ω => Real.abs_cos_le_one (ω f)⟩
+  have hR_cos := hconv (fun ω => Real.cos (ω f'))
+    (Real.continuous_cos.comp (WeakDual.eval_continuous f'))
+    ⟨1, fun ω => Real.abs_cos_le_one (ω f')⟩
+  -- sin(ω f) converges: bounded continuous (|sin| ≤ 1)
+  have hL_sin := hconv (fun ω => Real.sin (ω f))
+    (Real.continuous_sin.comp (WeakDual.eval_continuous f))
+    ⟨1, fun ω => Real.abs_sin_le_one (ω f)⟩
+  have hR_sin := hconv (fun ω => Real.sin (ω f'))
+    (Real.continuous_sin.comp (WeakDual.eval_continuous f'))
+    ⟨1, fun ω => Real.abs_sin_le_one (ω f')⟩
+  -- At each M: Z_M[f] = Z_M[T_v f] (exact lattice translation invariance)
+  -- This means ∫ cos(ω f) dμ_M = ∫ cos(ω f') dμ_M and same for sin.
+  have h_eq_cos : ∀ n, ∫ ω, Real.cos (ω f)
+      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+        lsmTorusMeasure L_phys params (φ n + 1)) =
+      ∫ ω, Real.cos (ω f')
+      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+        lsmTorusMeasure L_phys params (φ n + 1)) := by
+    sorry -- from lattice translation invariance of the O(N) interaction
+  have h_eq_sin : ∀ n, ∫ ω, Real.sin (ω f)
+      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+        lsmTorusMeasure L_phys params (φ n + 1)) =
+      ∫ ω, Real.sin (ω f')
+      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+        lsmTorusMeasure L_phys params (φ n + 1)) := by
+    sorry -- from lattice translation invariance of the O(N) interaction
+  -- By uniqueness of limits: ∫ cos(ω f) dμ = ∫ cos(ω f') dμ (and sin)
+  have h_cos_eq : ∫ ω, Real.cos (ω f) ∂μ = ∫ ω, Real.cos (ω f') ∂μ :=
+    tendsto_nhds_unique hL_cos (hR_cos.congr (fun n => (h_eq_cos n).symm))
+  have h_sin_eq : ∫ ω, Real.sin (ω f) ∂μ = ∫ ω, Real.sin (ω f') ∂μ :=
+    tendsto_nhds_unique hL_sin (hR_sin.congr (fun n => (h_eq_sin n).symm))
+  -- Reconstruct the complex exponential from cos + i·sin
+  sorry -- from h_cos_eq + h_sin_eq → Complex.exp equality
+         -- needs: ∫ exp(ix) = ∫ cos(x) + i·∫ sin(x)
 
 /-! ## Bundled OS structure -/
 
