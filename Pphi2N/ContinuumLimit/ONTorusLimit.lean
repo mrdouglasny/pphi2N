@@ -30,6 +30,7 @@ via tightness + Prokhorov.
 -/
 
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
+import Pphi2.GeneralResults.ComplexAnalysis
 import GaussianField.Tightness
 import GaussianField.ConfigurationEmbedding
 import Torus.Symmetry
@@ -37,7 +38,7 @@ import Nuclear.TensorProductFunctorAxioms
 
 noncomputable section
 
-open GaussianField MeasureTheory Filter
+open GaussianField MeasureTheory Filter ComplexAnalysis
 
 namespace Pphi2N
 
@@ -136,20 +137,8 @@ theorem lsmTorusLimit_exists (params : LSMParams) :
 
 /-! ## Analyticity under the integral sign
 
-This is a standard several-complex-variables result: if z ↦ F(z, ω)
-is entire for each ω, F(z, ·) is ae measurable, and F is dominated
-on compact sets by an integrable bound, then z ↦ ∫ F(z, ω) dμ is entire.
-
-Proved in pphi2's GeneralResults/ComplexAnalysis.lean via dominated
-convergence + Hartogs (coordinate-wise Goursat). Not yet in Mathlib. -/
-private axiom analyticOnNhd_integral' {n : ℕ} {α : Type*} [MeasurableSpace α]
-    {μ : Measure α} {F : (Fin n → ℂ) → α → ℂ}
-    (hF_an : ∀ ω, AnalyticOnNhd ℂ (F · ω) Set.univ)
-    (hF_meas : ∀ z, AEStronglyMeasurable (F z) μ)
-    (hF_dom : ∀ K : Set (Fin n → ℂ), IsCompact K →
-      ∃ bound : α → ℝ, Integrable bound μ ∧
-        ∀ z ∈ K, ∀ᵐ ω ∂μ, ‖F z ω‖ ≤ bound ω) :
-    AnalyticOnNhd ℂ (fun z => ∫ ω, F z ω ∂μ) Set.univ
+Uses `analyticOnNhd_integral` from pphi2's GeneralResults/ComplexAnalysis.lean
+(proved via dominated convergence + Hartogs). -/
 
 /-! ## OS0 helper lemmas -/
 
@@ -188,7 +177,7 @@ private lemma exp_mul_sum_le' {n : ℕ} (hn : 0 < n) (c : ℝ) (hc : 0 ≤ c)
 The generating functional Z[z₁J₁ + ... + zₙJₙ] is entire analytic
 in z ∈ ℂⁿ for any test functions J₁,...,Jₙ.
 
-Proof: `analyticOnNhd_integral'` with exponential moment domination,
+Proof: `analyticOnNhd_integral` with exponential moment domination,
 identical to pphi2's `cylinderIR_os0` / `asymTorusInteracting_os0`.
 The exponential moments of the limit measure follow from the uniform
 bounds via BC convergence + truncation/MCT (same as pphi2). -/
@@ -202,7 +191,7 @@ theorem lsmTorusLimit_os0 (params : LSMParams)
     (n : ℕ) (J : Fin n → NComponentTorusTestFunction L_phys params.N) :
     AnalyticOnNhd ℂ (fun z : Fin n → ℂ =>
       ∫ ω, Complex.exp (∑ i, Complex.I * z i * ↑(ω (J i))) ∂μ) Set.univ := by
-  apply analyticOnNhd_integral'
+  apply analyticOnNhd_integral
   · -- Pointwise analyticity: z ↦ exp(Σ i·zⱼ·ω(Jⱼ)) is entire for each ω
     intro ω z _
     apply AnalyticAt.cexp'
