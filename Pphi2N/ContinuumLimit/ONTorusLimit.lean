@@ -702,6 +702,174 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
     rw [h_im f, h_im f']
     exact h_sin_eq
 
+/-! ## Uniform exponential moment bound (lattice level)
+
+The key analytic input: exp(|ω f|) has a uniform bound over all lattice
+sizes M. This follows from:
+1. Nelson bound: bw(φ) = exp(-V(φ)) ≤ exp(B) with B uniform in M
+   (since a² · M² = L² is fixed, the volume contribution is uniformly bounded)
+2. GFF exponential moment: ∫ exp(2|embed φ f|) dμ_N ≤ 2 exp(2σ²(f))
+   where σ²(f) = ∫ (embed φ f)² dμ_N is the GFF second moment
+3. Density transfer (Cauchy-Schwarz): combines 1 and 2 with Z ≥ 1 (Jensen)
+
+The GFF second moment σ²(f) is bounded by a seminorm of f that is uniform
+in M (from the Green's function uniform bound, analogous to pphi2's
+`torusEmbeddedTwoPoint_uniform_bound`). -/
+
+/-- Uniform exponential moment bound for the LSM torus measures.
+
+For each test function f and all lattice sizes M ≥ 1:
+  ∫ exp(|ω f|) d(lsmTorusMeasure M) ≤ K * exp(q(f)²)
+
+where K > 0 and q is a continuous seminorm, both independent of M.
+
+Proof chain:
+1. Nelson: bw ≤ exp(B), Z ≥ 1 (Jensen's inequality on exp(-V))
+2. Density transfer: ∫ F dμ_int ≤ K^{1/2} · (∫ F² dμ_N)^{1/2}
+   with F = exp(|embed φ f|) and K from the Nelson bound
+3. GFF exp moment: ∫ exp(2|ω g|) dμ_GFF ≤ 2 exp(2 ∫ (ω g)² dμ_GFF)
+   (from Gaussian MGF: E[e^{t|X|}] ≤ 2 e^{t²σ²/2} for X ~ N(0,σ²))
+4. GFF second moment uniform bound: ∫ (embed φ f)² dμ_N ≤ C · q(f)²
+   (from torus Green's function uniform bound, as in pphi2) -/
+private theorem lsmTorus_exp_moment_uniform (params : LSMParams) :
+    ∃ (K : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
+      0 < K ∧ Continuous q ∧
+      ∀ (M : ℕ) [NeZero M] (f : NComponentTorusTestFunction L_phys params.N),
+        Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
+          Real.exp (|ω f|)) (lsmTorusMeasure L_phys params M) ∧
+        ∫ ω : NComponentTorusConfig L_phys params.N,
+          Real.exp (|ω f|) ∂(lsmTorusMeasure L_phys params M) ≤
+          K * Real.exp (q f ^ 2) := by
+  sorry
+  -- Proof outline (not yet formalized):
+  -- Step 1: Get K from nelson_exponential_estimate (uniform in M)
+  --   ∫ exp(-2V_M) dμ_N ≤ K for all M
+  --   (uses a^2 * M^2 = L^2 uniformity, as in pphi2's nelson_exponential_estimate)
+  -- Step 2: GFF exp moment from Gaussian MGF
+  --   ∫ exp(2|embed φ f|) dμ_N ≤ 2 exp(2 σ²_M(f))
+  --   where σ²_M(f) = ∫ (embed φ f)² dμ_N
+  -- Step 3: Uniform Gaussian second moment bound
+  --   σ²_M(f) ≤ C · q(f)² for continuous q (uniform in M)
+  --   (from torusGreen_uniform_bound, analogous to pphi2)
+  -- Step 4: Density transfer
+  --   ∫ exp(|ω f|) dμ_int ≤ K^{1/2} · (2 exp(2 C q(f)²))^{1/2}
+  --                        = √(2K) · exp(C q(f)²)
+  -- Use q_final = sqrt(C) * q and K_final = sqrt(2K)
+
+/-- Exponential moments pass from lattice measures to the weak limit.
+
+If ∀ n, ∫ exp(|ω f|) dμ_n ≤ B (uniform bound) and μ_n → μ in BC sense,
+then ∫ exp(|ω f|) dμ ≤ B (via truncation + MCT).
+
+This is a generic result for any `Configuration E` space, proved by:
+1. Bounding truncations min(exp(|ω f|), M+1) ≤ B using BC convergence
+2. MCT: sup over truncations = full integral -/
+private theorem limit_exp_moment_from_bc
+    {E : Type*} [AddCommGroup E] [Module ℝ E] [TopologicalSpace E]
+    [IsTopologicalAddGroup E] [ContinuousSMul ℝ E] [DyninMityaginSpace E]
+    (νseq : ℕ → Measure (Configuration E))
+    (ν : Measure (Configuration E))
+    [IsProbabilityMeasure ν]
+    (hbc : ∀ (g : Configuration E → ℝ),
+      Continuous g → (∃ C, ∀ x, |g x| ≤ C) →
+      Tendsto (fun n => ∫ ω, g ω ∂(νseq n)) atTop (nhds (∫ ω, g ω ∂ν)))
+    (f : E) (B : ℝ)
+    (h_unif : ∀ n,
+      Integrable (fun ω => Real.exp (|ω f|)) (νseq n) ∧
+      ∫ ω, Real.exp (|ω f|) ∂(νseq n) ≤ B) :
+    Integrable (fun ω => Real.exp (|ω f|)) ν ∧
+    ∫ ω, Real.exp (|ω f|) ∂ν ≤ B := by
+  -- Abbreviate: F ω = exp(|ω f|)
+  set F : Configuration E → ℝ := fun ω => Real.exp (|ω f|) with hF_def
+  have hF_nn : ∀ ω : Configuration E, 0 ≤ F ω :=
+    fun ω => (Real.exp_pos _).le
+  -- ω ↦ ω f is continuous (WeakDual evaluation)
+  have heval_cont : Continuous (fun ω : Configuration E => ω f) :=
+    WeakDual.eval_continuous f
+  -- ω ↦ ω f is measurable (for ae arguments)
+  have heval_meas : Measurable (fun ω : Configuration E => ω f) :=
+    configuration_eval_measurable f
+  -- F is ae strongly measurable under ν
+  have hF_meas : AEStronglyMeasurable F ν :=
+    (Real.continuous_exp.comp continuous_abs).comp_aestronglyMeasurable
+      heval_meas.aestronglyMeasurable
+  -- Truncations: gM ω = min(F ω, M+1) are bounded and continuous
+  have hgM_nn : ∀ (M : ℕ) (ω : Configuration E),
+      0 ≤ min (F ω) (↑(M + 1) : ℝ) :=
+    fun M ω => le_min (Real.exp_pos _).le (by positivity)
+  -- Step 1: For each M, ∫ min(F, M+1) dν ≤ B
+  have hgM_int_le : ∀ M : ℕ, ∫ ω, min (F ω) (↑(M + 1) : ℝ) ∂ν ≤ B := by
+    intro M
+    have hgM_cont : Continuous (fun ω : Configuration E =>
+        min (F ω) (↑(M + 1) : ℝ)) :=
+      (Real.continuous_exp.comp (continuous_abs.comp heval_cont)).min continuous_const
+    have hgM_bound : ∃ C : ℝ, ∀ ω : Configuration E,
+        |min (F ω) (↑(M + 1) : ℝ)| ≤ C :=
+      ⟨↑(M + 1), fun ω => by
+        rw [abs_of_nonneg (hgM_nn M ω)]; exact min_le_right _ _⟩
+    have hbc_gM := hbc _ hgM_cont hgM_bound
+    -- Each ∫ min(F, M+1) dνseq_n ≤ B
+    have h_each_le : ∀ n, ∫ ω, min (F ω) (↑(M + 1) : ℝ) ∂(νseq n) ≤ B :=
+      fun n => (integral_mono_of_nonneg (ae_of_all _ (hgM_nn M)) (h_unif n).1
+        (ae_of_all _ (fun ω => min_le_left _ _))).trans (h_unif n).2
+    exact le_of_tendsto hbc_gM (Eventually.of_forall h_each_le)
+  -- Step 2: MCT via ENNReal lintegral
+  have hgMenr_meas : ∀ M : ℕ, Measurable (fun ω : Configuration E =>
+      ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ))) :=
+    fun M => ENNReal.measurable_ofReal.comp
+      ((Real.measurable_exp.comp
+        (measurable_abs.comp heval_meas)).min measurable_const)
+  have hgMenr_mono : Monotone (fun (M : ℕ) (ω : Configuration E) =>
+      ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ))) :=
+    fun m n hmn ω => ENNReal.ofReal_le_ofReal
+      (min_le_min_left _ (by exact_mod_cast Nat.add_le_add_right hmn 1))
+  -- Pointwise iSup = F
+  have hgMenr_iSup : ∀ ω : Configuration E,
+      ⨆ M : ℕ, ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ)) =
+      ENNReal.ofReal (F ω) := by
+    intro ω
+    apply le_antisymm
+    · exact iSup_le fun M => ENNReal.ofReal_le_ofReal (min_le_left _ _)
+    · apply le_iSup_of_le (Nat.ceil (F ω))
+      apply ENNReal.ofReal_le_ofReal
+      apply le_min le_rfl
+      linarith [Nat.le_ceil (F ω),
+        show (⌈F ω⌉₊ : ℝ) ≤ ↑(⌈F ω⌉₊ + 1) from by push_cast; linarith]
+  -- MCT: ∫⁻ F dν = sup_M ∫⁻ min(F, M+1) dν
+  have hlint_iSup : ∫⁻ ω, ENNReal.ofReal (F ω) ∂ν =
+      ⨆ (M : ℕ), ∫⁻ ω, ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ)) ∂ν := by
+    conv_lhs => rw [show (fun ω : Configuration E => ENNReal.ofReal (F ω)) =
+      fun ω => ⨆ M : ℕ, ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ)) from
+      funext fun ω => (hgMenr_iSup ω).symm]
+    rw [lintegral_iSup hgMenr_meas hgMenr_mono]
+  -- Each ∫⁻ min(F, M+1) dν ≤ ENNReal.ofReal B
+  have hB_nn : 0 ≤ B :=
+    le_trans (integral_nonneg (fun ω => hF_nn ω)) (h_unif 0).2
+  have hlint_gM_le : ∀ M : ℕ,
+      ∫⁻ ω, ENNReal.ofReal (min (F ω) (↑(M + 1) : ℝ)) ∂ν ≤ ENNReal.ofReal B := by
+    intro M
+    have hgM_ae : AEStronglyMeasurable
+        (fun ω : Configuration E => min (F ω) (↑(M + 1) : ℝ)) ν :=
+      ((Real.continuous_exp.comp continuous_abs).min continuous_const)
+        |>.comp_aestronglyMeasurable heval_meas.aestronglyMeasurable
+    have hgM_int : Integrable (fun ω => min (F ω) (↑(M + 1) : ℝ)) ν :=
+      Integrable.of_bound hgM_ae (↑(M + 1) : ℝ) (ae_of_all _ fun ω => by
+        rw [Real.norm_of_nonneg (hgM_nn M ω)]; exact min_le_right _ _)
+    rw [← ofReal_integral_eq_lintegral_ofReal hgM_int (ae_of_all _ (hgM_nn M))]
+    exact ENNReal.ofReal_le_ofReal (hgM_int_le M)
+  have hlint_le : ∫⁻ ω, ENNReal.ofReal (F ω) ∂ν ≤ ENNReal.ofReal B :=
+    hlint_iSup ▸ iSup_le (fun M => hlint_gM_le M)
+  -- Step 3a: Integrability from finite lintegral
+  have hint : Integrable F ν := by
+    rw [← lintegral_ofReal_ne_top_iff_integrable hF_meas (ae_of_all _ hF_nn)]
+    exact (hlint_le.trans_lt ENNReal.ofReal_lt_top).ne
+  -- Step 3b: ∫ F dν ≤ B
+  constructor
+  · exact hint
+  · have heq := ofReal_integral_eq_lintegral_ofReal hint (ae_of_all _ hF_nn)
+    rw [← heq] at hlint_le
+    exact (ENNReal.ofReal_le_ofReal_iff hB_nn).mp hlint_le
+
 /-! ## Bundled OS structure -/
 
 /-- **The O(N) torus continuum limit satisfies OS0-OS2.**
@@ -729,16 +897,45 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
           ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ) := by
   obtain ⟨μ, hμ_prob, φ, hφ_mono, hμ_conv⟩ := lsmTorusLimit_exists L_phys params
   haveI := hμ_prob
+  -- Get uniform exp moment bound for all lattice measures
+  obtain ⟨K, q, hK_pos, hq_cont, h_unif_bound⟩ :=
+    lsmTorus_exp_moment_uniform L_phys params
+  -- The subsequence measures νseq n = lsmTorusMeasure (φ n + 1)
+  set νseq : ℕ → Measure (NComponentTorusConfig L_phys params.N) :=
+    fun n => haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+      lsmTorusMeasure L_phys params (φ n + 1) with hνseq_def
+  -- h_exp: exp(|ω f|) is integrable under μ, for each f
   have h_exp : ∀ f, Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
       Real.exp (|ω f|)) μ := by
-    sorry -- from uniform exponential moment + BC convergence + truncation/MCT
-  -- Exponential moment bound: from Nelson estimate + density transfer.
-  -- K and q come from the Cauchy-Schwarz density transfer bound.
-  have h_exp_bound : ∃ (K : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
-      0 < K ∧ Continuous q ∧
+    intro f
+    -- Apply limit_exp_moment_from_bc with B = K * exp(q(f)^2)
+    set B := K * Real.exp (q f ^ 2) with hB_def
+    have h_unif_f : ∀ n,
+        Integrable (fun ω => Real.exp (|ω f|)) (νseq n) ∧
+        ∫ ω, Real.exp (|ω f|) ∂(νseq n) ≤ B := by
+      intro n
+      simp only [νseq]
+      haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+      exact h_unif_bound (φ n + 1) f
+    exact (limit_exp_moment_from_bc νseq μ
+      (fun g hg hbdd => hμ_conv g hg hbdd) f B h_unif_f).1
+  -- h_exp_bound: explicit exponential moment bound for μ
+  have h_exp_bound : ∃ (K' : ℝ) (q' : NComponentTorusTestFunction L_phys params.N → ℝ),
+      0 < K' ∧ Continuous q' ∧
       ∀ f, ∫ ω : NComponentTorusConfig L_phys params.N,
-        Real.exp (|ω f|) ∂μ ≤ K * Real.exp (q f ^ 2) := by
-    sorry -- from Nelson's estimate + Cauchy-Schwarz + Gaussian exponential moments
+        Real.exp (|ω f|) ∂μ ≤ K' * Real.exp (q' f ^ 2) := by
+    -- Use the same K and q from lsmTorus_exp_moment_uniform, applied via BC limit
+    refine ⟨K, q, hK_pos, hq_cont, fun f => ?_⟩
+    set B := K * Real.exp (q f ^ 2) with hB_def
+    have h_unif_f : ∀ n,
+        Integrable (fun ω => Real.exp (|ω f|)) (νseq n) ∧
+        ∫ ω, Real.exp (|ω f|) ∂(νseq n) ≤ B := by
+      intro n
+      simp only [νseq]
+      haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+      exact h_unif_bound (φ n + 1) f
+    exact (limit_exp_moment_from_bc νseq μ
+      (fun g hg hbdd => hμ_conv g hg hbdd) f B h_unif_f).2
   refine ⟨μ, hμ_prob, ?_, ?_, ?_⟩
   · exact fun n J => lsmTorusLimit_os0 L_phys params μ h_exp n J
   · exact lsmTorusLimit_os1 L_phys params μ h_exp h_exp_bound
