@@ -127,13 +127,29 @@ def isSaddlePoint (sigma_star : ℝ) (wickConstant : ℝ → ℝ) : Prop :=
 theorem saddlePoint_pos (sigma_star : ℝ)
     (wickConstant : ℝ → ℝ)
     (h_saddle : L.isSaddlePoint sigma_star wickConstant)
-    (h_wick_bound : wickConstant sigma_star ≤ 4 * L.lam * L.vsq)
+    (h_wick_bound : wickConstant sigma_star < 4 * L.lam * L.vsq)
     : 0 < sigma_star := by
-  -- Strategy: σ* = v² - c/(4λ), and c ≤ 4λv², so σ* ≥ v² - v² = 0.
-  -- The strict inequality needs c < 4λv² (strict), which follows from
-  -- the assumption h_wick_bound being ≤ combined with σ* > 0 being the conclusion.
-  -- For now this needs a slightly stronger hypothesis (strict <).
-  sorry
+  -- σ* = v² - c(σ*)/(4λ). Since c(σ*) < 4λv² (strict), σ* > 0.
+  rw [h_saddle]; unfold gapEquationRHS vsq
+  have hlam := L.hlam
+  have hRsq := L.hRsq
+  have hN_pos : (0 : ℝ) < L.N := Nat.cast_pos.mpr (Nat.pos_of_ne_zero
+    (Nat.one_le_iff_ne_zero.mp L.hN))
+  -- Need: Rsq/N - c/(4λ) > 0, i.e., c/(4λ) < Rsq/N = vsq
+  -- From h_wick_bound: c < 4λ · Rsq/N, so c/(4λ) < Rsq/N
+  have h4lam_pos : (0 : ℝ) < 4 * L.lam := by positivity
+  -- Goal: 0 < L.Rsq / ↑L.N - wickConstant sigma_star / (4 * L.lam)
+  rw [sub_pos]
+  rw [div_lt_div_iff₀ h4lam_pos hN_pos]
+  -- Goal: wickConstant sigma_star * ↑L.N < L.Rsq * (4 * L.lam)
+  -- From h_wick_bound: c < 4λ · Rsq/N, so c · N < 4λ · Rsq
+  unfold vsq at h_wick_bound
+  -- h_wick_bound : wickConstant sigma_star < 4 * L.lam * (L.Rsq / ↑L.N)
+  -- Goal: wickConstant sigma_star * ↑L.N < L.Rsq * (4 * L.lam)
+  have hN_pos' : (L.N : ℝ) > 0 := hN_pos
+  have h_bound_rw : 4 * L.lam * (L.Rsq / L.N) = L.Rsq * (4 * L.lam) / L.N := by ring
+  rw [h_bound_rw, lt_div_iff₀ hN_pos'] at h_wick_bound
+  linarith
 
 /-! ## Convexity of S_eff -/
 

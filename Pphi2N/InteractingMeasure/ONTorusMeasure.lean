@@ -39,6 +39,7 @@ import Pphi2N.InteractingMeasure.ONLatticeAction
 import Lattice.FiniteField
 import Pphi2N.LatticeField.ProductGFF
 import Mathlib.Analysis.Polynomial.Basic
+import Mathlib.Topology.Algebra.Polynomial
 import Mathlib.Topology.Order.Compact
 
 noncomputable section
@@ -133,45 +134,50 @@ private theorem wickMonomialPolyON_monic_deg (N : ℕ) (c : ℝ) :
     ∀ k : ℕ, (wickMonomialPolyON N c k).Monic ∧ (wickMonomialPolyON N c k).natDegree = k
   | 0 => ⟨Polynomial.monic_one, by simp [wickMonomialPolyON]⟩
   | 1 => by
-      constructor
-      · simp only [wickMonomialPolyON]
-        exact Polynomial.monic_X.sub_of_left (by simp [Polynomial.degree_C])
-      · simp [wickMonomialPolyON, Polynomial.natDegree_X_sub_C]
+      simp only [wickMonomialPolyON]
+      refine ⟨Polynomial.monic_X.sub_of_left ?_, ?_⟩
+      · -- degree (C(N*c)) < degree X
+        calc Polynomial.degree (Polynomial.C ((N : ℝ) * c))
+            ≤ 0 := Polynomial.degree_C_le
+          _ < 1 := by norm_num
+          _ = Polynomial.degree Polynomial.X := Polynomial.degree_X.symm
+      · -- natDegree (X - C(N*c)) = 1
+        exact Polynomial.natDegree_X_sub_C ((N : ℝ) * c)
   | k + 2 => by
       obtain ⟨hm1, hd1⟩ := wickMonomialPolyON_monic_deg N c (k + 1)
       obtain ⟨hm0, hd0⟩ := wickMonomialPolyON_monic_deg N c k
       simp only [wickMonomialPolyON]
-      -- A := (X - C α); B := C β
-      -- The product A * T_{k+1} is monic: (X - C α) is monic, T_{k+1} is monic
-      -- so their product is monic of degree (k+1)+1 = k+2.
-      -- The subtrahend B * T_k has natDegree ≤ 1 + k < k+2.
       set A : Polynomial ℝ := Polynomial.X - Polynomial.C (wickShiftCoeff N (k + 1) * c)
       set B : Polynomial ℝ := Polynomial.C (wickLowerCoeff N (k + 1) * c ^ 2)
-      have hA_monic : A.Monic := Polynomial.monic_X.sub_of_left (by simp [Polynomial.degree_C])
+      have hA_monic : A.Monic := Polynomial.monic_X.sub_of_left
+        (calc Polynomial.degree (Polynomial.C (wickShiftCoeff N (k + 1) * c))
+            ≤ 0 := Polynomial.degree_C_le
+          _ < 1 := by norm_num
+          _ = Polynomial.degree Polynomial.X := Polynomial.degree_X.symm)
       have hA_deg : A.natDegree = 1 := by
-        simp [A, Polynomial.natDegree_X_sub_C]
-      have hprod_monic : (A * wickMonomialPolyON N c (k + 1)).Monic :=
-        hA_monic.mul hm1
+        simp only [A]
+        exact Polynomial.natDegree_X_sub_C (wickShiftCoeff N (k + 1) * c)
+      have hprod_monic : (A * wickMonomialPolyON N c (k + 1)).Monic := hA_monic.mul hm1
       have hprod_deg : (A * wickMonomialPolyON N c (k + 1)).natDegree = k + 2 := by
-        rw [Polynomial.natDegree_mul hA_monic.ne_zero hm1.ne_zero, hA_deg, hd1]
-      have hsub_deg : (B * wickMonomialPolyON N c k).natDegree ≤ k := by
-        calc (B * wickMonomialPolyON N c k).natDegree
-            ≤ B.natDegree + (wickMonomialPolyON N c k).natDegree :=
-              Polynomial.natDegree_mul_le
-          _ = 0 + k := by rw [Polynomial.natDegree_C, hd0]
-          _ = k := zero_add k
+        rw [Polynomial.natDegree_mul hA_monic.ne_zero hm1.ne_zero, hA_deg, hd1]; ring
       have hlt : (B * wickMonomialPolyON N c k).natDegree <
           (A * wickMonomialPolyON N c (k + 1)).natDegree := by
-        rw [hprod_deg]; omega
+        rw [hprod_deg]
+        calc (B * wickMonomialPolyON N c k).natDegree
+            ≤ B.natDegree + (wickMonomialPolyON N c k).natDegree := Polynomial.natDegree_mul_le
+          _ = 0 + k := by rw [Polynomial.natDegree_C, hd0]
+          _ = k := zero_add k
+          _ < k + 2 := by omega
       constructor
-      · -- Monic: (A * T_{k+1}) - (B * T_k) is monic since subtrahend has lower degree
-        rw [sub_eq_add_neg]
+      · rw [sub_eq_add_neg]
         apply hprod_monic.add_of_left
         rw [Polynomial.degree_neg]
-        exact lt_of_le_of_lt Polynomial.degree_le_natDegree
-          (by exact_mod_cast hlt)
-      · -- natDegree = k+2
-        exact Polynomial.natDegree_sub_eq_left_of_natDegree_lt hlt |>.trans hprod_deg
+        calc Polynomial.degree (B * wickMonomialPolyON N c k)
+            ≤ ↑(B * wickMonomialPolyON N c k).natDegree := Polynomial.degree_le_natDegree
+          _ < ↑(A * wickMonomialPolyON N c (k + 1)).natDegree := by exact_mod_cast hlt
+          _ = Polynomial.degree (A * wickMonomialPolyON N c (k + 1)) :=
+              (Polynomial.degree_eq_natDegree hprod_monic.ne_zero).symm
+      · exact (Polynomial.natDegree_sub_eq_left_of_natDegree_lt hlt).trans hprod_deg
 
 /-- `wickMonomialPolyON N c k` is monic. -/
 private theorem wickMonomialPolyON_monic (N : ℕ) (c : ℝ) (k : ℕ) :
@@ -196,74 +202,66 @@ private theorem wickInteractionPolyON_eval (N : ℕ) (P : ONInteraction) (c t : 
   · rw [wickMonomialPolyON_eval]
   · apply Finset.sum_congr rfl
     intro m _
-    rw [Polynomial.eval_mul, Polynomial.eval_C, wickMonomialPolyON_eval]
+    congr 1
+    exact wickMonomialPolyON_eval N c m t
 
 /-- `wickInteractionPolyON N P c` has natDegree equal to `P.degree`. -/
 private theorem wickInteractionPolyON_natDegree (N : ℕ) (P : ONInteraction) (c : ℝ) :
     (wickInteractionPolyON N P c).natDegree = P.degree := by
   simp only [wickInteractionPolyON]
-  -- The leading term C(1/k) * T_k has natDegree = k (since 1/k ≠ 0)
-  have hk_pos : (0 : ℝ) < P.degree := Nat.cast_pos.mpr (by omega)
-  have h1k_ne : (1 / (P.degree : ℝ)) ≠ 0 := by positivity
-  have hlead_ne : (Polynomial.C (1 / (P.degree : ℝ)) * wickMonomialPolyON N c P.degree) ≠ 0 := by
-    intro h
-    have := Polynomial.natDegree_eq_zero_iff_degree_le_zero.mp
-    simp [Polynomial.natDegree_C_mul_eq_of_leadingCoeff_ne_zero] at h
-    · exact h1k_ne (by
-        have := (wickMonomialPolyON_monic N c P.degree).leadingCoeff
-        simp [Polynomial.leadingCoeff] at this ⊢; exact absurd this (by simp))
+  have hdeg_pos : 0 < P.degree := by linarith [P.hdeg]
+  have h1k_ne : (1 / (P.degree : ℝ)) ≠ 0 := by
+    exact one_div_ne_zero (Nat.cast_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hdeg_pos))
   have hlead_deg : (Polynomial.C (1 / (P.degree : ℝ)) * wickMonomialPolyON N c P.degree).natDegree
       = P.degree := by
     rw [Polynomial.natDegree_C_mul h1k_ne, wickMonomialPolyON_natDegree]
   have hsum_deg : (∑ m : Fin P.degree, Polynomial.C (P.coeff m) *
       wickMonomialPolyON N c m).natDegree < P.degree := by
-    apply lt_of_le_of_lt (Polynomial.natDegree_sum_le _ _)
-    apply Finset.sup_lt_iff.mpr
-    · intro m _
-      calc (Polynomial.C (P.coeff m) * wickMonomialPolyON N c m).natDegree
-          ≤ (Polynomial.C (P.coeff m)).natDegree + (wickMonomialPolyON N c m).natDegree :=
+    apply lt_of_le_of_lt
+    · apply Polynomial.natDegree_sum_le_of_forall_le (n := P.degree - 1)
+      intro m _
+      calc (Polynomial.C (P.coeff m) * wickMonomialPolyON N c (m : ℕ)).natDegree
+          ≤ (Polynomial.C (P.coeff m)).natDegree + (wickMonomialPolyON N c (m : ℕ)).natDegree :=
             Polynomial.natDegree_mul_le
-        _ = 0 + m := by rw [Polynomial.natDegree_C, wickMonomialPolyON_natDegree]
-        _ = m := zero_add _
-        _ < P.degree := m.isLt
-    · exact ⟨P.degree, Nat.lt_irrefl _⟩  -- Fin.univ is nonempty is implicit
-  rw [Polynomial.natDegree_add_eq_left_of_natDegree_lt, hlead_deg]
-  rwa [hlead_deg]
+        _ = 0 + (m : ℕ) := by rw [Polynomial.natDegree_C, wickMonomialPolyON_natDegree]
+        _ = m.val := zero_add _
+        _ ≤ P.degree - 1 := by omega
+    · omega
+  rw [Polynomial.natDegree_add_eq_left_of_natDegree_lt (by rwa [hlead_deg]), hlead_deg]
 
 /-- The leading coefficient of `wickInteractionPolyON N P c` is `1/P.degree > 0`. -/
 private theorem wickInteractionPolyON_leadingCoeff (N : ℕ) (P : ONInteraction) (c : ℝ) :
     0 < (wickInteractionPolyON N P c).leadingCoeff := by
-  have hk_pos : (0 : ℝ) < P.degree := Nat.cast_pos.mpr (by omega)
-  have h1k_ne : (1 / (P.degree : ℝ)) ≠ 0 := by positivity
+  have hdeg_pos : 0 < P.degree := by linarith [P.hdeg]
+  have h1k_ne : (1 / (P.degree : ℝ)) ≠ 0 :=
+    one_div_ne_zero (Nat.cast_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hdeg_pos))
   have hlead_deg : (Polynomial.C (1 / (P.degree : ℝ)) * wickMonomialPolyON N c P.degree).natDegree
-      = P.degree := by
-    rw [Polynomial.natDegree_C_mul h1k_ne, wickMonomialPolyON_natDegree]
+      = P.degree := by rw [Polynomial.natDegree_C_mul h1k_ne, wickMonomialPolyON_natDegree]
   have hsum_natdeg : (∑ m : Fin P.degree, Polynomial.C (P.coeff m) *
       wickMonomialPolyON N c m).natDegree < P.degree := by
-    apply lt_of_le_of_lt (Polynomial.natDegree_sum_le _ _)
-    apply Finset.sup_lt_iff.mpr
-    · intro m _
-      calc (Polynomial.C (P.coeff m) * wickMonomialPolyON N c m).natDegree
-          ≤ (Polynomial.C (P.coeff m)).natDegree + (wickMonomialPolyON N c m).natDegree :=
+    apply lt_of_le_of_lt
+    · apply Polynomial.natDegree_sum_le_of_forall_le (n := P.degree - 1)
+      intro m _
+      calc (Polynomial.C (P.coeff m) * wickMonomialPolyON N c (m : ℕ)).natDegree
+          ≤ (Polynomial.C (P.coeff m)).natDegree + (wickMonomialPolyON N c (m : ℕ)).natDegree :=
             Polynomial.natDegree_mul_le
-        _ = 0 + m := by rw [Polynomial.natDegree_C, wickMonomialPolyON_natDegree]
-        _ = m := zero_add _
-        _ < P.degree := m.isLt
-    · exact ⟨P.degree, Nat.lt_irrefl _⟩
-  -- The leading coefficient of the sum is 0 (degree < P.degree)
-  -- The leading coeff of the whole thing equals that of the leading term
-  rw [wickInteractionPolyON, show (wickInteractionPolyON N P c).leadingCoeff =
-      (Polynomial.C (1 / (P.degree : ℝ)) * wickMonomialPolyON N c P.degree +
-       ∑ m : Fin P.degree, Polynomial.C (P.coeff m) * wickMonomialPolyON N c m).leadingCoeff
-      from rfl]
-  rw [Polynomial.leadingCoeff,
-      Polynomial.natDegree_add_eq_left_of_natDegree_lt (by rwa [hlead_deg]),
-      ← Polynomial.leadingCoeff]
-  rw [Polynomial.leadingCoeff]
-  rw [hlead_deg]
-  simp only [Polynomial.coeff_C_mul]
-  rw [(wickMonomialPolyON_monic N c P.degree).leadingCoeff]
-  simp [one_div, hk_pos.le]
+        _ = 0 + (m : ℕ) := by rw [Polynomial.natDegree_C, wickMonomialPolyON_natDegree]
+        _ = m.val := zero_add _
+        _ ≤ P.degree - 1 := by omega
+    · omega
+  -- leadingCoeff (wickInteractionPolyON N P c) = leadingCoeff of the leading term C(1/k)*T_k
+  have hmonic_coeff : (wickMonomialPolyON N c P.degree).coeff P.degree = 1 := by
+    have := (wickMonomialPolyON_monic N c P.degree).leadingCoeff
+    rwa [Polynomial.leadingCoeff, wickMonomialPolyON_natDegree] at this
+  have hsum_coeff_zero : (∑ m : Fin P.degree, Polynomial.C (P.coeff m) *
+      wickMonomialPolyON N c m).coeff P.degree = 0 :=
+    Polynomial.coeff_eq_zero_of_natDegree_lt hsum_natdeg
+  -- Use the natDegree result to identify where the leading coefficient lives
+  have hfull_nd : (wickInteractionPolyON N P c).natDegree = P.degree :=
+    wickInteractionPolyON_natDegree N P c
+  rw [Polynomial.leadingCoeff, hfull_nd, wickInteractionPolyON,
+    Polynomial.coeff_add, Polynomial.coeff_C_mul, hmonic_coeff, hsum_coeff_zero]
+  simp [h1k_ne, one_div, inv_pos, Nat.cast_pos.mpr hdeg_pos]
 
 /-- The Wick interaction at a single site is bounded below.
 
@@ -275,37 +273,55 @@ Proof: Express as formal polynomial Q with positive leading coefficient,
 so Q → +∞ as t → +∞. Apply the extreme value theorem on [0, ∞). -/
 theorem wickInteraction_bounded_below (P : ONInteraction) (c : ℝ) (N_val : ℕ) :
     ∃ C : ℝ, ∀ t : ℝ, 0 ≤ t → C ≤ wickInteraction_ON N_val P c t := by
-  -- Represent the function as evaluation of a formal polynomial Q with positive leading coeff
+  -- Represent as evaluation of formal polynomial Q with positive leading coeff 1/P.degree
   let Q := wickInteractionPolyON N_val P c
-  -- Q tends to +∞ as t → +∞ (positive leading coefficient, degree ≥ 2 > 0)
+  -- Q ≠ 0 since leadingCoeff Q > 0
+  have hQ_ne : Q ≠ 0 :=
+    Polynomial.leadingCoeff_ne_zero.mp
+      (ne_of_gt (wickInteractionPolyON_leadingCoeff N_val P c))
+  -- Q.eval → +∞ as t → +∞
   have hQ_tendsto : Filter.Tendsto (fun t : ℝ => Q.eval t) Filter.atTop Filter.atTop := by
     apply Polynomial.tendsto_atTop_of_leadingCoeff_nonneg
-    · -- degree Q > 0
-      rw [Polynomial.degree_eq_natDegree]
-      · exact_mod_cast Nat.pos_of_ne_zero (by
-          rw [wickInteractionPolyON_natDegree]; omega)
-      · -- Q ≠ 0: leading coeff > 0
-        intro hQ_zero
-        have := wickInteractionPolyON_leadingCoeff N_val P c
-        rw [hQ_zero] at this; simp at this
+    · rw [Polynomial.degree_eq_natDegree hQ_ne, wickInteractionPolyON_natDegree]
+      exact_mod_cast show 0 < P.degree by linarith [P.hdeg]
     · exact le_of_lt (wickInteractionPolyON_leadingCoeff N_val P c)
-  -- The function Q.eval is continuous
-  have hcont_Q : ContinuousOn (fun t : ℝ => Q.eval t) (Set.Ici 0) :=
-    Q.continuous.continuousOn
-  -- Q.eval is eventually ≥ Q.eval 0 on [0, ∞)
-  -- because cocompact ℝ ⊓ 𝓟 (Ici 0) = atTop ⊓ 𝓟 (Ici 0), and Q → +∞
+  -- Q.eval is continuous on Ici 0 (Q is a polynomial, so its eval is continuous)
+  have hcont_Q : ContinuousOn (fun t : ℝ => Q.eval t) (Set.Ici 0) := by
+    -- Q is a Polynomial ℝ, so eval is continuous; use congr with wickInteractionPolyON
+    have : (fun t : ℝ => Q.eval t) = (fun t : ℝ => wickInteraction_ON N_val P c t) :=
+      funext (fun t => wickInteractionPolyON_eval N_val P c t)
+    rw [this]
+    -- wickInteraction_ON is continuous: it equals a polynomial eval which is continuous
+    -- Each Wick monomial is continuous (via its formal polynomial)
+    have hcont_Tk : ∀ k : ℕ, Continuous (fun t : ℝ => wickMonomial_ON N_val c k t) := by
+      intro k
+      have heq : (fun t : ℝ => wickMonomial_ON N_val c k t) =
+                 (fun t : ℝ => (wickMonomialPolyON N_val c k).eval t) :=
+        funext (fun t => (wickMonomialPolyON_eval N_val c k t).symm)
+      rw [heq]; fun_prop
+    -- The full interaction is continuous as a sum of continuous terms
+    apply Continuous.continuousOn
+    unfold wickInteraction_ON
+    exact (continuous_const.mul (hcont_Tk P.degree)).add
+      (continuous_finset_sum _ (fun m _ => continuous_const.mul (hcont_Tk m)))
+  -- Q.eval is eventually ≥ Q.eval 0 on cocompact ℝ ⊓ 𝓟 (Ici 0):
+  -- cocompact ℝ ⊓ 𝓟 (Ici 0) = atTop ⊓ 𝓟 (Ici 0), and Q.eval → +∞ on atTop
   have h_large : ∀ᶠ t in Filter.cocompact ℝ ⊓ Filter.principal (Set.Ici 0),
       Q.eval 0 ≤ Q.eval t := by
-    rw [Filter.cocompact_eq_atBot_atTop, Filter.inf_sup_right,
-        Filter.disjoint_atBot_principal_Ici.eq_bot, Filter.bot_sup_eq]
-    exact hQ_tendsto.eventually (Filter.eventually_ge_atTop _) |>.filter_mono Filter.inf_le_left
-  -- By the extreme value theorem for continuous functions on closed sets, Q has a minimum on Ici 0
+    rw [cocompact_eq_atBot_atTop, inf_sup_right,
+        (Filter.disjoint_atBot_principal_Ici (0 : ℝ)).eq_bot, bot_sup_eq]
+    exact (hQ_tendsto.eventually (Filter.eventually_ge_atTop (Q.eval 0))).filter_mono
+      inf_le_left
+  -- EVT: Q has a minimum t₀ on the closed set Ici 0
   obtain ⟨t₀, _ht₀_mem, ht₀_min⟩ :=
-    hcont_Q.exists_isMinOn' isClosed_Ici ⟨le_refl 0⟩ h_large
-  -- The minimum value Q.eval t₀ is the desired lower bound C
-  exact ⟨Q.eval t₀, fun t ht => by
-    rw [← wickInteractionPolyON_eval N_val P c]
-    exact ht₀_min ht⟩
+    hcont_Q.exists_isMinOn' isClosed_Ici (Set.mem_Ici.mpr le_rfl) h_large
+  -- The minimum value Q.eval t₀ = wickInteraction_ON N_val P c t₀ is the lower bound
+  refine ⟨wickInteraction_ON N_val P c t₀, fun t ht => ?_⟩
+  have h_eq : ∀ s : ℝ, Q.eval s = wickInteraction_ON N_val P c s :=
+    fun s => wickInteractionPolyON_eval N_val P c s
+  have hmin : Q.eval t₀ ≤ Q.eval t := ht₀_min (Set.mem_Ici.mpr ht)
+  rw [h_eq t₀, h_eq t] at hmin
+  exact hmin
 
 /-- The O(N) interaction is bounded below.
 

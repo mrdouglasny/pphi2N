@@ -26,6 +26,8 @@ standard P(φ)₂ interaction.
 -/
 
 import Mathlib.Analysis.SpecificLimits.Basic
+import Mathlib.Analysis.Polynomial.Basic
+import Mathlib.Topology.Order.Compact
 
 noncomputable section
 
@@ -57,10 +59,81 @@ structure ONInteraction where
 def ONInteraction.eval (P : ONInteraction) (t : ℝ) : ℝ :=
   (1 / (P.degree : ℝ)) * t ^ P.degree + ∑ m : Fin P.degree, P.coeff m * t ^ (m : ℕ)
 
-/-- P is nonneg for large t (bounded below). -/
-theorem ONInteraction.bounded_below (P : ONInteraction) :
-    ∃ C : ℝ, ∀ t : ℝ, C ≤ P.eval t := by
-  sorry -- standard: leading term dominates for large |t|
+/-- P is bounded below on [0, ∞) (the physical domain: t = |φ|² ≥ 0).
+
+P(t) = (1/k)t^k + lower terms with k ≥ 2 and leading coeff > 0.
+For t ≥ 0: the leading term grows as t^k → +∞, dominating lower terms.
+The minimum on [0, ∞) exists and is finite. -/
+theorem ONInteraction.bounded_below_nonneg (P : ONInteraction) :
+    ∃ C : ℝ, ∀ t : ℝ, 0 ≤ t → C ≤ P.eval t := by
+  -- Build a formal Polynomial ℝ whose eval agrees with P.eval
+  have hdeg_pos : 0 < P.degree := by linarith [P.hdeg]
+  have h1k_ne : (1 / (P.degree : ℝ)) ≠ 0 :=
+    one_div_ne_zero (Nat.cast_ne_zero.mpr (Nat.pos_iff_ne_zero.mp hdeg_pos))
+  -- The formal polynomial
+  set Q : Polynomial ℝ :=
+    Polynomial.C (1 / (P.degree : ℝ)) * Polynomial.X ^ P.degree +
+    ∑ m : Fin P.degree, Polynomial.C (P.coeff m) * Polynomial.X ^ (m : ℕ) with hQ_def
+  -- Q evaluates to P.eval
+  have hQ_eval : ∀ t : ℝ, Q.eval t = P.eval t := by
+    intro t
+    simp only [hQ_def, ONInteraction.eval, Polynomial.eval_add, Polynomial.eval_mul,
+      Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X,
+      Polynomial.eval_finset_sum]
+  -- natDegree of the two summands
+  have hlead_nd : (Polynomial.C (1 / (P.degree : ℝ)) * Polynomial.X ^ P.degree).natDegree
+      = P.degree :=
+    Polynomial.natDegree_C_mul_X_pow P.degree _ h1k_ne
+  have hsum_nd : (∑ m : Fin P.degree, Polynomial.C (P.coeff m) *
+      Polynomial.X ^ (m : ℕ)).natDegree < P.degree := by
+    apply lt_of_le_of_lt
+    · apply Polynomial.natDegree_sum_le_of_forall_le (n := P.degree - 1)
+      intro m _
+      calc (Polynomial.C (P.coeff m) * Polynomial.X ^ (m : ℕ)).natDegree
+          ≤ (Polynomial.C (P.coeff m)).natDegree + (Polynomial.X ^ (m : ℕ)).natDegree :=
+            Polynomial.natDegree_mul_le
+        _ = 0 + m.val := by rw [Polynomial.natDegree_C, Polynomial.natDegree_X_pow]
+        _ = m.val := zero_add _
+        _ ≤ P.degree - 1 := by omega
+    · omega
+  -- Q.natDegree = P.degree
+  have hQ_nd : Q.natDegree = P.degree := by
+    rw [hQ_def, Polynomial.natDegree_add_eq_left_of_natDegree_lt (by rwa [hlead_nd]), hlead_nd]
+  -- Q has positive leading coefficient 1/P.degree
+  have hQ_lc : 0 < Q.leadingCoeff := by
+    rw [Polynomial.leadingCoeff, hQ_nd, hQ_def, Polynomial.coeff_add,
+      Polynomial.coeff_C_mul, Polynomial.coeff_X_pow, if_pos rfl, mul_one,
+      Polynomial.coeff_eq_zero_of_natDegree_lt hsum_nd, add_zero]
+    exact div_pos one_pos (Nat.cast_pos.mpr hdeg_pos)
+  -- Q ≠ 0
+  have hQ_ne : Q ≠ 0 :=
+    Polynomial.leadingCoeff_ne_zero.mp (ne_of_gt hQ_lc)
+  -- Q → +∞ as t → +∞
+  have hQ_tendsto : Filter.Tendsto (fun t : ℝ => Q.eval t) Filter.atTop Filter.atTop :=
+    Q.tendsto_atTop_of_leadingCoeff_nonneg
+      (by rw [Polynomial.degree_eq_natDegree hQ_ne, hQ_nd]; exact_mod_cast hdeg_pos)
+      (le_of_lt hQ_lc)
+  -- P.eval is continuous on Ici 0
+  have hcont : ContinuousOn (fun t : ℝ => P.eval t) (Set.Ici 0) := by
+    unfold ONInteraction.eval
+    apply Continuous.continuousOn
+    exact (continuous_const.mul (continuous_pow _)).add
+      (continuous_finset_sum _ (fun m _ => continuous_const.mul (continuous_pow _)))
+  -- Q.eval is eventually ≥ Q.eval 0 outside compact set, restricted to Ici 0
+  have h_large : ∀ᶠ t in Filter.cocompact ℝ ⊓ Filter.principal (Set.Ici 0),
+      Q.eval 0 ≤ Q.eval t := by
+    rw [cocompact_eq_atBot_atTop, inf_sup_right,
+        (Filter.disjoint_atBot_principal_Ici (0 : ℝ)).eq_bot, bot_sup_eq]
+    exact (hQ_tendsto.eventually (Filter.eventually_ge_atTop (Q.eval 0))).filter_mono inf_le_left
+  -- h_large in terms of P.eval
+  have h_large' : ∀ᶠ t in Filter.cocompact ℝ ⊓ Filter.principal (Set.Ici 0),
+      P.eval 0 ≤ P.eval t := by
+    apply h_large.mono; intro t ht
+    rwa [hQ_eval, hQ_eval] at ht
+  -- EVT: P.eval has a minimum t₀ on Ici 0
+  obtain ⟨t₀, _ht₀_mem, ht₀_min⟩ :=
+    hcont.exists_isMinOn' isClosed_Ici (Set.mem_Ici.mpr le_rfl) h_large'
+  exact ⟨P.eval t₀, fun t ht => ht₀_min (Set.mem_Ici.mpr ht)⟩
 
 /-- The quartic interaction P(t) = λt² (φ⁴ model). -/
 def quarticInteraction (lam : ℝ) (hlam : 0 < lam) : ONInteraction where
