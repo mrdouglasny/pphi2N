@@ -281,6 +281,119 @@ The mass gap depends only on $g^2$, not on $N$. This is the
 't~Hooft scaling of the large-$N$ expansion.
 \end{remark}
 
+\section{Prior and related work}
+
+The individual ingredients of this proof are all well established.
+What appears to be new is their combination into a single short
+argument for the infinite-volume mass gap of the O($N$) LSM at
+all~$N$.
+
+\subsection{Constructive QFT and cluster expansion}
+
+The mass gap for $P(\phi)_2$ ($N=1$) was proved by
+Glimm-Jaffe-Spencer \cite{GJS76} using cluster expansion, a
+powerful but technically demanding combinatorial technique.
+The extension to $N \geq 2$ was sketched by these and other
+authors, but the detailed proofs remained in the
+cluster-expansion framework.
+
+Kupiainen \cite{Kupiainen80} proved the mass gap for the O($N$)
+NLSM at large~$N$ using the Hubbard-Stratonovich transformation
+combined with a cluster expansion for the $1/N$ corrections.
+His approach works for the NLSM directly (hard constraint
+$|\ph| = R$) but requires the full cluster expansion machinery.
+
+\subsection{Brascamp-Lieb and functional inequalities}
+
+The Brascamp-Lieb inequality \cite{BL76} was developed in 1976,
+contemporaneously with the constructive QFT program, but in the
+functional analysis / convex geometry community. It was applied
+to lattice spin systems for correlation inequalities, but not
+systematically exploited for mass gap proofs in QFT.
+
+The Bakry-\'Emery theory \cite{BGL14} developed the connection
+between log-concavity, Poincar\'e inequalities, and exponential
+mixing in the 1980s--2000s, primarily in the probability community.
+The equivalence ``Poincar\'e inequality $\Leftrightarrow$ spectral gap
+$\Leftrightarrow$ exponential decay of correlations'' was well known
+in that community but not widely used in constructive QFT.
+
+Helffer and Sj\"ostrand \cite{HS94} developed the Witten Laplacian
+approach to semiclassical analysis, which is closely related to
+Brascamp-Lieb. They applied it to spectral gaps of log-concave
+measures on $\R^n$, including lattice spin systems. Their work
+is perhaps the closest precursor to our approach, but they did
+not apply it to the O($N$) $\sigma$-model specifically.
+
+\subsection{The $\sigma$-model and large $N$}
+
+The Hubbard-Stratonovich transformation and the effective action
+$s_{\rm eff}[\sigma]$ are standard tools in the physics literature
+(see \cite{MZJ03} for a review). The convexity of $s_{\rm eff}$
+for the LSM at large $\lambda$ is implicit in many physics papers,
+but its consequence --- that Brascamp-Lieb gives a mass gap for
+ALL $N$ without cluster expansion --- was not stated explicitly.
+
+The $N \to \infty$ limit of the O($N$) model is classical:
+$\sigma \to \sigma_*$ deterministically, and the mass gap
+$\sqrt{\sigma_*}$ is immediate. The $1/N$ corrections were
+studied perturbatively (Moshe-Zinn-Justin \cite{MZJ03}) and
+rigorously (Kupiainen \cite{Kupiainen80}). Our contribution is
+to observe that the Brascamp-Lieb bound makes the argument
+non-perturbative and valid at \emph{any} $N$, not just large~$N$.
+
+\subsection{Random Schr\"odinger operators}
+
+The theory of random Schr\"odinger operators
+\cite{Kirsch07,AW15} focuses primarily on Anderson localization
+(spectral properties of $-\Delta + V$ with random~$V$). The
+application to QFT mass gaps --- where the random potential
+$\sigma(x)$ is \emph{positive} and \emph{concentrated}, so the
+operator is a \emph{small perturbation} of the deterministic
+$-\Delta + \sigma_*$ --- uses much simpler perturbation theory
+than the localization results. The key observation that $L^2$
+control (variance from Brascamp-Lieb) suffices, rather than
+$L^\infty$ control (which diverges in infinite volume), connects
+the functional inequality and random operator literatures.
+
+\subsection{Why this combination is new}
+
+Several factors seem to have prevented this proof from being
+written down earlier:
+
+\begin{enumerate}
+\item \textbf{Focus on the NLSM.} The O($N$) NLSM (hard constraint
+$|\ph| = R$) was the primary target, being asymptotically free and
+connected to gauge theories. The LSM at finite $\lambda$ was viewed
+as a trivial regularization with an ``obvious'' mass gap from the
+confining potential. But ``obvious in finite volume'' does not imply
+``proved in infinite volume'' --- the thermodynamic limit requires
+the Poincar\'e / random Schr\"odinger argument.
+
+\item \textbf{Dominance of cluster expansion.} The constructive
+QFT community's main tool was cluster expansion. Brascamp-Lieb
+was known but not systematically applied to QFT mass gaps. The
+realization that it \emph{replaces} the cluster expansion for
+log-concave $\sigma$-measures was not made.
+
+\item \textbf{Community boundaries.} The tools come from three
+communities: the Hubbard-Stratonovich transformation from QFT,
+the Brascamp-Lieb / Poincar\'e theory from probability, and the
+resolvent perturbation theory from random Schr\"odinger operators.
+These communities developed largely independently.
+
+\item \textbf{The $N = 2$ subtlety.} The BKT transition for
+O(2) models in 2D may have discouraged attempts at $N$-independent
+proofs. Our observation that BKT only occurs at $\lambda = \infty$
+--- and that at any finite $\lambda$ the radial $\sigma$-fluctuations
+suppress vortex proliferation --- removes this obstruction.
+
+\item \textbf{Formalization.} The Lean~4 formalization of the proof
+forced us to identify the exact logical dependencies, revealing that
+the argument is shorter and cleaner than expected: five steps, each
+using well-established tools, with no cluster expansion.
+\end{enumerate}
+
 \begin{thebibliography}{99}
 \bibitem{BL76} H.~J.~Brascamp and E.~H.~Lieb,
   ``On extensions of the Brunn-Minkowski and Pr\'ekopa-Leindler theorems,
@@ -308,6 +421,23 @@ The mass gap depends only on $g^2$, not on $N$. This is the
   ``An invitation to random Schr\"odinger operators,''
   in \textit{Random Schr\"odinger Operators}, Panoramas et Synth\`eses
   \textbf{25} (2008) 1--119.
+
+\bibitem{GJS76} J.~Glimm, A.~Jaffe, and T.~Spencer,
+  ``The Wightman axioms and particle structure in the $P(\phi)_2$
+  quantum field model,''
+  Ann.~Math.~\textbf{100} (1974) 585--632.
+
+\bibitem{HS94} B.~Helffer and J.~Sj\"ostrand,
+  ``On the correlation for Kac-like models in the convex case,''
+  J.~Stat.~Phys.~\textbf{74} (1994) 349--409.
+
+\bibitem{MZJ03} M.~Moshe and J.~Zinn-Justin,
+  ``Quantum field theory in the large $N$ limit: a review,''
+  Phys.~Rep.~\textbf{385} (2003) 69--228.
+
+\bibitem{AW15} M.~Aizenman and S.~Warzel,
+  \textit{Random Operators: Disorder Effects on Quantum Spectra
+  and Dynamics}, AMS, 2015.
 \end{thebibliography}
 
 \end{document}
