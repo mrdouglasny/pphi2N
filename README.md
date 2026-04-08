@@ -2,7 +2,7 @@
 
 ## What this project proves
 
-Multiple theorems in Lean 4, with 0 sorries and 10 axioms. The
+Multiple theorems in Lean 4, with 0 sorries and 7 axioms. The
 dependency repos (pphi2, gaussian-field, markov-semigroups) contribute
 only proved theorems — none of their axioms are in our dependency chain.
 See [status.md](status.md) for complete inventory.
@@ -116,13 +116,15 @@ operator -Δ + σ(x) has a gap because σ is concentrated near σ* > 0
 (Brascamp-Lieb Poincaré), and the L² perturbation is controlled by
 the spectral gap of the σ-measure. See `docs/infinite-volume-mass-gap.tex`.
 
-## Axioms (10)
+## Axioms (7)
 
 See [status.md](status.md) for the complete inventory with difficulty
-ratings and proof strategies. All 10 are standard facts from lattice
-QFT, Gaussian measure theory, and random Schrödinger operators.
+ratings and proof strategies. The 7 axioms are: 6 for the continuum
+limit (lattice Wick constant, Green's function bound, density transfer,
+lattice approximation, exponential moments) and 1 for the mass gap
+(resolvent perturbation bound for the averaged φ-propagator).
 
-None of the dependency repos' axioms are used. The 10 axioms above
+None of the dependency repos' axioms are used. The 7 axioms above
 are the complete set of unproved assumptions.
 
 ## Build

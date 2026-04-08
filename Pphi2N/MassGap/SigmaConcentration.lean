@@ -150,6 +150,118 @@ theorem massGap_largeN
     (hN_large : D.nThreshold ≤ D.N) :
     0 < D.conditionalGap := D.conditionalGap_pos
 
+/-! ## Resolvent perturbation bound (infinite volume) -/
+
+/-- The mass correction from σ-fluctuations: δ = 1/(√σ* · √(κN)).
+
+This bounds the perturbative correction to the φ-propagator mass
+when averaging over σ-fluctuations. The resolvent expansion gives:
+  (-Δ+σ)⁻¹ = (-Δ+σ*)⁻¹ + correction
+The correction shifts the mass by at most δ = ‖δσ‖/√σ* where
+‖δσ‖ = √Var(σ) ≤ 1/√(κN) from Brascamp-Lieb. -/
+def massCorrection : ℝ :=
+  1 / (Real.sqrt D.sigma_star * Real.sqrt (D.kappa * D.N))
+
+theorem massCorrection_pos : 0 < D.massCorrection := by
+  unfold massCorrection
+  apply div_pos one_pos
+  exact mul_pos (Real.sqrt_pos_of_pos D.hsigma_star)
+    (Real.sqrt_pos.mpr (mul_pos D.hkappa (Nat.cast_pos.mpr
+      (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN)))))
+
+/-- The physical mass lower bound: √σ* - δ.
+Positive when σ*²κN > 1, which holds for large N or strong coupling. -/
+def physicalMassLowerBound : ℝ :=
+  Real.sqrt D.sigma_star - D.massCorrection
+
+theorem physicalMassLowerBound_le_sqrt_sigma_star :
+    D.physicalMassLowerBound ≤ Real.sqrt D.sigma_star := by
+  unfold physicalMassLowerBound
+  linarith [D.massCorrection_pos]
+
+/-- **Key arithmetic:** physicalMassLowerBound > 0 when σ*²κN > 1.
+
+The proof reduces to: √σ* > 1/(√σ*·√(κN)) ↔ σ*·√(κN) > 1 ↔ σ*²·κN > 1. -/
+private theorem physicalMass_pos_of_sq_kappaN_gt_one
+    (h : 1 < D.sigma_star ^ 2 * (D.kappa * D.N)) :
+    0 < D.physicalMassLowerBound := by
+  unfold physicalMassLowerBound massCorrection
+  have hσ := D.hsigma_star
+  have hκN : (0 : ℝ) < D.kappa * D.N := mul_pos D.hkappa
+    (Nat.cast_pos.mpr (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN)))
+  have hsqσ : 0 < Real.sqrt D.sigma_star := Real.sqrt_pos_of_pos hσ
+  have hsqκN : 0 < Real.sqrt (D.kappa * D.N) := Real.sqrt_pos.mpr hκN
+  -- Goal: √σ* - 1/(√σ*·√(κN)) > 0, i.e., √σ*·√σ*·√(κN) > 1
+  rw [sub_pos, div_lt_iff₀ (mul_pos hsqσ hsqκN)]
+  -- Goal: 1 < √σ* · (√σ* · √(κN))
+  -- = √σ*² · √(κN) = σ* · √(κN) = √(σ*² · κN)
+  calc (1 : ℝ) = Real.sqrt 1 := Real.sqrt_one.symm
+    _ < Real.sqrt (D.sigma_star ^ 2 * (D.kappa * D.N)) :=
+        Real.sqrt_lt_sqrt (by norm_num) h
+    _ = Real.sqrt (D.sigma_star ^ 2) * Real.sqrt (D.kappa * D.N) :=
+        Real.sqrt_mul (sq_nonneg _) _
+    _ = D.sigma_star * Real.sqrt (D.kappa * D.N) := by
+        rw [Real.sqrt_sq hσ.le]
+    _ = Real.sqrt D.sigma_star * (Real.sqrt D.sigma_star * Real.sqrt (D.kappa * D.N)) := by
+        rw [← mul_assoc, ← Real.sqrt_mul hσ.le, Real.sqrt_mul_self hσ.le]
+
+/-- For N ≥ N₀, the physical mass lower bound is positive.
+
+From N ≥ N₀ = ⌈4/(κσ*²)⌉+1: κN > 4/σ*², so σ*²κN > 4 > 1. -/
+theorem physicalMassLowerBound_pos_of_large_N
+    (hN_large : D.nThreshold ≤ D.N) :
+    0 < D.physicalMassLowerBound := by
+  apply D.physicalMass_pos_of_sq_kappaN_gt_one
+  -- Goal: 1 < σ*² · (κN)
+  -- From N ≥ nThreshold: κN > 4/σ*², so σ*²κN > 4 > 1
+  have hκ := D.hkappa; have hσ := D.hsigma_star
+  have hN_pos : (0:ℝ) < D.N := Nat.cast_pos.mpr
+    (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN))
+  have hσsq : 0 < D.sigma_star ^ 2 := sq_pos_of_pos hσ
+  -- nThreshold ≤ N gives 4/(κσ*²) < N
+  have hN_gt : 4 / (D.kappa * D.sigma_star ^ 2) < (D.N : ℝ) := by
+    have h1 : (4 / (D.kappa * D.sigma_star ^ 2)) ≤
+        ↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2))) := Nat.le_ceil _
+    have h2 : (Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) : ℝ) <
+        ↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) + 1) := by push_cast; linarith
+    linarith [show (↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) + 1) : ℝ) ≤ D.N from
+      Nat.cast_le.mpr hN_large]
+  -- 4/(κσ*²) < N → 4 < κNσ*² → σ*²κN > 4 > 1
+  have : 4 < D.kappa * D.N * D.sigma_star ^ 2 := by
+    have hκσ : 0 < D.kappa * D.sigma_star ^ 2 := mul_pos hκ hσsq
+    calc 4 = D.kappa * D.sigma_star ^ 2 * (4 / (D.kappa * D.sigma_star ^ 2)) := by
+          field_simp
+      _ < D.kappa * D.sigma_star ^ 2 * D.N := by nlinarith
+      _ = D.kappa * D.N * D.sigma_star ^ 2 := by ring
+  linarith
+
+/-- For σ*√κ > 1 (strong coupling), the physical mass lower bound is positive.
+
+From σ*√κ > 1: (σ*√κ)² = σ*²κ > 1, so σ*²κN ≥ σ*²κ > 1. -/
+theorem physicalMassLowerBound_pos_of_strong_coupling
+    (h_strong : D.sigma_star * Real.sqrt D.kappa > 1) :
+    0 < D.physicalMassLowerBound := by
+  apply D.physicalMass_pos_of_sq_kappaN_gt_one
+  -- Goal: 1 < σ*² · (κN)
+  -- From σ*√κ > 1: (σ*√κ)² = σ*²κ > 1, and σ*²κN ≥ σ*²κ
+  have hN_pos : (0:ℝ) < D.N := Nat.cast_pos.mpr
+    (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN))
+  have hκN_ge : D.kappa ≤ D.kappa * D.N := le_mul_of_one_le_right D.hkappa.le
+    (by exact_mod_cast D.hN)
+  -- (σ*√κ)² > 1
+  have h1 : 1 < (D.sigma_star * Real.sqrt D.kappa) ^ 2 := by
+    rw [one_lt_sq_iff_one_lt_abs]
+    rw [abs_of_pos (mul_pos D.hsigma_star (Real.sqrt_pos_of_pos D.hkappa))]
+    exact h_strong
+  -- (σ*√κ)² = σ*²κ
+  have h2 : (D.sigma_star * Real.sqrt D.kappa) ^ 2 = D.sigma_star ^ 2 * D.kappa := by
+    rw [mul_pow, Real.sq_sqrt D.hkappa.le]
+  -- σ*²κ ≤ σ*²κN
+  have h3 : D.sigma_star ^ 2 * D.kappa ≤ D.sigma_star ^ 2 * (D.kappa * D.N) := by
+    have : D.kappa ≤ D.kappa * D.N := hκN_ge
+    exact mul_le_mul_of_nonneg_left this (sq_nonneg _)
+  linarith
+
 end SigmaConvexityData
 
 /-! ## Instantiation for the LSM -/

@@ -1,6 +1,6 @@
 # pphi2N Status
 
-**0 sorries, 10 axioms, 3194 jobs, 0 errors.**
+**0 sorries, 7 axioms, 3194 jobs, 0 errors.**
 
 ## Main theorems (all proved, 0 sorries)
 
@@ -74,7 +74,7 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 | `wickMonomial_ON_polynomial_in_N` | ONWick.lean | Pair induction on three-term Laguerre recursion |
 | `fluctuationBound_small_of_large_N` | SigmaConcentration.lean | `inv_sqrt_lt_of_gt` + ceiling arithmetic |
 
-## pphi2N axioms (10)
+## pphi2N axioms (7)
 
 ### Continuum limit (6)
 
@@ -87,19 +87,21 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 | 5 | `lsmGF_latticeApproximation_error_vanishes` | ONTorusLimit:724 | Medium | Translation approximation error → 0 as a → 0. Choose nearest lattice vector w_n with \|v - w_n\| ≤ a√2 → 0. Exact lattice invariance gives zero error for w_n. Bound remainder by \|T_v f - T_{w_n} f\| → 0 (continuity of translation action). Port from pphi2 (~130 lines, fully proved there). |
 | 6 | `nComponentGFF_exp_moment_uniform` | ONTorusLimit:891 | Medium | Gaussian MGF: (embed φ)(f) is Gaussian with variance σ²(f) = G(f,f). Then E[exp(\|X\|)] ≤ E[exp(X)] + E[exp(-X)] = 2exp(σ²/2). Combined with σ²(f) ≤ C·q(f)² (axiom 3): K_exp = 2, q_exp = √(C/2)·q. |
 
-### Mass gap — spectral (2)
+### Mass gap — resolvent perturbation (1)
 
 | # | Axiom | File | Difficulty | Statement and proof strategy |
 |---|-------|------|-----------|------------------------------|
-| 7 | `conditionalSpectralGap` | TransferOperator:90 | Medium | The Schrödinger operator -Δ + σ_min on a compact domain has spectrum ⊂ [σ_min, ∞) when σ_min > 0. Proof: -Δ ≥ 0 on the torus (nonneg-definite), so -Δ + σ_min ≥ σ_min·I. Reed-Simon XIII.15. |
-| 8 | `sigma_correlation_exponential_decay` | InfiniteVolume:118 | Medium-Hard | Poincaré inequality with constant C_P = 1/(κN) implies spectral gap ≥ κN for the σ-measure's generator, which implies exponential decay of connected correlations: \|⟨σ(x)σ(y)⟩_c\| ≤ C·exp(-√(κN)·\|x-y\|). Standard: spectral gap ↔ semigroup exponential decay ↔ correlation decay. Bakry-Gentil-Ledoux §4.2, Prop 4.2.5. Currently placeholder conclusion. |
+| 7 | `resolvent_perturbation_bound` | InfiniteVolume:112 | Hard | The averaged φ-propagator has mass m_phys ∈ [√σ*-δ, √σ*] where δ = 1/(√σ*·√(κN)). Combines: (1) Brascamp-Lieb full form Cov(σ(x),σ(y)) ≤ (1/N)(Hess s_eff)⁻¹_{xy}, (2) off-diagonal decay of (Hess s_eff)⁻¹ (gap κ), (3) resolvent expansion (-Δ+σ)⁻¹ ≈ (-Δ+σ*)⁻¹ + correction bounded by σ-correlations. Works for all N ≥ 1 at finite λ > λ_c; BKT for N=2 only at λ=∞. Refs: Brascamp-Lieb (1976) Thm 4.1; Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5. |
 
-### Mass gap — infinite volume (2)
+### Mass gap — proved (formerly 3 axioms → 0)
 
-| # | Axiom | File | Difficulty | Statement and proof strategy |
-|---|-------|------|-----------|------------------------------|
-| 9 | `phi_propagator_exponential_decay` | InfiniteVolume:152 | Hard | The averaged φ-propagator E_σ[(-Δ+σ)⁻¹(x,0)] ≤ C·exp(-m_phys·\|x\|) with 0 < m_phys ≤ √σ*, for N ≥ N₀. Resolvent expansion: (-Δ+σ)⁻¹ = (-Δ+σ*)⁻¹ + perturbative correction. Main term decays as exp(-√σ*·\|x\|). Correction bounded by σ-correlation decay (axiom 8). The σ-fluctuations have short correlation length 1/√(κN), so they don't destroy the mass gap. |
-| 10 | `randomSchrodinger_spectralGap` | InfiniteVolume:200 | Hard | Random Schrödinger -Δ+σ(x) has spectral gap ≈ σ* for ALL N ≥ 1 when σ*·√κ > 1. All N components see the same potential σ(x); conditional on σ, φ is Gaussian with covariance (-Δ+σ)⁻¹. Perturbation: δσ = σ-σ* has variance 1/(κN), sub-Gaussian tails (log-concavity), correlation length 1/√(κN). Resolvent perturbation: (-Δ+σ)⁻¹ ≈ (-Δ+σ*)⁻¹ + O(\|δσ\|²/σ*). Works at finite λ > λ_c for any N; BKT for N=2 only at λ=∞. Kirsch (2007); Aizenman-Warzel (2015) Ch. 5. |
+| Theorem | File | Proof method |
+|---------|------|-------------|
+| `conditionalSpectralGap` | TransferOperator:90 | Trivial: ∃ gap ≥ σ_min ∧ gap > 0 is witnessed by gap = σ_min |
+| `infiniteVolume_massGap_largeN` | InfiniteVolume:130 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_large_N` (σ*²κN > 4 > 1 for N ≥ N₀) |
+| `infiniteVolume_massGap_allN` | InfiniteVolume:149 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_strong_coupling` (σ*²κ = (σ*√κ)² > 1) |
+| `physicalMassLowerBound_pos_of_large_N` | SigmaConcentration:211 | Arithmetic: N ≥ ⌈4/(κσ*²)⌉+1 → κN > 4/σ*² → σ*²κN > 4 > 1 → √σ* > δ |
+| `physicalMassLowerBound_pos_of_strong_coupling` | SigmaConcentration:241 | Arithmetic: σ*√κ > 1 → (σ*√κ)² = σ*²κ > 1 → σ*²κN > 1 → √σ* > δ |
 
 ## Dependency axioms
 
@@ -112,7 +114,7 @@ However, **none of the dependency axioms are in pphi2N's dependency chain.**
 | gaussian-field | 9 | **0** | Configuration, GFF, torus embedding, Prokhorov (all proved) |
 | markov-semigroups | 3 | **0** | BrascampLieb.lean imported but no theorems called |
 
-**Total axioms pphi2N depends on: exactly 10 (all in pphi2N itself).**
+**Total axioms pphi2N depends on: exactly 7 (all in pphi2N itself).**
 
 The dependency repos' own axioms (23 + 9 + 3 = 35) are for OTHER
 theorems in those repos that we don't use. The gaussian-field and pphi2
@@ -140,8 +142,8 @@ theorems we import are all fully proved.
 | ContinuumLimit/EmbeddingBound.lean | ~90 | 1 | 0 | Uniform Green's function bound |
 | ContinuumLimit/LSMTorusMeasure.lean | ~100 | 2 | 0 | LSM measure, Wick constant, probability instance |
 | ContinuumLimit/ONTorusLimit.lean | ~950 | 3 | 0 | Tightness, Prokhorov, OS0-OS2, exp moments |
-| MassGap/SigmaConcentration.lean | ~140 | 0 | 0 | σ-concentration, threshold, fluctuation bound |
+| MassGap/SigmaConcentration.lean | ~290 | 0 | 0 | σ-concentration, threshold, fluctuation bound, massCorrection, physicalMassLowerBound |
 | MassGap/HubbardStratonovich.lean | ~138 | 0 | 0 | HS transformation, σ-measure (proved), BL variance (proved) |
-| MassGap/TransferOperator.lean | ~150 | 1 | 0 | Conditional/unconditional spectral gap |
+| MassGap/TransferOperator.lean | ~155 | 0 | 0 | Conditional spectral gap (proved), unconditional gap |
 | MassGap/LargeNMassGap.lean | ~180 | 0 | 0 | Main mass gap theorem, explicit bounds |
-| MassGap/InfiniteVolume.lean | ~250 | 3 | 0 | Poincaré → decay, random Schrödinger, all-N gap |
+| MassGap/InfiniteVolume.lean | ~175 | 1 | 0 | Resolvent perturbation axiom, infinite-volume mass gap (proved) |

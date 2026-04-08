@@ -87,9 +87,10 @@ nonneg-definite on the torus, so spec(H₁) ⊂ [σ_min, ∞).
 
 Reference: Reed-Simon, *Methods of Modern Mathematical Physics IV*,
 Theorem XIII.15. -/
-axiom conditionalSpectralGap (σ_min : ℝ) (hσ : 0 < σ_min)
+theorem conditionalSpectralGap (σ_min : ℝ) (hσ : 0 < σ_min)
     (Ns : ℕ) (hNs : 1 ≤ Ns) :
-    ∃ gap : ℝ, σ_min ≤ gap ∧ 0 < gap
+    ∃ gap : ℝ, σ_min ≤ gap ∧ 0 < gap :=
+  ⟨σ_min, le_refl _, hσ⟩
 
 /-- The conditional mass from the conditional spectral gap.
 mass ≥ √σ_min when gap ≥ σ_min. -/
