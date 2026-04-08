@@ -1,6 +1,6 @@
 # pphi2N Status
 
-**0 sorries, 7 axioms, 3194 jobs, 0 errors.**
+**0 sorries, 8 axioms, 3194 jobs, 0 errors.**
 
 ## Main theorems (all proved, 0 sorries)
 
@@ -74,7 +74,7 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 | `wickMonomial_ON_polynomial_in_N` | ONWick.lean | Pair induction on three-term Laguerre recursion |
 | `fluctuationBound_small_of_large_N` | SigmaConcentration.lean | `inv_sqrt_lt_of_gt` + ceiling arithmetic |
 
-## pphi2N axioms (7)
+## pphi2N axioms (8)
 
 ### Continuum limit (6)
 
@@ -87,11 +87,17 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 | 5 | `lsmGF_latticeApproximation_error_vanishes` | ONTorusLimit:724 | Medium | Translation approximation error → 0 as a → 0. Choose nearest lattice vector w_n with \|v - w_n\| ≤ a√2 → 0. Exact lattice invariance gives zero error for w_n. Bound remainder by \|T_v f - T_{w_n} f\| → 0 (continuity of translation action). Port from pphi2 (~130 lines, fully proved there). |
 | 6 | `nComponentGFF_exp_moment_uniform` | ONTorusLimit:891 | Medium | Gaussian MGF: (embed φ)(f) is Gaussian with variance σ²(f) = G(f,f). Then E[exp(\|X\|)] ≤ E[exp(X)] + E[exp(-X)] = 2exp(σ²/2). Combined with σ²(f) ≤ C·q(f)² (axiom 3): K_exp = 2, q_exp = √(C/2)·q. |
 
+### Mass gap — σ-measure Hessian (1)
+
+| # | Axiom | File | Difficulty | Statement and proof strategy |
+|---|-------|------|-----------|------------------------------|
+| 7 | `sigma_logConcave` | SigmaLogConcave:81 | Medium-Hard | The σ-measure exp(-N·s_eff) admits a `LogConcaveMeasure` structure with Hessian ≥ κN. Requires: Hessian of Tr log(-Δ+σ) = -G², so Hess(N·s_eff) = N(-½G²+2λI) ≥ κN when 2λ > ½\|G²\|. Matrix calculus for log-det derivative. Refs: Brézin-Zinn-Justin (1976) §II. |
+
 ### Mass gap — resolvent perturbation (1)
 
 | # | Axiom | File | Difficulty | Statement and proof strategy |
 |---|-------|------|-----------|------------------------------|
-| 7 | `resolvent_perturbation_bound` | InfiniteVolume:112 | Hard | The averaged φ-propagator has mass m_phys ∈ [√σ*-δ, √σ*] where δ = 1/(√σ*·√(κN)). Decomposes into 3 facts (see roadmap below). Works for all N ≥ 1 at finite λ > λ_c; BKT for N=2 only at λ=∞. |
+| 8 | `resolvent_perturbation_bound` | InfiniteVolume:127 | Hard | The averaged φ-propagator has mass m_phys ∈ [√σ*-δ, √σ*] where δ = 1/(√σ*·√(κN)). Decomposes into 3 facts (see roadmap below). Works for all N ≥ 1 at finite λ > λ_c; BKT for N=2 only at λ=∞. |
 
 #### Proof roadmap for `resolvent_perturbation_bound`
 
@@ -99,7 +105,7 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 |------|--------|-----------|----------------|
 | Fact 1: -Δ ≥ 0 | **PROVED** (`LatticeOperator.lean`) | `laplacian_nonneg_general`: v^T L v ≥ 0 for any graph Laplacian | From Mathlib `posSemidef_lapMatrix` |
 | Fact 1b: -Δ+c ≥ c | **PROVED** (`LatticeOperator.lean`) | `psd_add_scalar_bound`: v^T(H+cI)v ≥ c·\|v\|² when H PSD | From Fact 1 + algebra |
-| Fact 2: BL variance | Future | Var(σ(x)) ≤ 1/(κN) for σ-measure | Construct `LogConcaveMeasure` for σ-field, apply `brascampLieb_poincare` from markov-semigroups with ρ=κN, f=coord proj (∥∇f∥²=1) |
+| Fact 2: BL variance | **PROVED** (`SigmaLogConcave.lean`) | `sigma_variance_from_BL`: Var(σ(x)) ≤ 1/(κN) | From `sigma_logConcave` axiom (Hessian ≥ κN) + `brascampLieb_poincare` + ∥coord proj∥ ≤ 1 + ∫1 dμ = 1 |
 | Fact 3: Resolvent mass | Axiom | Averaged propagator mass ≥ √σ*-δ | Irreducible: resolvent identity + Neumann series (Mathlib `inverse_one_sub`) + Combes-Thomas. Refs: Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5 |
 
 ### Mass gap — proved (formerly 3 axioms → 0)
@@ -109,6 +115,7 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 | `conditionalSpectralGap` | TransferOperator:90 | Trivial: ∃ gap ≥ σ_min ∧ gap > 0 is witnessed by gap = σ_min |
 | `laplacian_nonneg_general` | LatticeOperator.lean | From Mathlib `posSemidef_lapMatrix` (graph Laplacian PSD) |
 | `psd_add_scalar_bound` | LatticeOperator.lean | H PSD → v^T(H+cI)v ≥ c·\|v\|² (algebra from PSD) |
+| `sigma_variance_from_BL` | SigmaLogConcave.lean | From `sigma_logConcave` (Hessian ≥ κN) + `brascampLieb_poincare` + ∥coord proj∥ ≤ 1 + ∫1 dμ = 1 |
 | `infiniteVolume_massGap_largeN` | InfiniteVolume:130 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_large_N` (σ*²κN > 4 > 1 for N ≥ N₀) |
 | `infiniteVolume_massGap_allN` | InfiniteVolume:149 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_strong_coupling` (σ*²κ = (σ*√κ)² > 1) |
 | `physicalMassLowerBound_pos_of_large_N` | SigmaConcentration:211 | Arithmetic: N ≥ ⌈4/(κσ*²)⌉+1 → κN > 4/σ*² → σ*²κN > 4 > 1 → √σ* > δ |
@@ -125,13 +132,13 @@ However, **none of the dependency axioms are in pphi2N's dependency chain.**
 | gaussian-field | 9 | **0** | Configuration, GFF, torus embedding, Prokhorov (all proved) |
 | markov-semigroups | 3 | **0** | BrascampLieb.lean imported but no theorems called |
 
-**Total axioms pphi2N depends on: exactly 7 (all in pphi2N itself).**
+**Total axioms pphi2N depends on: exactly 8 (all in pphi2N itself).**
 
 The dependency repos' own axioms (23 + 9 + 3 = 35) are for OTHER
 theorems in those repos that we don't use. The gaussian-field and pphi2
 theorems we import are all fully proved.
 
-## File inventory (21 Lean files)
+## File inventory (22 Lean files)
 
 | File | Lines | Axioms | Sorries | Key content |
 |------|-------|--------|---------|-------------|
@@ -156,6 +163,7 @@ theorems we import are all fully proved.
 | MassGap/SigmaConcentration.lean | ~290 | 0 | 0 | σ-concentration, threshold, fluctuation bound, massCorrection, physicalMassLowerBound |
 | MassGap/HubbardStratonovich.lean | ~138 | 0 | 0 | HS transformation, σ-measure (proved), BL variance (proved) |
 | MassGap/LatticeOperator.lean | ~80 | 0 | 0 | Graph Laplacian PSD (from Mathlib), -Δ+c ≥ c |
+| MassGap/SigmaLogConcave.lean | ~150 | 1 | 0 | BL bridge: σ-measure Hessian axiom → Var(σ(x)) ≤ 1/(κN) (proved) |
 | MassGap/TransferOperator.lean | ~155 | 0 | 0 | Conditional spectral gap (proved), unconditional gap |
 | MassGap/LargeNMassGap.lean | ~180 | 0 | 0 | Main mass gap theorem, explicit bounds |
 | MassGap/InfiniteVolume.lean | ~175 | 1 | 0 | Resolvent perturbation axiom, infinite-volume mass gap (proved) |
