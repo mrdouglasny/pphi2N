@@ -418,11 +418,49 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
   -- Reconstruct: a complex number is determined by its re and im parts.
   -- ∫ exp(ix) dμ = (∫ cos(x) dμ) + i·(∫ sin(x) dμ) by linearity.
   -- Since re and im parts agree (h_cos_eq, h_sin_eq), the integrals agree.
+  -- Helper: integrability of ω ↦ exp(I * ↑(ω g)) (norm = 1)
+  have h_int : ∀ g : NComponentTorusTestFunction L_phys params.N,
+      Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
+        Complex.exp (Complex.I * ↑(ω g))) μ := fun g =>
+    (integrable_const (1 : ℂ)).mono
+      ((Complex.measurable_exp.comp (measurable_const.mul
+        (Complex.measurable_ofReal.comp
+          (configuration_eval_measurable g)))).aestronglyMeasurable)
+      (ae_of_all _ fun ω => by
+        simp only [norm_one]
+        rw [show Complex.I * ↑(ω g) = ↑(ω g) * Complex.I from mul_comm _ _]
+        exact le_of_eq (Complex.norm_exp_ofReal_mul_I (ω g)))
+  -- Helper: re of ∫ exp(I * ω g) = ∫ cos(ω g)
+  have h_re : ∀ g : NComponentTorusTestFunction L_phys params.N,
+      (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).re =
+      ∫ ω : NComponentTorusConfig L_phys params.N, Real.cos (ω g) ∂μ := fun g => by
+    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).re =
+      Complex.reCLM (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ) from rfl]
+    rw [← ContinuousLinearMap.integral_comp_comm Complex.reCLM (h_int g)]
+    congr 1 with ω
+    simp only [Complex.reCLM_apply, mul_comm Complex.I, Complex.exp_mul_I,
+      Complex.add_re, Complex.mul_re, Complex.I_re, mul_zero,
+      Complex.sin_ofReal_im, Complex.I_im, mul_one, sub_self, add_zero]
+    exact Complex.cos_ofReal_re (ω g)
+  -- Helper: im of ∫ exp(I * ω g) = ∫ sin(ω g)
+  have h_im : ∀ g : NComponentTorusTestFunction L_phys params.N,
+      (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).im =
+      ∫ ω : NComponentTorusConfig L_phys params.N, Real.sin (ω g) ∂μ := fun g => by
+    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).im =
+      Complex.imCLM (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ) from rfl]
+    rw [← ContinuousLinearMap.integral_comp_comm Complex.imCLM (h_int g)]
+    congr 1 with ω
+    simp only [Complex.imCLM_apply, mul_comm Complex.I, Complex.exp_mul_I,
+      Complex.add_im, Complex.mul_im, Complex.I_re, Complex.I_im,
+      Complex.cos_ofReal_im, Complex.sin_ofReal_re, Complex.sin_ofReal_im]
+    ring
   apply Complex.ext
-  · -- Re parts: use h_cos_eq
-    sorry -- ∫ exp(iωf) re = ∫ cos(ωf) (from reCLM ∘ integral_comp_comm)
-  · -- Im parts: use h_sin_eq
-    sorry -- ∫ exp(iωf) im = ∫ sin(ωf) (from imCLM ∘ integral_comp_comm)
+  · -- Re parts: ∫ exp(iωf) re = ∫ cos(ωf) = ∫ cos(ωf') = ∫ exp(iωf') re
+    rw [h_re f, h_re f']
+    exact h_cos_eq
+  · -- Im parts: ∫ exp(iωf) im = ∫ sin(ωf) = ∫ sin(ωf') = ∫ exp(iωf') im
+    rw [h_im f, h_im f']
+    exact h_sin_eq
 
 /-! ## Bundled OS structure -/
 

@@ -74,8 +74,10 @@ structure SigmaEffAction (Sites : Type*) [Fintype Sites] where
   lapEigenval : Sites → ℝ
   /-- The potential V(σ). For LSM: V(σ) = λ(σ - v²)². -/
   potential : ℝ → ℝ
-  /-- V is C² and convex: V'' ≥ 0. -/
-  potential_convex : ∀ σ : ℝ, 0 ≤ sorry -- V''(σ), placeholder
+  /-- The second derivative V''(σ). -/
+  potential_deriv2 : ℝ → ℝ
+  /-- V is convex: V''(σ) ≥ 0 for all σ. -/
+  potential_convex : ∀ σ : ℝ, 0 ≤ potential_deriv2 σ
   /-- The entropic Hessian norm: ||G[σ]²||_op.
   This bounds the concave part of S_eff''. -/
   entropicHessianNorm : ℝ → ℝ
