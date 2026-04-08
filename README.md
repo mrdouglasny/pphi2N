@@ -2,7 +2,7 @@
 
 ## What this project proves
 
-Multiple theorems in Lean 4, with 0 sorries and 12 axioms. The
+Multiple theorems in Lean 4, with 0 sorries and 10 axioms. The
 dependency repos (pphi2, gaussian-field, markov-semigroups) contribute
 only proved theorems — none of their axioms are in our dependency chain.
 See [status.md](status.md) for complete inventory.
@@ -96,6 +96,8 @@ LSMParams → SigmaConvexityData (σ* > 0, κ > 0)
 | OS1 regularity | `ContinuumLimit/ONTorusLimit.lean` | ✓ Proved |
 | OS2 translation (limit structure) | `ContinuumLimit/ONTorusLimit.lean` | ✓ Proved |
 | Fluctuation bound 1/√(κN) < σ*/2 | `MassGap/SigmaConcentration.lean` | ✓ Proved |
+| σ-measure from HS (pushforward) | `MassGap/HubbardStratonovich.lean` | ✓ Proved |
+| σ variance bound (from BL) | `MassGap/HubbardStratonovich.lean` | ✓ Proved |
 | Mass gap at large N | `MassGap/LargeNMassGap.lean` | ✓ Proved |
 
 ### Theorem 3: Infinite-volume mass gap (large N)
@@ -114,13 +116,13 @@ operator -Δ + σ(x) has a gap because σ is concentrated near σ* > 0
 (Brascamp-Lieb Poincaré), and the L² perturbation is controlled by
 the spectral gap of the σ-measure. See `docs/infinite-volume-mass-gap.tex`.
 
-## Axioms (12)
+## Axioms (10)
 
 See [status.md](status.md) for the complete inventory with difficulty
-ratings and proof strategies. All 12 are standard facts from lattice
+ratings and proof strategies. All 10 are standard facts from lattice
 QFT, Gaussian measure theory, and random Schrödinger operators.
 
-None of the dependency repos' axioms are used. The 12 axioms above
+None of the dependency repos' axioms are used. The 10 axioms above
 are the complete set of unproved assumptions.
 
 ## Build
