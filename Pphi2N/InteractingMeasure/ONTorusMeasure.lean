@@ -96,15 +96,36 @@ the scalar one with an extra factor of N:
 
   V_N(φ) ≥ -C(N) · |Λ|  where C(N) = O(N · C₁)  -/
 
-/-- The O(N) interaction is bounded below (Nelson estimate).
+/-- The Wick interaction at a single site is bounded below.
 
-For any O(N)-invariant interaction :P(|φ|²): with P bounded below,
-the Wick-ordered interaction on the lattice satisfies V_N ≥ -B·|Λ|
-where B depends on N, the coupling, and the Wick constant. -/
-axiom onNelsonEstimate (P : ONInteraction) (c a : ℝ) (ha : 0 < a)
+wickInteraction_ON N P c t is a polynomial in t of degree P.degree
+with positive leading coefficient 1/P.degree. For t ≥ 0, such a
+polynomial is bounded below.
+
+Proof strategy: for t ∈ [0, T], bound by continuity + compactness.
+For t > T (large), the leading term (1/k)t^k dominates the lower terms. -/
+theorem wickInteraction_bounded_below (P : ONInteraction) (c : ℝ) (N_val : ℕ) :
+    ∃ C : ℝ, ∀ t : ℝ, 0 ≤ t → C ≤ wickInteraction_ON N_val P c t := by
+  sorry -- polynomial with positive leading coefficient bounded below on [0, ∞)
+
+/-- The O(N) interaction is bounded below.
+
+V(φ) = a^d · Σ_x :P(|φ(x)|²):_c where each term :P(t):_c ≥ -C for t ≥ 0.
+So V(φ) ≥ a^d · |Λ| · (-C) = -B. -/
+theorem onNelsonEstimate (P : ONInteraction) (c a : ℝ) (ha : 0 < a)
     (hc : 0 < c) :
     ∃ B : ℝ, ∀ (φ : Fin N → FinLatticeField d M),
-      onInteraction N d M P c a φ ≥ -B
+      onInteraction N d M P c a φ ≥ -B := by
+  obtain ⟨C, hC⟩ := wickInteraction_bounded_below P c N
+  refine ⟨-(a ^ d * ((Finset.univ : Finset (FinLatticeSites d M)).card : ℝ) * C), fun φ => ?_⟩
+  unfold onInteraction
+  calc a ^ d * ∑ x : FinLatticeSites d M, wickInteraction_ON N P c (siteNormSq N d M φ x)
+      ≥ a ^ d * ∑ x : FinLatticeSites d M, C := by
+        gcongr with x _
+        exact hC _ (siteNormSq_nonneg N d M φ x)
+    _ = a ^ d * (Finset.univ.card : ℝ) * C := by
+        rw [Finset.sum_const, nsmul_eq_mul]; ring
+    _ = -(-(a ^ d * (Finset.univ.card : ℝ) * C)) := by ring
 
 /-! ## The interacting measure -/
 
