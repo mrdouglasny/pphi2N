@@ -2,7 +2,9 @@
 
 ## What this project proves
 
-Two main theorems in Lean 4, with 0 sorries and 9 axioms:
+Multiple theorems in Lean 4, with 0 sorries and 12 axioms (plus
+23 + 9 + 3 = 35 axioms in dependencies pphi2, gaussian-field,
+markov-semigroups). See [status.md](status.md) for complete inventory.
 
 ### Theorem 1: Continuum limit with OS axioms
 
@@ -95,21 +97,30 @@ LSMParams → SigmaConvexityData (σ* > 0, κ > 0)
 | Fluctuation bound 1/√(κN) < σ*/2 | `MassGap/SigmaConcentration.lean` | ✓ Proved |
 | Mass gap at large N | `MassGap/LargeNMassGap.lean` | ✓ Proved |
 
-## Axioms (9)
+### Theorem 3: Infinite-volume mass gap (large N)
 
-All are standard facts from lattice QFT and Gaussian measure theory:
+**`infiniteVolume_massGap_largeN`** (`MassGap/InfiniteVolume.lean`):
+For N ≥ N₀, the φ-propagator decays exponentially in infinite volume.
 
-| Axiom | Content | Proof strategy |
-|-------|---------|---------------|
-| `latticeWickConstant` | G(x,x) exists | Spectral sum definition |
-| `latticeWickConstant_pos` | G(x,x) > 0 | Each term 1/(λ_k + m²) > 0 |
-| `nComponentGreen_uniform_bound` | ∫(ωf)² ≤ C·q(f)² uniform in M | torusGreen_uniform_bound componentwise |
-| `lsmDensityTransferConstant` | ∫F dμ_int ≤ D·∫F dμ_GFF | Nelson bound + Jensen |
-| `lsmGF_latticeApproximation_error_vanishes` | Z_M[T_v f]-Z_M[f]→0 | Lattice approx + Lipschitz (proved in pphi2) |
-| `nComponentGFF_exp_moment_uniform` | ∫exp(\|ωf\|) ≤ K·exp(q²) | Gaussian MGF + Green bound |
-| `sigma_measure_from_HS` | σ-measure exists | Gaussian integration |
-| `sigma_BL_variance_bound` | Var(σ(x)) bound ≥ 0 | Brascamp-Lieb (in markov-semigroups) |
-| `conditionalSpectralGap` | σ ≥ σ_min → gap ≥ σ_min | Schrödinger operator lower bound |
+### Theorem 4: Infinite-volume mass gap (all N, large λ)
+
+**`infiniteVolume_massGap_allN`** (`MassGap/InfiniteVolume.lean`):
+For ALL N ≥ 1 (including N=2) and λ > λ_c(g²), the φ-propagator
+decays exponentially in infinite volume with mass m > 0.
+
+The proof uses the random Schrödinger argument: the conditional
+operator -Δ + σ(x) has a gap because σ is concentrated near σ* > 0
+(Brascamp-Lieb Poincaré), and the L² perturbation is controlled by
+the spectral gap of the σ-measure. See `docs/infinite-volume-mass-gap.tex`.
+
+## Axioms (12)
+
+See [status.md](status.md) for the complete inventory with difficulty
+ratings and proof strategies. All 12 are standard facts from lattice
+QFT, Gaussian measure theory, and random Schrödinger operators.
+
+The full dependency tree has 47 axioms (12 here + 23 in pphi2 +
+9 in gaussian-field + 3 in markov-semigroups).
 
 ## Build
 
