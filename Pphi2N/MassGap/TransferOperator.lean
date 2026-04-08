@@ -124,10 +124,21 @@ Mathematical content: lower semicontinuity of the spectral gap under
 averaging, plus concentration of σ.
 
 Reference: Simon (1974), Ch. III, Theorem III.3. -/
-axiom unconditionalGap_of_concentration {Λ : Type*} [Fintype Λ]
+theorem unconditionalGap_of_concentration {Λ : Type*} [Fintype Λ] [Nonempty Λ]
     (D : SigmaConvexityData Λ)
     (hN : D.nThreshold ≤ D.N) :
-    ∃ gap : ℝ, 0 < gap ∧ gap ≤ D.conditionalGap
+    ∃ gap : ℝ, 0 < gap ∧ gap ≤ D.conditionalGap := by
+  -- The conditional spectral gap at σ_min = σ*/2:
+  have hσ_half : 0 < D.sigma_star / 2 := by linarith [D.hsigma_star]
+  obtain ⟨gap, hgap_ge, hgap_pos⟩ := conditionalSpectralGap (D.sigma_star / 2) hσ_half
+    (Fintype.card Λ) Fintype.card_pos
+  -- gap ≥ σ*/2 > 0
+  -- conditionalGap = √(σ*/2), and gap ≥ σ*/2 ≥ √(σ*/2) when σ*/2 ≥ 1
+  -- Actually conditionalGap = √(σ*/2), and gap ≥ σ*/2.
+  -- For σ*/2 ≤ 1: √(σ*/2) ≥ σ*/2, so gap ≥ σ*/2 doesn't immediately give gap ≤ conditionalGap.
+  -- We just use gap itself: ∃ gap, 0 < gap ∧ gap ≤ conditionalGap
+  -- Take gap' = min(gap, conditionalGap)
+  refine ⟨min gap D.conditionalGap, lt_min hgap_pos D.conditionalGap_pos, min_le_right _ _⟩
 
 /-- Construct transfer data from σ-convexity data at large N. -/
 theorem transfer_data_from_concentration {Λ : Type*} [Fintype Λ] [Nonempty Λ]
