@@ -89,13 +89,7 @@ axiom sigma_logConcave [DecidableEq Λ]
         Integrable (fun x => ‖fderiv ℝ f x‖ ^ 2) m.μ) ∧
       -- Hessian integrability
       (∀ (u : EuclideanSpace ℝ Λ → ℝ),
-        Integrable (fun x => hessianBilin m.V x (gradient u x) (gradient u x)) m.μ) ∧
-      -- Resolvent perturbation mass bound: from the Hessian bound + BL variance
-      -- + resolvent expansion, the averaged φ-propagator has mass in the range
-      -- [physicalMassLowerBound, √σ*].
-      -- Content: Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5.
-      (∃ (m_phys : ℝ),
-        D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star)
+        Integrable (fun x => hessianBilin m.V x (gradient u x) (gradient u x)) m.μ)
 
 /-! ## The Brascamp-Lieb variance bound
 
@@ -123,7 +117,7 @@ theorem sigma_variance_from_BL [DecidableEq Λ]
     (D : SigmaConvexityData Λ) (x : Λ) :
     ∃ (m : LogConcaveMeasure (EuclideanSpace ℝ Λ)),
       m.variance (fun σ => σ x) ≤ D.varianceBound := by
-  obtain ⟨m, hHess, hGrad, hHInt, _⟩ := sigma_logConcave D
+  obtain ⟨m, hHess, hGrad, hHInt⟩ := sigma_logConcave D
   refine ⟨m, ?_⟩
   -- Apply Brascamp-Lieb Poincaré with ρ = κN
   have hρ : 0 < D.kappa * D.N := mul_pos D.hkappa
@@ -175,17 +169,20 @@ theorem sigma_variance_from_BL [DecidableEq Λ]
         exact div_nonneg zero_le_one (le_of_lt hρ)
     _ = D.varianceBound := by unfold SigmaConvexityData.varianceBound; ring
 
-/-- **Resolvent perturbation bound (from sigma_logConcave).**
+/-- **Resolvent perturbation bound (trivially proved).**
 
-The averaged φ-propagator has mass m_phys in [physicalMassLowerBound, √σ*].
-This is the fourth component of the `sigma_logConcave` axiom, which bundles
-the Hessian bound (for BL variance) and the resolvent mass bound together. -/
+The interval [physicalMassLowerBound, √σ*] is nonempty because
+physicalMassLowerBound = √σ* - δ ≤ √σ*. We witness m_phys = √σ*.
+
+Note: the real mathematical content (that √σ* is actually the mass of
+the averaged propagator) is captured by the σ-concentration machinery,
+not by this existential. The formal theorem `infiniteVolume_massGap_largeN`
+only needs ∃ m > 0, which follows from σ* > 0. -/
 theorem resolvent_perturbation_bound_from_BL [DecidableEq Λ]
     (D : SigmaConvexityData Λ) :
     ∃ (m_phys : ℝ),
-      D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star := by
-  obtain ⟨_, _, _, _, hmass⟩ := sigma_logConcave D
-  exact hmass
+      D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star :=
+  ⟨Real.sqrt D.sigma_star, D.physicalMassLowerBound_le_sqrt_sigma_star, le_refl _⟩
 
 end Pphi2N
 
