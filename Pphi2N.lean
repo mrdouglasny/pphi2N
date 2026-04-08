@@ -14,3 +14,6 @@ import Pphi2N.ContinuumLimit.NComponentEmbedding
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
 import Pphi2N.ContinuumLimit.ONTorusLimit
 import Pphi2N.MassGap.SigmaConcentration
+import Pphi2N.MassGap.HubbardStratonovich
+import Pphi2N.MassGap.TransferOperator
+import Pphi2N.MassGap.LargeNMassGap
