@@ -30,6 +30,7 @@ via tightness + Prokhorov.
 -/
 
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
+import Pphi2N.ContinuumLimit.EmbeddingBound
 import Pphi2.GeneralResults.ComplexAnalysis
 import GaussianField.Tightness
 import GaussianField.ConfigurationEmbedding
@@ -76,8 +77,14 @@ theorem lsmTorus_uniform_second_moment (params : LSMParams) :
       ∀ (M : ℕ) [NeZero M] (f : NComponentTorusTestFunction L_phys params.N),
         ∫ ω : NComponentTorusConfig L_phys params.N,
           (ω f) ^ 2 ∂(lsmTorusMeasure L_phys params M) ≤ C * q f ^ 2 := by
-  sorry -- from pphi2's density_transfer_bound + torus_interacting_second_moment_uniform
-         -- adapted componentwise for the N-component product GFF
+  -- Strategy: E_int[F] ≤ (exp(B)/Z) · E_GFF[F] where exp(-V) ≤ exp(B) (Nelson).
+  -- E_GFF[(ωf)²] ≤ C·q(f)² (from nComponentGreen_uniform_bound).
+  -- Combined: E_int[(ωf)²] ≤ exp(2B)·C·q(f)².
+  -- But this requires matching types between lsmTorusMeasure (pushed forward)
+  -- and nComponentGreen_uniform_bound (also pushed forward GFF).
+  -- The key: lsmTorusMeasure M = Measure.map embed (onInteractingMeasure ...)
+  -- and the axiom bounds Measure.map embed (nComponentMeasure GFF).
+  sorry
 
 /-! ## Tightness and Prokhorov extraction -/
 
