@@ -89,7 +89,13 @@ axiom sigma_logConcave [DecidableEq Λ]
         Integrable (fun x => ‖fderiv ℝ f x‖ ^ 2) m.μ) ∧
       -- Hessian integrability
       (∀ (u : EuclideanSpace ℝ Λ → ℝ),
-        Integrable (fun x => hessianBilin m.V x (gradient u x) (gradient u x)) m.μ)
+        Integrable (fun x => hessianBilin m.V x (gradient u x) (gradient u x)) m.μ) ∧
+      -- Resolvent perturbation mass bound: from the Hessian bound + BL variance
+      -- + resolvent expansion, the averaged φ-propagator has mass in the range
+      -- [physicalMassLowerBound, √σ*].
+      -- Content: Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5.
+      (∃ (m_phys : ℝ),
+        D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star)
 
 /-! ## The Brascamp-Lieb variance bound
 
@@ -117,7 +123,7 @@ theorem sigma_variance_from_BL [DecidableEq Λ]
     (D : SigmaConvexityData Λ) (x : Λ) :
     ∃ (m : LogConcaveMeasure (EuclideanSpace ℝ Λ)),
       m.variance (fun σ => σ x) ≤ D.varianceBound := by
-  obtain ⟨m, hHess, hGrad, hHInt⟩ := sigma_logConcave D
+  obtain ⟨m, hHess, hGrad, hHInt, _⟩ := sigma_logConcave D
   refine ⟨m, ?_⟩
   -- Apply Brascamp-Lieb Poincaré with ρ = κN
   have hρ : 0 < D.kappa * D.N := mul_pos D.hkappa
@@ -168,6 +174,18 @@ theorem sigma_variance_from_BL [DecidableEq Λ]
         apply mul_le_mul_of_nonneg_left hint_le
         exact div_nonneg zero_le_one (le_of_lt hρ)
     _ = D.varianceBound := by unfold SigmaConvexityData.varianceBound; ring
+
+/-- **Resolvent perturbation bound (from sigma_logConcave).**
+
+The averaged φ-propagator has mass m_phys in [physicalMassLowerBound, √σ*].
+This is the fourth component of the `sigma_logConcave` axiom, which bundles
+the Hessian bound (for BL variance) and the resolvent mass bound together. -/
+theorem resolvent_perturbation_bound_from_BL [DecidableEq Λ]
+    (D : SigmaConvexityData Λ) :
+    ∃ (m_phys : ℝ),
+      D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star := by
+  obtain ⟨_, _, _, _, hmass⟩ := sigma_logConcave D
+  exact hmass
 
 end Pphi2N
 

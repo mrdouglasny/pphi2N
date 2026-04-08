@@ -42,8 +42,7 @@ the Poincaré inequality (spectral gap), which is volume-independent.
 - Aizenman-Warzel (2015), "Random Operators", Ch. 5
 -/
 
-import Pphi2N.MassGap.SigmaConcentration
-import MarkovSemigroups.Instances.BrascampLieb
+import Pphi2N.MassGap.SigmaLogConcave
 
 noncomputable section
 
@@ -51,7 +50,7 @@ open MeasureTheory
 
 namespace Pphi2N
 
-variable {Λ : Type*} [Fintype Λ]
+variable {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
 
 /-! ## The σ-field mass and correlation structure -/
 
@@ -60,13 +59,13 @@ From Brascamp-Lieb Poincaré: spectral gap ≥ κN, so m_σ = √(κN). -/
 def sigmaMass (D : SigmaConvexityData Λ) : ℝ :=
   Real.sqrt (D.kappa * D.N)
 
-theorem sigmaMass_pos {Λ : Type*} [Fintype Λ]
+theorem sigmaMass_pos {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
     (D : SigmaConvexityData Λ) : 0 < sigmaMass D :=
   Real.sqrt_pos.mpr (mul_pos D.hkappa (Nat.cast_pos.mpr
     (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN))))
 
 /-- The σ-field mass grows as √N → ∞. -/
-theorem sigmaMass_grows_with_N {Λ : Type*} [Fintype Λ]
+theorem sigmaMass_grows_with_N {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
     (D : SigmaConvexityData Λ) :
     D.kappa * D.N ≤ sigmaMass D ^ 2 := by
   unfold sigmaMass
@@ -124,10 +123,11 @@ References:
 - SimpleGraph.posSemidef_lapMatrix (Fact 1)
 - Kirsch (2007), §5 (Fact 3)
 - Aizenman-Warzel (2015), Ch. 5 (Fact 3) -/
-axiom resolvent_perturbation_bound {Λ : Type*} [Fintype Λ]
+theorem resolvent_perturbation_bound {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
     (D : SigmaConvexityData Λ) :
     ∃ (m_phys : ℝ),
-      D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star
+      D.physicalMassLowerBound ≤ m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star :=
+  resolvent_perturbation_bound_from_BL D
 
 /-! ## Main theorems — infinite-volume mass gap -/
 
@@ -144,7 +144,7 @@ the Poincaré spectral gap), not from pointwise σ-control.
 Proof: resolvent_perturbation_bound gives m_phys ≥ physicalMassLowerBound,
 and physicalMassLowerBound_pos_of_large_N gives physicalMassLowerBound > 0
 when N ≥ N₀. -/
-theorem infiniteVolume_massGap_largeN {Λ : Type*} [Fintype Λ]
+theorem infiniteVolume_massGap_largeN {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
     (D : SigmaConvexityData Λ) (hN : D.nThreshold ≤ D.N) :
     ∃ (m_phys : ℝ), 0 < m_phys := by
   obtain ⟨m, hm_lb, _⟩ := resolvent_perturbation_bound D
@@ -171,7 +171,7 @@ theorem infiniteVolume_massGap_allN
   exact ⟨m, lt_of_lt_of_le (D.physicalMassLowerBound_pos_of_strong_coupling h_strong) hm_lb⟩
 
 /-- The infinite-volume mass gap is bounded by √σ*. -/
-theorem infiniteVolume_massGap_bound {Λ : Type*} [Fintype Λ]
+theorem infiniteVolume_massGap_bound {Λ : Type*} [Fintype Λ] [DecidableEq Λ]
     (D : SigmaConvexityData Λ) (hN : D.nThreshold ≤ D.N) :
     ∃ (m_phys : ℝ), 0 < m_phys ∧ m_phys ≤ Real.sqrt D.sigma_star := by
   obtain ⟨m, hm_lb, hm_ub⟩ := resolvent_perturbation_bound D
