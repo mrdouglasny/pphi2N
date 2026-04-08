@@ -61,17 +61,23 @@ The key tightness input: for each test function f, the second moment
 
 /-- Uniform second moment bound for the LSM torus measures.
 
-For any N-component test function f, ∫ (ω f)² dμ_M ≤ C · q(f)²
-where C and q are independent of M. This is the main tightness input.
+Proof chain (same as pphi2's torus_interacting_second_moment_uniform):
+1. Density transfer: E_int[X²] ≤ C₁ · E_GFF[X⁴]^{1/2} · E_GFF[e^{-2V}]^{1/2}
+   (Cauchy-Schwarz on the Boltzmann weight)
+2. Hypercontractivity: E_GFF[X⁴] ≤ C₂ · (E_GFF[X²])² (Nelson/Gross)
+3. Nelson: E_GFF[e^{-2V}] ≤ e^{C₃|Λ|} (from onNelsonEstimate)
+4. Green's function: E_GFF[(ωf)²] = G(f,f) ≤ q(f)² (operator bound)
 
-Proof: from the Nelson estimate (exponential moment bound) and the
-uniform bound on the torus Green's function from gaussian-field. -/
-axiom lsmTorus_uniform_second_moment (params : LSMParams) :
+For N components: the product GFF decomposes, and each component
+contributes independently. The bound is N times the scalar bound. -/
+theorem lsmTorus_uniform_second_moment (params : LSMParams) :
     ∃ (C : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
       0 < C ∧ Continuous q ∧
       ∀ (M : ℕ) [NeZero M] (f : NComponentTorusTestFunction L_phys params.N),
         ∫ ω : NComponentTorusConfig L_phys params.N,
-          (ω f) ^ 2 ∂(lsmTorusMeasure L_phys params M) ≤ C * q f ^ 2
+          (ω f) ^ 2 ∂(lsmTorusMeasure L_phys params M) ≤ C * q f ^ 2 := by
+  sorry -- from pphi2's density_transfer_bound + torus_interacting_second_moment_uniform
+         -- adapted componentwise for the N-component product GFF
 
 /-! ## Tightness and Prokhorov extraction -/
 
