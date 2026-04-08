@@ -62,29 +62,43 @@ instance scalarLatticeGFF_isProbability (mass spacing : ℝ)
   unfold scalarLatticeGFF
   exact Measure.isProbabilityMeasure_map (evalMapMeasurableEquiv 2 M).measurable.aemeasurable
 
+/-- The Wick constant (scalar Green's function diagonal) for the lattice
+with spacing a and mass m: c = G(x,x) = Σ_k 1/(λ_k + m²).
+This is positive and depends on the lattice parameters but not on x
+(translation invariance). -/
+def latticeWickConstant (spacing mass : ℝ) (M : ℕ) [NeZero M] : ℝ :=
+  -- G(x,x) = (1/|Λ|) Σ_k 1/(eigenvalue_k + m²)
+  -- For the lattice (-Δ_a + m²), eigenvalues are (4/a²)sin²(πk/M) + m²
+  -- The diagonal is site-independent by translation invariance.
+  sorry -- concrete spectral sum
+
+theorem latticeWickConstant_pos (spacing mass : ℝ) (hspacing : 0 < spacing)
+    (hmass : 0 < mass) (M : ℕ) [NeZero M] :
+    0 < latticeWickConstant spacing mass M := by
+  sorry -- each term 1/(λ_k + m²) > 0
+
 def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
     Measure (NComponentTorusConfig L_phys params.N) :=
   haveI : NeZero params.N := ⟨Nat.one_le_iff_ne_zero.mp params.hN⟩
   let spacing := L_phys / M
   let hspacing := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
   let P := params.toONModel.interaction
-  let c : ℝ := 0  -- placeholder: Wick constant G(x,x)
+  let c := latticeWickConstant spacing params.mass M
   nComponentTorusMeasure L_phys params.N M P c spacing
     (scalarLatticeGFF params.mass spacing hspacing params.hmass M)
 
 /-- The LSM torus measure is a probability measure. -/
 instance lsmTorusMeasure_isProbability (params : LSMParams) (M : ℕ) [NeZero M] :
     IsProbabilityMeasure (lsmTorusMeasure L_phys params M) := by
-  -- lsmTorusMeasure = Measure.map embed (onInteractingMeasure ...)
-  -- onInteractingMeasure is a probability measure (proved)
-  -- embed is measurable (proved)
-  -- Measure.map of prob under measurable = prob
-  -- Blocked: Wick constant c=0 is a placeholder.
-  -- Needs actual Wick constant G(x,x) > 0 so that the Nelson estimate
-  -- gives Z > 0 and the onInteractingMeasure is well-defined as a
-  -- probability measure. With c=0, the Wick ordering is trivial and
-  -- the Nelson bound may fail for general polynomials.
-  sorry
+  haveI : NeZero params.N := ⟨Nat.one_le_iff_ne_zero.mp params.hN⟩
+  unfold lsmTorusMeasure nComponentTorusMeasure
+  have hspacing := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
+  have hc := latticeWickConstant_pos (L_phys / M) params.mass hspacing params.hmass M
+  haveI := onInteractingMeasure_isProbability (N := params.N) (d := 2) (M := M)
+    params.toONModel.interaction _ _ hspacing hc
+    (scalarLatticeGFF params.mass _ hspacing params.hmass M)
+  exact Measure.isProbabilityMeasure_map
+    (nComponentTorusEmbedLift_measurable L_phys params.N M).aemeasurable
 
 /-- **Main theorem (lattice level):** The LSM measure exists on T²_L
 for each lattice size M, as a probability measure on the N-component
