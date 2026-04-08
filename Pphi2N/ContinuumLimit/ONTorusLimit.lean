@@ -118,7 +118,13 @@ N-component continuum configuration space such that the lattice measures
 converge weakly to μ. -/
 theorem lsmTorusLimit_exists (params : LSMParams) :
     ∃ (μ : Measure (NComponentTorusConfig L_phys params.N)),
-      IsProbabilityMeasure μ := by
+      IsProbabilityMeasure μ ∧
+      -- BC weak convergence from a subsequence of lattice measures
+      (∃ (μseq : ℕ → Measure (NComponentTorusConfig L_phys params.N)),
+        (∀ n, IsProbabilityMeasure (μseq n)) ∧
+        ∀ g : NComponentTorusConfig L_phys params.N → ℝ,
+          Continuous g → (∃ C, ∀ x, |g x| ≤ C) →
+          Tendsto (fun n => ∫ ω, g ω ∂(μseq n)) atTop (nhds (∫ ω, g ω ∂μ))) := by
   -- Define the ℕ-indexed sequence: n ↦ lsmTorusMeasure (n+1)
   -- (n+1 ensures NeZero)
   set μseq : ℕ → Measure (NComponentTorusConfig L_phys params.N) :=
@@ -137,9 +143,9 @@ theorem lsmTorusLimit_exists (params : LSMParams) :
       simp only [μseq]; haveI : NeZero (n + 1) := ⟨by omega⟩
       exact hK_bound (n + 1)⟩
   -- Apply Prokhorov: extract subsequence + limit
-  obtain ⟨φ, ν, _, hν_prob, _⟩ :=
+  obtain ⟨φ, ν, hφ, hν_prob, hν_conv⟩ :=
     prokhorov_configuration μseq hμseq_prob hμseq_tight
-  exact ⟨ν, hν_prob⟩
+  exact ⟨ν, hν_prob, ⟨fun n => μseq (φ n), fun n => hμseq_prob (φ n), hν_conv⟩⟩
 
 /-! ## Analyticity under the integral sign
 
@@ -487,7 +493,7 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
           Complex.exp (Complex.I * ↑(ω f)) ∂μ =
         ∫ ω, Complex.exp (Complex.I *
           ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ) := by
-  obtain ⟨μ, hμ_prob⟩ := lsmTorusLimit_exists L_phys params
+  obtain ⟨μ, hμ_prob, μseq, hμseq_prob, hμ_conv⟩ := lsmTorusLimit_exists L_phys params
   haveI := hμ_prob
   have h_exp : ∀ f, Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
       Real.exp (|ω f|)) μ := by
@@ -502,9 +508,10 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
   refine ⟨μ, hμ_prob, ?_, ?_, ?_⟩
   · exact fun n J => lsmTorusLimit_os0 L_phys params μ h_exp n J
   · exact lsmTorusLimit_os1 L_phys params μ h_exp h_exp_bound
-  · -- OS2: translation invariance passes through the weak limit
+  · -- OS2: translation invariance via BC convergence
     intro v f
-    sorry -- from lsmTorusLimit_os2_translation with the BC convergence data
+    -- Use the BC convergence data to apply lsmTorusLimit_os2_translation
+    sorry -- needs: lattice translation invariance at each step of μseq
 
 end Pphi2N
 

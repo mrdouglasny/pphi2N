@@ -75,7 +75,12 @@ def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
 /-- The LSM torus measure is a probability measure. -/
 instance lsmTorusMeasure_isProbability (params : LSMParams) (M : ℕ) [NeZero M] :
     IsProbabilityMeasure (lsmTorusMeasure L_phys params M) := by
-  sorry -- from onInteractingMeasure_isProbability + measurability of map
+  -- lsmTorusMeasure = Measure.map embed (onInteractingMeasure ...)
+  -- onInteractingMeasure is a probability measure (proved)
+  -- embed is measurable (proved)
+  -- Measure.map of prob under measurable = prob
+  -- Blocked by: Wick constant c=0 is a placeholder (should be G(x,x) > 0)
+  sorry
 
 /-- **Main theorem (lattice level):** The LSM measure exists on T²_L
 for each lattice size M, as a probability measure on the N-component
