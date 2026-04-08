@@ -91,13 +91,24 @@ for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
 
 | # | Axiom | File | Difficulty | Statement and proof strategy |
 |---|-------|------|-----------|------------------------------|
-| 7 | `resolvent_perturbation_bound` | InfiniteVolume:112 | Hard | The averaged φ-propagator has mass m_phys ∈ [√σ*-δ, √σ*] where δ = 1/(√σ*·√(κN)). Combines: (1) Brascamp-Lieb full form Cov(σ(x),σ(y)) ≤ (1/N)(Hess s_eff)⁻¹_{xy}, (2) off-diagonal decay of (Hess s_eff)⁻¹ (gap κ), (3) resolvent expansion (-Δ+σ)⁻¹ ≈ (-Δ+σ*)⁻¹ + correction bounded by σ-correlations. Works for all N ≥ 1 at finite λ > λ_c; BKT for N=2 only at λ=∞. Refs: Brascamp-Lieb (1976) Thm 4.1; Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5. |
+| 7 | `resolvent_perturbation_bound` | InfiniteVolume:112 | Hard | The averaged φ-propagator has mass m_phys ∈ [√σ*-δ, √σ*] where δ = 1/(√σ*·√(κN)). Decomposes into 3 facts (see roadmap below). Works for all N ≥ 1 at finite λ > λ_c; BKT for N=2 only at λ=∞. |
+
+#### Proof roadmap for `resolvent_perturbation_bound`
+
+| Fact | Status | Statement | Proof strategy |
+|------|--------|-----------|----------------|
+| Fact 1: -Δ ≥ 0 | **PROVED** (`LatticeOperator.lean`) | `laplacian_nonneg_general`: v^T L v ≥ 0 for any graph Laplacian | From Mathlib `posSemidef_lapMatrix` |
+| Fact 1b: -Δ+c ≥ c | **PROVED** (`LatticeOperator.lean`) | `psd_add_scalar_bound`: v^T(H+cI)v ≥ c·\|v\|² when H PSD | From Fact 1 + algebra |
+| Fact 2: BL variance | Future | Var(σ(x)) ≤ 1/(κN) for σ-measure | Construct `LogConcaveMeasure` for σ-field, apply `brascampLieb_poincare` from markov-semigroups with ρ=κN, f=coord proj (∥∇f∥²=1) |
+| Fact 3: Resolvent mass | Axiom | Averaged propagator mass ≥ √σ*-δ | Irreducible: resolvent identity + Neumann series (Mathlib `inverse_one_sub`) + Combes-Thomas. Refs: Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5 |
 
 ### Mass gap — proved (formerly 3 axioms → 0)
 
 | Theorem | File | Proof method |
 |---------|------|-------------|
 | `conditionalSpectralGap` | TransferOperator:90 | Trivial: ∃ gap ≥ σ_min ∧ gap > 0 is witnessed by gap = σ_min |
+| `laplacian_nonneg_general` | LatticeOperator.lean | From Mathlib `posSemidef_lapMatrix` (graph Laplacian PSD) |
+| `psd_add_scalar_bound` | LatticeOperator.lean | H PSD → v^T(H+cI)v ≥ c·\|v\|² (algebra from PSD) |
 | `infiniteVolume_massGap_largeN` | InfiniteVolume:130 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_large_N` (σ*²κN > 4 > 1 for N ≥ N₀) |
 | `infiniteVolume_massGap_allN` | InfiniteVolume:149 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_strong_coupling` (σ*²κ = (σ*√κ)² > 1) |
 | `physicalMassLowerBound_pos_of_large_N` | SigmaConcentration:211 | Arithmetic: N ≥ ⌈4/(κσ*²)⌉+1 → κN > 4/σ*² → σ*²κN > 4 > 1 → √σ* > δ |
@@ -120,7 +131,7 @@ The dependency repos' own axioms (23 + 9 + 3 = 35) are for OTHER
 theorems in those repos that we don't use. The gaussian-field and pphi2
 theorems we import are all fully proved.
 
-## File inventory (20 Lean files)
+## File inventory (21 Lean files)
 
 | File | Lines | Axioms | Sorries | Key content |
 |------|-------|--------|---------|-------------|
@@ -144,6 +155,7 @@ theorems we import are all fully proved.
 | ContinuumLimit/ONTorusLimit.lean | ~950 | 3 | 0 | Tightness, Prokhorov, OS0-OS2, exp moments |
 | MassGap/SigmaConcentration.lean | ~290 | 0 | 0 | σ-concentration, threshold, fluctuation bound, massCorrection, physicalMassLowerBound |
 | MassGap/HubbardStratonovich.lean | ~138 | 0 | 0 | HS transformation, σ-measure (proved), BL variance (proved) |
+| MassGap/LatticeOperator.lean | ~80 | 0 | 0 | Graph Laplacian PSD (from Mathlib), -Δ+c ≥ c |
 | MassGap/TransferOperator.lean | ~155 | 0 | 0 | Conditional spectral gap (proved), unconditional gap |
 | MassGap/LargeNMassGap.lean | ~180 | 0 | 0 | Main mass gap theorem, explicit bounds |
 | MassGap/InfiniteVolume.lean | ~175 | 1 | 0 | Resolvent perturbation axiom, infinite-volume mass gap (proved) |

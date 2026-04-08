@@ -100,15 +100,30 @@ the σ-fluctuations regularize vortices even for N=2, so all modes
 (radial and angular) remain massive. The BKT transition for N=2 only
 occurs at λ=∞ (strict NLSM constraint), where σ is frozen.
 
-Mathematical content:
-- Resolvent identity + Neumann series convergence
-- σ-covariance bound from Brascamp-Lieb (full form, not just Poincaré)
-- Combes-Thomas estimate for off-diagonal decay of (Hess s_eff)⁻¹
+Mathematical content (decomposes into 3 independent facts):
+
+**Fact 1 (provable from Mathlib):** The lattice Laplacian -Δ is positive
+semidefinite. Proof: Mathlib's `SimpleGraph.posSemidef_lapMatrix` applied
+to the torus graph. Consequence: -Δ+c ≥ c for any c > 0.
+See `LatticeOperator.lean`.
+
+**Fact 2 (provable from markov-semigroups):** The σ-measure with potential
+V = N·s_eff has Brascamp-Lieb variance bound Var(σ(x)) ≤ 1/(κN).
+Proof: construct `LogConcaveMeasure` for σ-field with Hess V ≥ κN,
+apply `brascampLieb_poincare` with f = coordinate projection (‖∇f‖² = 1).
+See `SigmaLogConcave.lean` (future).
+
+**Fact 3 (irreducible axiom):** For a random Schrödinger operator -Δ+σ(x)
+where σ has mean σ* and exponentially decaying correlations (from Fact 2),
+the averaged propagator E_σ[(-Δ+σ)⁻¹(x,y)] decays exponentially with
+mass m_phys ≥ √σ* - 1/(√σ*·√(κN)). Uses resolvent identity +
+Neumann series (Mathlib `inverse_one_sub`) + Combes-Thomas estimate.
 
 References:
-- Brascamp-Lieb (1976), Theorem 4.1 (full covariance bound)
-- Kirsch (2007), §5 (random Schrödinger resolvent estimates)
-- Aizenman-Warzel (2015), Ch. 5 (spectral averaging) -/
+- Brascamp-Lieb (1976), Theorem 4.1 (Fact 2)
+- SimpleGraph.posSemidef_lapMatrix (Fact 1)
+- Kirsch (2007), §5 (Fact 3)
+- Aizenman-Warzel (2015), Ch. 5 (Fact 3) -/
 axiom resolvent_perturbation_bound {Λ : Type*} [Fintype Λ]
     (D : SigmaConvexityData Λ) :
     ∃ (m_phys : ℝ),
