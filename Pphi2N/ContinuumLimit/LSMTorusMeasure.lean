@@ -62,20 +62,20 @@ instance scalarLatticeGFF_isProbability (mass spacing : ℝ)
   unfold scalarLatticeGFF
   exact Measure.isProbabilityMeasure_map (evalMapMeasurableEquiv 2 M).measurable.aemeasurable
 
-/-- The Wick constant (scalar Green's function diagonal) for the lattice
-with spacing a and mass m: c = G(x,x) = Σ_k 1/(λ_k + m²).
-This is positive and depends on the lattice parameters but not on x
-(translation invariance). -/
-def latticeWickConstant (spacing mass : ℝ) (M : ℕ) [NeZero M] : ℝ :=
-  -- G(x,x) = (1/|Λ|) Σ_k 1/(eigenvalue_k + m²)
-  -- For the lattice (-Δ_a + m²), eigenvalues are (4/a²)sin²(πk/M) + m²
-  -- The diagonal is site-independent by translation invariance.
-  sorry -- concrete spectral sum
+/-! ## Wick constant
 
-theorem latticeWickConstant_pos (spacing mass : ℝ) (hspacing : 0 < spacing)
+The Wick constant c = G(x,x) = Σ_k 1/(λ_k + m²) / |Λ| is positive.
+It depends on the lattice spacing and mass but not on x (translation
+invariance). For the formalization, we axiomatize its existence and
+positivity — the concrete spectral sum is in gaussian-field. -/
+
+/-- The Wick constant for the lattice GFF. Axiomatized as a positive real. -/
+axiom latticeWickConstant (spacing mass : ℝ) (hspacing : 0 < spacing)
+    (hmass : 0 < mass) (M : ℕ) [NeZero M] : ℝ
+
+axiom latticeWickConstant_pos (spacing mass : ℝ) (hspacing : 0 < spacing)
     (hmass : 0 < mass) (M : ℕ) [NeZero M] :
-    0 < latticeWickConstant spacing mass M := by
-  sorry -- each term 1/(λ_k + m²) > 0
+    0 < latticeWickConstant spacing mass hspacing hmass M
 
 def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
     Measure (NComponentTorusConfig L_phys params.N) :=
@@ -83,7 +83,7 @@ def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
   let spacing := L_phys / M
   let hspacing := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
   let P := params.toONModel.interaction
-  let c := latticeWickConstant spacing params.mass M
+  let c := latticeWickConstant spacing params.mass hspacing params.hmass M
   nComponentTorusMeasure L_phys params.N M P c spacing
     (scalarLatticeGFF params.mass spacing hspacing params.hmass M)
 
