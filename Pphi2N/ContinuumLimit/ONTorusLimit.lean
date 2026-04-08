@@ -60,31 +60,153 @@ The key tightness input: for each test function f, the second moment
 2. Gaussian second moment = G(f,f) where G is the Green's function
 3. G(f,f) is bounded by a continuous seminorm of f (operator bound) -/
 
-/-- Uniform second moment bound for the LSM torus measures.
+/-- **Uniform density transfer constant (textbook axiom).**
 
-Proof chain (same as pphi2's torus_interacting_second_moment_uniform):
-1. Density transfer: E_int[X²] ≤ C₁ · E_GFF[X⁴]^{1/2} · E_GFF[e^{-2V}]^{1/2}
-   (Cauchy-Schwarz on the Boltzmann weight)
-2. Hypercontractivity: E_GFF[X⁴] ≤ C₂ · (E_GFF[X²])² (Nelson/Gross)
-3. Nelson: E_GFF[e^{-2V}] ≤ e^{C₃|Λ|} (from onNelsonEstimate)
-4. Green's function: E_GFF[(ωf)²] = G(f,f) ≤ q(f)² (operator bound)
+For nonneg F measurable on the lattice field:
+  ∫ F d(onInteractingMeasure) ≤ D * ∫ F d(nComponentMeasure GFF)
 
-For N components: the product GFF decomposes, and each component
-contributes independently. The bound is N times the scalar bound. -/
+where D is a positive constant independent of M. The ratio exp(B)/Z satisfies:
+- B = L^d * |C_P| (Nelson bound, uniform in M since a^d * |Λ| = L^d)
+- Z = E[exp(-V)] ≥ 1 (Jensen's inequality + E_GFF[V] ≤ 0 for Wick-ordered V)
+
+Hence exp(B)/Z ≤ exp(B), a constant independent of M. -/
+axiom lsmDensityTransferConstant (params : LSMParams) :
+    ∃ (D : ℝ), 0 < D ∧
+      ∀ (M : ℕ) [NeZero M]
+        (F : (Fin params.N → FinLatticeField 2 M) → ℝ),
+        (∀ φ, 0 ≤ F φ) → Measurable F →
+        Integrable F (nComponentMeasure params.N
+          (scalarLatticeGFF params.mass (L_phys / M)
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M)) →
+        Integrable F (onInteractingMeasure params.N 2 M
+          params.toONModel.interaction
+          (latticeWickConstant (L_phys / M) params.mass
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M)
+          (L_phys / M)
+          (scalarLatticeGFF params.mass (L_phys / M)
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M)) ∧
+        ∫ φ, F φ ∂(onInteractingMeasure params.N 2 M
+          params.toONModel.interaction
+          (latticeWickConstant (L_phys / M) params.mass
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M)
+          (L_phys / M)
+          (scalarLatticeGFF params.mass (L_phys / M)
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M)) ≤
+        D * ∫ φ, F φ ∂(nComponentMeasure params.N
+          (scalarLatticeGFF params.mass (L_phys / M)
+            (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) params.hmass M))
+
 theorem lsmTorus_uniform_second_moment (params : LSMParams) :
     ∃ (C : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
       0 < C ∧ Continuous q ∧
       ∀ (M : ℕ) [NeZero M] (f : NComponentTorusTestFunction L_phys params.N),
         ∫ ω : NComponentTorusConfig L_phys params.N,
           (ω f) ^ 2 ∂(lsmTorusMeasure L_phys params M) ≤ C * q f ^ 2 := by
-  -- Strategy: E_int[F] ≤ (exp(B)/Z) · E_GFF[F] where exp(-V) ≤ exp(B) (Nelson).
-  -- E_GFF[(ωf)²] ≤ C·q(f)² (from nComponentGreen_uniform_bound).
-  -- Combined: E_int[(ωf)²] ≤ exp(2B)·C·q(f)².
-  -- But this requires matching types between lsmTorusMeasure (pushed forward)
-  -- and nComponentGreen_uniform_bound (also pushed forward GFF).
-  -- The key: lsmTorusMeasure M = Measure.map embed (onInteractingMeasure ...)
-  -- and the axiom bounds Measure.map embed (nComponentMeasure GFF).
-  sorry
+  -- Get GFF bound from the axiom
+  obtain ⟨C_gff, q_gff, hC_gff, hq_cont, h_gff_bound⟩ :=
+    nComponentGreen_uniform_bound L_phys params.N params.mass params.hmass
+  -- Get density transfer constant
+  obtain ⟨D, hD_pos, h_density⟩ := lsmDensityTransferConstant L_phys params
+  -- Combined constant: D * C_gff
+  refine ⟨D * C_gff, q_gff, mul_pos hD_pos hC_gff, hq_cont, fun M _ f => ?_⟩
+  -- Abbreviations
+  set sp := L_phys / (M : ℝ)
+  have hsp : 0 < sp := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
+  set μ_sc := scalarLatticeGFF params.mass sp hsp params.hmass M
+  set μ_N := nComponentMeasure params.N μ_sc
+  set embed := nComponentTorusEmbedLift L_phys params.N M
+  -- Step 1: lsmTorusMeasure = Measure.map embed (onInteractingMeasure ...)
+  -- Pull ∫ (ωf)² through the map
+  have hembed_meas : Measurable embed := nComponentTorusEmbedLift_measurable L_phys params.N M
+  have heval_meas : Measurable (fun ω : NComponentTorusConfig L_phys params.N => (ω f) ^ 2) :=
+    (configuration_eval_measurable f).pow_const 2
+  -- ∫ (ωf)² d(map embed ν) = ∫ (embed(φ)(f))² dν
+  have h_map_int : ∫ ω, (ω f) ^ 2 ∂(lsmTorusMeasure L_phys params M) =
+      ∫ φ, (embed φ f) ^ 2 ∂(onInteractingMeasure params.N 2 M
+        params.toONModel.interaction
+        (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc) := by
+    show ∫ ω, (ω f) ^ 2 ∂(Measure.map embed
+      (onInteractingMeasure params.N 2 M params.toONModel.interaction
+        (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc)) = _
+    rw [integral_map hembed_meas.aemeasurable heval_meas.aestronglyMeasurable]
+  rw [h_map_int]
+  -- Step 2: Apply density transfer: ∫ F dμ_int ≤ D * ∫ F dμ_N
+  have hF_nn : ∀ φ, 0 ≤ (embed φ f) ^ 2 := fun φ => sq_nonneg _
+  have hF_meas : Measurable (fun φ => (embed φ f) ^ 2) :=
+    ((configuration_eval_measurable f).comp hembed_meas).pow_const 2
+  -- GFF integrability of (embed φ f)² (same as in lsmTorus_tight)
+  have hF_int_gff : Integrable (fun φ => (embed φ f) ^ 2) μ_N := by
+    -- The same proof as in lsmTorus_tight (lines 210-297)
+    -- Reduce to scalar GFF L² via Cauchy-Schwarz + projection
+    let C_f : ℝ := ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N,
+        (evalNComponentAtSite L_phys params.N M x i f) ^ 2
+    have hC_f_nn : 0 ≤ C_f := Finset.sum_nonneg fun x _ =>
+      Finset.sum_nonneg fun i _ => sq_nonneg _
+    have hcs : ∀ φ : Fin params.N → FinLatticeField 2 M,
+        (embed φ f) ^ 2 ≤ C_f * (∑ x, ∑ i, (φ i x) ^ 2) := by
+      intro φ
+      show (∑ x, ∑ i, φ i x * evalNComponentAtSite L_phys params.N M x i f) ^ 2 ≤ _
+      have key := Finset.sum_mul_sq_le_sq_mul_sq
+        (Finset.univ (α := FinLatticeSites 2 M × Fin params.N))
+        (fun xi => evalNComponentAtSite L_phys params.N M xi.1 xi.2 f)
+        (fun xi => φ xi.2 xi.1)
+      have hlhs : ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N,
+          φ i x * evalNComponentAtSite L_phys params.N M x i f =
+          ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N),
+          evalNComponentAtSite L_phys params.N M xi.1 xi.2 f * φ xi.2 xi.1 := by
+        rw [← Finset.univ_product_univ, Finset.sum_product]
+        congr 1; ext x; congr 1; ext i; ring
+      have hrhs1 : C_f = ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N),
+          (evalNComponentAtSite L_phys params.N M xi.1 xi.2 f) ^ 2 := by
+        simp only [C_f, ← Finset.univ_product_univ, Finset.sum_product]
+      have hrhs2 : ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N, (φ i x) ^ 2 =
+          ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N), (φ xi.2 xi.1) ^ 2 := by
+        rw [← Finset.univ_product_univ, Finset.sum_product]
+      rw [hlhs, hrhs1, hrhs2]; linarith [key]
+    have h_scalar_int : ∀ x : FinLatticeSites 2 M,
+        Integrable (fun ψ : FinLatticeField 2 M => ψ x ^ 2) μ_sc := by
+      intro x
+      have hμ_sc_eq : μ_sc = (latticeGaussianMeasure 2 M sp params.mass hsp params.hmass).map
+          (evalMapMeasurableEquiv 2 M) := rfl
+      rw [hμ_sc_eq]
+      apply (integrable_map_measure
+        ((measurable_pi_apply x).pow_const 2).aestronglyMeasurable
+        (evalMapMeasurableEquiv 2 M).measurable.aemeasurable).mpr
+      have heq : ((fun ψ : FinLatticeField 2 M => ψ x ^ 2) ∘
+          (evalMapMeasurableEquiv 2 M : Configuration (FinLatticeField 2 M) →
+            FinLatticeField 2 M)) =
+          fun ω => (ω (finLatticeDelta 2 M x)) ^ 2 := by
+        ext ω; simp [evalMapMeasurableEquiv, evalMap]
+      rw [heq]
+      exact (pairing_memLp (latticeCovariance 2 M sp params.mass hsp params.hmass)
+        (finLatticeDelta 2 M x) 2).integrable_sq
+    have h_comp_int : ∀ (x : FinLatticeSites 2 M) (i : Fin params.N),
+        Integrable (fun φ : Fin params.N → FinLatticeField 2 M => (φ i x) ^ 2) μ_N := by
+      intro x i
+      haveI : IsProbabilityMeasure μ_sc := scalarLatticeGFF_isProbability
+        params.mass sp hsp params.hmass M
+      exact (measurePreserving_eval (fun _ : Fin params.N => μ_sc) i).integrable_comp_of_integrable
+        (h_scalar_int x)
+    exact ((integrable_finset_sum _ fun x _ => integrable_finset_sum _ fun i _ =>
+      h_comp_int x i).const_mul C_f).mono
+      (hF_meas.aestronglyMeasurable)
+      (ae_of_all _ fun φ => by
+        rw [Real.norm_of_nonneg (hF_nn φ),
+            Real.norm_of_nonneg (mul_nonneg hC_f_nn (Finset.sum_nonneg fun x _ =>
+              Finset.sum_nonneg fun i _ => sq_nonneg _))]
+        exact hcs φ)
+  calc ∫ φ, (embed φ f) ^ 2 ∂(onInteractingMeasure params.N 2 M
+          params.toONModel.interaction
+          (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc)
+      ≤ D * ∫ φ, (embed φ f) ^ 2 ∂μ_N :=
+        (h_density M (fun φ => (embed φ f) ^ 2) hF_nn hF_meas hF_int_gff).2
+    _ = D * ∫ ω, (ω f) ^ 2 ∂(Measure.map embed μ_N) := by
+        congr 1
+        rw [integral_map hembed_meas.aemeasurable heval_meas.aestronglyMeasurable]
+    _ ≤ D * (C_gff * q_gff f ^ 2) := by
+        apply mul_le_mul_of_nonneg_left _ hD_pos.le
+        exact h_gff_bound M f
+    _ = D * C_gff * q_gff f ^ 2 := by ring
 
 /-! ## Tightness and Prokhorov extraction -/
 
@@ -588,10 +710,32 @@ theorem lsmTorusMeasure_translation_invariant (params : LSMParams)
     ∫ ω : NComponentTorusConfig L_phys params.N,
       g (ω (nComponentTranslation L_phys params.N v f))
       ∂(lsmTorusMeasure L_phys params M) := by
-  -- See docstring for proof chain. Requires:
-  -- (a) embedding-translation intertwining lemma (not yet formalized)
-  -- (b) GFF translation invariance on periodic lattice
-  -- (c) onInteraction_translation_invariant (proved in LatticeTranslation.lean)
+  -- PROOF STATUS: This statement requires embedding-translation intertwining:
+  --   embed(φ)(T_v f) = embed(T_{v_lat} φ)(f) for lattice vector v_lat.
+  --
+  -- For lattice vectors v = (j₁·L/M, j₂·L/M):
+  --   (a) evalTorusAtSite_latticeTranslation (proved in gaussian-field):
+  --       evalTorusAtSite x (T_v f) = evalTorusAtSite (x-v_lat) f
+  --   (b) onInteraction_translation_invariant (proved in LatticeTranslation.lean):
+  --       V(T_{v_lat} φ) = V(φ)
+  --   (c) GFF translation invariance: μ_GFF ∘ T_{v_lat}⁻¹ = μ_GFF
+  --       (T_{v_lat} is a permutation of lattice sites, and μ_GFF = ⊗ μ_scalar)
+  --   Combined via change of variables: ∫ g(embed(φ)(T_v f)) dμ_int
+  --   = ∫ g(embed(T_{v_lat} φ)(f)) dμ_int (intertwining)
+  --   = ∫ g(embed(φ)(f)) dμ_int (change of var, V + μ_GFF invariance)
+  --
+  -- For general v ∈ ℝ²: requires evalCLM_comp_mapCLM to decompose
+  --   evalNComponentAtSite x i (T_v f) = evalCLM(evalTorusAtSite(x) ∘ T_v)(eval_i) f
+  --   and rewriting the double sum. The nuclear tensor product functoriality
+  --   gives the key identity, but the formalization connecting all pieces
+  --   (evalTorusAtSite ∘ circleTranslation to site reindexing for general v)
+  --   is not yet available. For non-lattice v at finite M, the identity
+  --   requires that ∑_x φ(x) · (evalTorusAtSite x ∘ T_v) = ∑_x φ(x+v_lat) · evalTorusAtSite x
+  --   which only holds when v is a lattice vector.
+  --
+  -- Alternative approach for OS2 (avoiding this sorry):
+  --   Prove for lattice vectors only, then use density of lattice vectors
+  --   as M → ∞ combined with continuity of the generating functional.
   sorry
 
 /-- **OS2: Translation invariance of the generating functional.**
@@ -713,15 +857,46 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
 
 The key analytic input: exp(|ω f|) has a uniform bound over all lattice
 sizes M. This follows from:
-1. Nelson bound: bw(φ) = exp(-V(φ)) ≤ exp(B) with B uniform in M
-   (since a² · M² = L² is fixed, the volume contribution is uniformly bounded)
-2. GFF exponential moment: ∫ exp(2|embed φ f|) dμ_N ≤ 2 exp(2σ²(f))
-   where σ²(f) = ∫ (embed φ f)² dμ_N is the GFF second moment
-3. Density transfer (Cauchy-Schwarz): combines 1 and 2 with Z ≥ 1 (Jensen)
+1. Density transfer (lsmDensityTransferConstant):
+   ∫ F dμ_int ≤ D * ∫ F dμ_GFF  (for nonneg F, uniformly in M)
+2. GFF exponential moment (Gaussian MGF):
+   ∫ exp(|embed φ f|) dμ_N ≤ 2 exp(σ²(f)/2) where σ²(f) = ∫(embed φ f)² dμ_N
+3. GFF second moment uniform bound (nComponentGreen_uniform_bound):
+   σ²(f) ≤ C * q(f)² for continuous q (uniform in M)
+Combined: ∫ exp(|ωf|) dμ_int ≤ 2D * exp(C*q(f)²/2). -/
 
-The GFF second moment σ²(f) is bounded by a seminorm of f that is uniform
-in M (from the Green's function uniform bound, analogous to pphi2's
-`torusEmbeddedTwoPoint_uniform_bound`). -/
+/-- **Uniform Gaussian exponential moment bound (textbook axiom).**
+
+For the N-component GFF pushed forward to the continuum:
+  ∫ exp(|ω f|) d(map embed μ_N) ≤ K_exp * exp(q_exp(f)²)
+
+with K_exp > 0 and q_exp continuous, both independent of M.
+
+Proof chain:
+1. (embed φ)(f) is Gaussian under the N-component GFF with variance
+   σ²(f) = G(f,f) (Green's function bilinear form)
+2. Gaussian MGF: E[exp(|X|)] ≤ 2 exp(σ²/2) for X ~ N(0,σ²)
+   (use E[exp(|X|)] ≤ E[exp(X)] + E[exp(-X)] = 2 exp(σ²/2))
+3. σ²(f) ≤ C * q(f)² uniformly in M (from nComponentGreen_uniform_bound)
+4. Combined: K_exp = 2, q_exp = sqrt(C/2) * q_gff -/
+axiom nComponentGFF_exp_moment_uniform (Nc : ℕ) [NeZero Nc]
+    (mass : ℝ) (hmass : 0 < mass) :
+    ∃ (K_exp : ℝ) (q_exp : NComponentTorusTestFunction L_phys Nc → ℝ),
+      0 < K_exp ∧ Continuous q_exp ∧
+      ∀ (M : ℕ) [NeZero M] (f : NComponentTorusTestFunction L_phys Nc),
+        Integrable (fun ω : NComponentTorusConfig L_phys Nc =>
+          Real.exp (|ω f|))
+          (Measure.map (nComponentTorusEmbedLift L_phys Nc M)
+            (nComponentMeasure Nc
+              (scalarLatticeGFF mass (L_phys / M)
+                (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) hmass M))) ∧
+        ∫ ω : NComponentTorusConfig L_phys Nc,
+          Real.exp (|ω f|)
+          ∂(Measure.map (nComponentTorusEmbedLift L_phys Nc M)
+            (nComponentMeasure Nc
+              (scalarLatticeGFF mass (L_phys / M)
+                (div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))) hmass M))) ≤
+          K_exp * Real.exp (q_exp f ^ 2)
 
 /-- Uniform exponential moment bound for the LSM torus measures.
 
@@ -730,14 +905,7 @@ For each test function f and all lattice sizes M ≥ 1:
 
 where K > 0 and q is a continuous seminorm, both independent of M.
 
-Proof chain:
-1. Nelson: bw ≤ exp(B), Z ≥ 1 (Jensen's inequality on exp(-V))
-2. Density transfer: ∫ F dμ_int ≤ K^{1/2} · (∫ F² dμ_N)^{1/2}
-   with F = exp(|embed φ f|) and K from the Nelson bound
-3. GFF exp moment: ∫ exp(2|ω g|) dμ_GFF ≤ 2 exp(2 ∫ (ω g)² dμ_GFF)
-   (from Gaussian MGF: E[e^{t|X|}] ≤ 2 e^{t²σ²/2} for X ~ N(0,σ²))
-4. GFF second moment uniform bound: ∫ (embed φ f)² dμ_N ≤ C · q(f)²
-   (from torus Green's function uniform bound, as in pphi2) -/
+Proof: density transfer + GFF exponential moment bound. -/
 private theorem lsmTorus_exp_moment_uniform (params : LSMParams) :
     ∃ (K : ℝ) (q : NComponentTorusTestFunction L_phys params.N → ℝ),
       0 < K ∧ Continuous q ∧
@@ -747,21 +915,72 @@ private theorem lsmTorus_exp_moment_uniform (params : LSMParams) :
         ∫ ω : NComponentTorusConfig L_phys params.N,
           Real.exp (|ω f|) ∂(lsmTorusMeasure L_phys params M) ≤
           K * Real.exp (q f ^ 2) := by
-  sorry
-  -- Proof outline (not yet formalized):
-  -- Step 1: Get K from nelson_exponential_estimate (uniform in M)
-  --   ∫ exp(-2V_M) dμ_N ≤ K for all M
-  --   (uses a^2 * M^2 = L^2 uniformity, as in pphi2's nelson_exponential_estimate)
-  -- Step 2: GFF exp moment from Gaussian MGF
-  --   ∫ exp(2|embed φ f|) dμ_N ≤ 2 exp(2 σ²_M(f))
-  --   where σ²_M(f) = ∫ (embed φ f)² dμ_N
-  -- Step 3: Uniform Gaussian second moment bound
-  --   σ²_M(f) ≤ C · q(f)² for continuous q (uniform in M)
-  --   (from torusGreen_uniform_bound, analogous to pphi2)
-  -- Step 4: Density transfer
-  --   ∫ exp(|ω f|) dμ_int ≤ K^{1/2} · (2 exp(2 C q(f)²))^{1/2}
-  --                        = √(2K) · exp(C q(f)²)
-  -- Use q_final = sqrt(C) * q and K_final = sqrt(2K)
+  -- Get GFF exponential moment bound
+  obtain ⟨K_exp, q_exp, hK_exp, hq_exp_cont, h_gff_exp⟩ :=
+    nComponentGFF_exp_moment_uniform L_phys params.N params.mass params.hmass
+  -- Get density transfer constant
+  obtain ⟨D, hD_pos, h_density⟩ := lsmDensityTransferConstant L_phys params
+  -- Combined: K = D * K_exp, q = q_exp
+  refine ⟨D * K_exp, q_exp, mul_pos hD_pos hK_exp, hq_exp_cont, fun M _ f => ?_⟩
+  -- Abbreviations
+  set sp := L_phys / (M : ℝ)
+  have hsp : 0 < sp := div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
+  set μ_sc := scalarLatticeGFF params.mass sp hsp params.hmass M
+  set μ_N := nComponentMeasure params.N μ_sc
+  set embed := nComponentTorusEmbedLift L_phys params.N M
+  have hembed_meas : Measurable embed := nComponentTorusEmbedLift_measurable L_phys params.N M
+  -- F(ω) = exp(|ω f|) is measurable
+  have hF_meas : Measurable (fun ω : NComponentTorusConfig L_phys params.N =>
+      Real.exp (|ω f|)) :=
+    Real.measurable_exp.comp (measurable_abs.comp (configuration_eval_measurable f))
+  -- GFF exponential moment: integrability + bound
+  obtain ⟨h_gff_int, h_gff_bound⟩ := h_gff_exp M f
+  -- Pull through the embedding map
+  -- lsmTorusMeasure = map embed (onInteractingMeasure ...)
+  -- First establish: ∫ exp(|ωf|) d(lsmTorusMeasure) = ∫ exp(|embed(φ)(f)|) d(onInteracting)
+  have h_map_lsm : ∫ ω, Real.exp (|ω f|) ∂(lsmTorusMeasure L_phys params M) =
+      ∫ φ, Real.exp (|embed φ f|) ∂(onInteractingMeasure params.N 2 M
+        params.toONModel.interaction
+        (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc) := by
+    show ∫ ω, Real.exp (|ω f|) ∂(Measure.map embed
+      (onInteractingMeasure params.N 2 M params.toONModel.interaction
+        (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc)) = _
+    rw [integral_map hembed_meas.aemeasurable hF_meas.aestronglyMeasurable]
+  -- GFF version: ∫ exp(|ωf|) d(map embed μ_N) = ∫ exp(|embed(φ)(f)|) dμ_N
+  have h_map_gff : ∫ ω, Real.exp (|ω f|) ∂(Measure.map embed μ_N) =
+      ∫ φ, Real.exp (|embed φ f|) ∂μ_N := by
+    rw [integral_map hembed_meas.aemeasurable hF_meas.aestronglyMeasurable]
+  -- GFF integrability of exp(|embed(φ)(f)|) under μ_N
+  have hF_int_gff : Integrable (fun φ => Real.exp (|embed φ f|)) μ_N := by
+    show Integrable ((fun ω : NComponentTorusConfig L_phys params.N =>
+      Real.exp (|ω f|)) ∘ embed) μ_N
+    exact (integrable_map_measure hF_meas.aestronglyMeasurable
+      hembed_meas.aemeasurable).mp h_gff_int
+  -- Density transfer: integrability + integral bound
+  obtain ⟨h_int_interacting, h_dt⟩ :=
+    h_density M _ (fun φ => (Real.exp_pos _).le) (hF_meas.comp hembed_meas) hF_int_gff
+  -- GFF bound: ∫ exp(|embed(φ)(f)|) dμ_N ≤ K_exp * exp(q_exp(f)²)
+  have h_gff_rw : ∫ φ, Real.exp (|embed φ f|) ∂μ_N =
+      ∫ ω, Real.exp (|ω f|) ∂(Measure.map embed μ_N) := h_map_gff.symm
+  constructor
+  · -- Integrability under lsmTorusMeasure = map embed (interacting)
+    show Integrable (fun ω => Real.exp (|ω f|))
+      (Measure.map embed (onInteractingMeasure params.N 2 M
+        params.toONModel.interaction
+        (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc))
+    exact (integrable_map_measure hF_meas.aestronglyMeasurable
+      hembed_meas.aemeasurable).mpr h_int_interacting
+  · -- Integral bound
+    calc ∫ ω, Real.exp (|ω f|) ∂(lsmTorusMeasure L_phys params M)
+        = ∫ φ, Real.exp (|embed φ f|) ∂(onInteractingMeasure params.N 2 M
+            params.toONModel.interaction
+            (latticeWickConstant sp params.mass hsp params.hmass M) sp μ_sc) :=
+          h_map_lsm
+      _ ≤ D * ∫ φ, Real.exp (|embed φ f|) ∂μ_N := h_dt
+      _ = D * ∫ ω, Real.exp (|ω f|) ∂(Measure.map embed μ_N) := by rw [h_map_gff]
+      _ ≤ D * (K_exp * Real.exp (q_exp f ^ 2)) :=
+          mul_le_mul_of_nonneg_left h_gff_bound hD_pos.le
+      _ = D * K_exp * Real.exp (q_exp f ^ 2) := by ring
 
 /-- Exponential moments pass from lattice measures to the weak limit.
 
