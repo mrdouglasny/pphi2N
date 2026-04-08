@@ -47,22 +47,20 @@
 
 ## Dependency axioms
 
-pphi2N depends on pphi2, markov-semigroups, and gaussian-field, which
-have their own axioms. These are NOT axioms of pphi2N — they are the
-upstream projects' proof obligations.
+pphi2N imports from pphi2, gaussian-field, and markov-semigroups.
+However, **none of the dependency axioms are in pphi2N's dependency chain.**
 
-| Dependency | Axioms | Notes |
-|-----------|--------|-------|
-| pphi2 | 23 | P(φ)₂ construction. Key: spectral gap, Ward identity, RP |
-| gaussian-field | 9 | GFF infrastructure. Key: method of images, RP, Green function |
-| markov-semigroups | 3 | Brascamp-Lieb. Key: resolvent IBP, Bochner inequality, Young |
+| Dependency | Axioms in repo | Axioms we use | What we import |
+|-----------|---------------|--------------|----------------|
+| pphi2 | 23 | **0** | `analyticOnNhd_integral` (proved theorem, 0 axioms) |
+| gaussian-field | 9 | **0** | Configuration, GFF, torus embedding, Prokhorov (all proved) |
+| markov-semigroups | 3 | **0** | BrascampLieb.lean imported but no theorems called |
 
-Total axioms in the full dependency tree: 12 + 23 + 9 + 3 = **47**.
+**Total axioms pphi2N depends on: exactly 12 (all in pphi2N itself).**
 
-The pphi2N theorems are conditional on all 47 axioms being correct.
-Each axiom has documented proof strategies and references. None are
-known to be false. The pphi2 and gaussian-field axioms have been
-reviewed by Gemini deep think and assessed as correct.
+The dependency repos' own axioms (23 + 9 + 3 = 35) are for OTHER
+theorems in those repos that we don't use. The gaussian-field and pphi2
+theorems we import are all fully proved.
 
 ## File inventory (20 Lean files)
 

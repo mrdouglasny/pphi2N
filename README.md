@@ -2,9 +2,10 @@
 
 ## What this project proves
 
-Multiple theorems in Lean 4, with 0 sorries and 12 axioms (plus
-23 + 9 + 3 = 35 axioms in dependencies pphi2, gaussian-field,
-markov-semigroups). See [status.md](status.md) for complete inventory.
+Multiple theorems in Lean 4, with 0 sorries and 12 axioms. The
+dependency repos (pphi2, gaussian-field, markov-semigroups) contribute
+only proved theorems — none of their axioms are in our dependency chain.
+See [status.md](status.md) for complete inventory.
 
 ### Theorem 1: Continuum limit with OS axioms
 
@@ -119,8 +120,8 @@ See [status.md](status.md) for the complete inventory with difficulty
 ratings and proof strategies. All 12 are standard facts from lattice
 QFT, Gaussian measure theory, and random Schrödinger operators.
 
-The full dependency tree has 47 axioms (12 here + 23 in pphi2 +
-9 in gaussian-field + 3 in markov-semigroups).
+None of the dependency repos' axioms are used. The 12 axioms above
+are the complete set of unproved assumptions.
 
 ## Build
 
