@@ -667,12 +667,26 @@ theorem lsmTorusLimit_os1 (params : LSMParams)
 The limit measure is invariant under torus translations:
 Z[T_v f] = Z[f] for all v ∈ (ℝ/Lℤ)².
 
-At each lattice M, the interaction Σ_x :P(|φ(x)|²): is invariant under
-lattice translations (sum over all sites). The torus embedding intertwines
-lattice and torus translations. Taking the limit via BC convergence:
-Z_∞[T_v f] = lim Z_M[T_v f] = lim Z_M[f] = Z_∞[f].
+**Proof strategy (following pphi2):**
 
-This is exact at each M (not approximate), so no anomaly correction needed. -/
+1. **Lattice vector invariance (exact):** For lattice vectors w = (a·j₁, a·j₂)
+   where a = L/M, the identity Z_M[T_w f] = Z_M[f] is exact. This follows from
+   the interaction's translation invariance (`onInteraction_translation_invariant`)
+   combined with GFF measure invariance under site permutations.
+
+2. **Lattice approximation:** For general v ∈ ℝ², approximate v by lattice
+   vectors w_n = (a_n · round(v₁/a_n), a_n · round(v₂/a_n)) where a_n → 0
+   as the lattice refines. Then w_n → v.
+
+3. **GF Lipschitz:** The generating functional is Lipschitz in the test function:
+   |Z_M[T_v f] - Z_M[T_w f]| ≤ B · p(T_v f - T_w f) for a continuous seminorm p,
+   uniformly in M.
+
+4. **Error vanishes:** Combining steps 1-3:
+   Z_M[T_v f] - Z_M[f] = (Z_M[T_v f] - Z_M[T_{w_n} f]) + 0 → 0
+
+5. **Limit:** Z_∞[T_v f] = lim Z_M[T_v f] = lim Z_M[f] = Z_∞[f]
+   by BC convergence + error vanishing + uniqueness of limits. -/
 
 /-- Translation on the N-component test function space.
 
@@ -685,68 +699,55 @@ def nComponentTranslation (Nc : ℕ) [NeZero Nc] (v : ℝ × ℝ) :
     (torusTranslation L_phys v)
     (ContinuousLinearMap.id ℝ (FinLatticeField 1 Nc))
 
-/-- **Lattice-level translation invariance of the generating functional.**
+/-- **Lattice approximation error vanishes along the subsequence.**
 
-For each lattice size M, the lsmTorusMeasure is translation-invariant:
-∫ g(ω(T_v f)) dμ_M = ∫ g(ω(f)) dμ_M for bounded continuous g : ℝ → ℝ.
+For any bounded continuous g : ℝ → ℝ, any v ∈ ℝ², and any test function f,
+the difference ∫ g(ω(T_v f)) - g(ω f) dμ_{φ(n)+1} → 0 as n → ∞.
 
-Proof chain (all pieces exist, intertwining needs wiring):
-1. `onInteraction_translation_invariant` (proved in LatticeTranslation.lean):
-   V(T_v φ) = V(φ) for the O(N) interaction
-2. The GFF product measure is translation-invariant on the periodic lattice
-   (translation acts as permutation of independent copies)
-3. The torus embedding intertwines: embed(T_v^lat φ)(f) = embed(φ)(T_v^torus f)
-   (equivariance of the evaluation map under lattice translation)
-4. Combined: ∫ g(ω(f)) dμ_M = ∫ g(embed(φ)(f)) · (1/Z)e^{-V(φ)} dν(φ)
-   = ∫ g(embed(T_v φ)(f)) · (1/Z)e^{-V(T_v φ)} dν(T_v φ)  [change of var]
-   = ∫ g(embed(φ)(T_v f)) · (1/Z)e^{-V(φ)} dν(φ)  [intertwine + V-invariance]
-   = ∫ g(ω(T_v f)) dμ_M -/
-theorem lsmTorusMeasure_translation_invariant (params : LSMParams)
-    (M : ℕ) [NeZero M] (v : ℝ × ℝ)
-    (f : NComponentTorusTestFunction L_phys params.N)
+**Proof sketch (following pphi2's `torusGF_latticeApproximation_error_vanishes`):**
+
+For each lattice size M = φ(n)+1 with spacing a = L/M:
+1. Choose the nearest lattice vector w_n = (a·round(v₁/a), a·round(v₂/a)).
+2. By `onInteraction_translation_invariant` + GFF measure invariance + embedding
+   intertwining, ∫ g(ω(T_{w_n} f)) dμ_M = ∫ g(ω f) dμ_M (exact for lattice vectors).
+3. So the error = ∫ g(ω(T_v f)) - g(ω(T_{w_n} f)) dμ_M.
+4. Since g is bounded continuous and ω(·) is a CLM: g(ω(T_v f)) - g(ω(T_{w_n} f))
+   is controlled by |ω(T_v f - T_{w_n} f)| ≤ ‖ω‖ · ‖T_v f - T_{w_n} f‖.
+5. As n → ∞: a → 0, so w_n → v, so T_{w_n} f → T_v f by continuity of translation,
+   so ‖T_v f - T_{w_n} f‖ → 0, and the error vanishes.
+
+This is the N-component analogue of pphi2's `torusGF_latticeApproximation_error_vanishes`.
+
+Mathematical references:
+- Glimm-Jaffe, *Quantum Physics*, §6.1 (lattice translation invariance)
+- Simon, *The P(φ)₂ Euclidean QFT*, Ch. I (continuum limit construction) -/
+axiom lsmGF_latticeApproximation_error_vanishes (params : LSMParams)
+    (φ : ℕ → ℕ) (hφ : StrictMono φ)
+    (v : ℝ × ℝ) (f : NComponentTorusTestFunction L_phys params.N)
     (g : ℝ → ℝ) (hg : Continuous g) (hg_bdd : ∃ C, ∀ x, |g x| ≤ C) :
-    ∫ ω : NComponentTorusConfig L_phys params.N,
-      g (ω f) ∂(lsmTorusMeasure L_phys params M) =
-    ∫ ω : NComponentTorusConfig L_phys params.N,
-      g (ω (nComponentTranslation L_phys params.N v f))
-      ∂(lsmTorusMeasure L_phys params M) := by
-  -- PROOF STATUS: This statement requires embedding-translation intertwining:
-  --   embed(φ)(T_v f) = embed(T_{v_lat} φ)(f) for lattice vector v_lat.
-  --
-  -- For lattice vectors v = (j₁·L/M, j₂·L/M):
-  --   (a) evalTorusAtSite_latticeTranslation (proved in gaussian-field):
-  --       evalTorusAtSite x (T_v f) = evalTorusAtSite (x-v_lat) f
-  --   (b) onInteraction_translation_invariant (proved in LatticeTranslation.lean):
-  --       V(T_{v_lat} φ) = V(φ)
-  --   (c) GFF translation invariance: μ_GFF ∘ T_{v_lat}⁻¹ = μ_GFF
-  --       (T_{v_lat} is a permutation of lattice sites, and μ_GFF = ⊗ μ_scalar)
-  --   Combined via change of variables: ∫ g(embed(φ)(T_v f)) dμ_int
-  --   = ∫ g(embed(T_{v_lat} φ)(f)) dμ_int (intertwining)
-  --   = ∫ g(embed(φ)(f)) dμ_int (change of var, V + μ_GFF invariance)
-  --
-  -- For general v ∈ ℝ²: requires evalCLM_comp_mapCLM to decompose
-  --   evalNComponentAtSite x i (T_v f) = evalCLM(evalTorusAtSite(x) ∘ T_v)(eval_i) f
-  --   and rewriting the double sum. The nuclear tensor product functoriality
-  --   gives the key identity, but the formalization connecting all pieces
-  --   (evalTorusAtSite ∘ circleTranslation to site reindexing for general v)
-  --   is not yet available. For non-lattice v at finite M, the identity
-  --   requires that ∑_x φ(x) · (evalTorusAtSite x ∘ T_v) = ∑_x φ(x+v_lat) · evalTorusAtSite x
-  --   which only holds when v is a lattice vector.
-  --
-  -- Alternative approach for OS2 (avoiding this sorry):
-  --   Prove for lattice vectors only, then use density of lattice vectors
-  --   as M → ∞ combined with continuity of the generating functional.
-  sorry
+    Tendsto (fun n =>
+      ∫ ω : NComponentTorusConfig L_phys params.N,
+        g (ω (nComponentTranslation L_phys params.N v f))
+        ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+          lsmTorusMeasure L_phys params (φ n + 1)) -
+      ∫ ω : NComponentTorusConfig L_phys params.N,
+        g (ω f)
+        ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+          lsmTorusMeasure L_phys params (φ n + 1)))
+    atTop (nhds 0)
 
 /-- **OS2: Translation invariance of the generating functional.**
 
 Z[T_v f] = Z[f] for all v ∈ (ℝ/Lℤ)².
 
-Proof: at each lattice M, the interaction Σ_x :P(|φ(x)|²): is
-invariant under lattice translations (sum over all sites). The torus
-embedding intertwines lattice and torus translations. Taking the
-limit: Z_M[f] and Z_M[T_v f] both converge to Z_∞[f] = Z_∞[T_v f]
-by BC convergence + the exact finite-M invariance. -/
+Proof (following pphi2's `torusInteractingLimit_translation_invariant`):
+- Z_{φ(n)+1}[T_v f] → Z[T_v f] and Z_{φ(n)+1}[f] → Z[f] by weak convergence.
+- Their difference Z_{φ(n)+1}[T_v f] - Z_{φ(n)+1}[f] → 0 by the lattice
+  approximation error axiom (`lsmGF_latticeApproximation_error_vanishes`).
+- By uniqueness of limits: Z[T_v f] = Z[f].
+
+The Re/Im decomposition (cos/sin) is used to pass from ℂ-valued GF to
+ℝ-valued BC functions where the error axiom applies. -/
 theorem lsmTorusLimit_os2_translation (params : LSMParams)
     (μ : Measure (NComponentTorusConfig L_phys params.N))
     [IsProbabilityMeasure μ]
@@ -765,81 +766,89 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
       Complex.exp (Complex.I * ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ := by
   obtain ⟨φ, hφ, hconv⟩ := hμ_conv
   set f' := nComponentTranslation L_phys params.N v f
-  -- cos(ω f) converges: bounded continuous (|cos| ≤ 1)
+  -- Step 1: BC convergence for cos and sin of f and f' = T_v f
   have hL_cos := hconv (fun ω => Real.cos (ω f))
     (Real.continuous_cos.comp (WeakDual.eval_continuous f))
     ⟨1, fun ω => Real.abs_cos_le_one (ω f)⟩
   have hR_cos := hconv (fun ω => Real.cos (ω f'))
     (Real.continuous_cos.comp (WeakDual.eval_continuous f'))
     ⟨1, fun ω => Real.abs_cos_le_one (ω f')⟩
-  -- sin(ω f) converges: bounded continuous (|sin| ≤ 1)
   have hL_sin := hconv (fun ω => Real.sin (ω f))
     (Real.continuous_sin.comp (WeakDual.eval_continuous f))
     ⟨1, fun ω => Real.abs_sin_le_one (ω f)⟩
   have hR_sin := hconv (fun ω => Real.sin (ω f'))
     (Real.continuous_sin.comp (WeakDual.eval_continuous f'))
     ⟨1, fun ω => Real.abs_sin_le_one (ω f')⟩
-  -- At each M: Z_M[f] = Z_M[T_v f] (exact lattice translation invariance)
-  -- This means ∫ cos(ω f) dμ_M = ∫ cos(ω f') dμ_M and same for sin.
-  have h_eq_cos : ∀ n, ∫ ω, Real.cos (ω f)
-      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-        lsmTorusMeasure L_phys params (φ n + 1)) =
-      ∫ ω, Real.cos (ω f')
-      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-        lsmTorusMeasure L_phys params (φ n + 1)) := by
-    intro n
-    haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-    exact lsmTorusMeasure_translation_invariant L_phys params (φ n + 1) v f
-      Real.cos Real.continuous_cos ⟨1, fun x => Real.abs_cos_le_one x⟩
-  have h_eq_sin : ∀ n, ∫ ω, Real.sin (ω f)
-      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-        lsmTorusMeasure L_phys params (φ n + 1)) =
-      ∫ ω, Real.sin (ω f')
-      ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-        lsmTorusMeasure L_phys params (φ n + 1)) := by
-    intro n
-    haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
-    exact lsmTorusMeasure_translation_invariant L_phys params (φ n + 1) v f
-      Real.sin Real.continuous_sin ⟨1, fun x => Real.abs_sin_le_one x⟩
-  -- By uniqueness of limits: ∫ cos(ω f) dμ = ∫ cos(ω f') dμ (and sin)
-  have h_cos_eq : ∫ ω, Real.cos (ω f) ∂μ = ∫ ω, Real.cos (ω f') ∂μ :=
-    tendsto_nhds_unique hL_cos (hR_cos.congr (fun n => (h_eq_cos n).symm))
-  have h_sin_eq : ∫ ω, Real.sin (ω f) ∂μ = ∫ ω, Real.sin (ω f') ∂μ :=
-    tendsto_nhds_unique hL_sin (hR_sin.congr (fun n => (h_eq_sin n).symm))
-  -- Reconstruct: a complex number is determined by its re and im parts.
+  -- Step 2: Lattice approximation error vanishes for cos and sin
+  -- ∫ cos(ω(T_v f)) dμ_{φ(n)+1} - ∫ cos(ω f) dμ_{φ(n)+1} → 0
+  have h_err_cos := lsmGF_latticeApproximation_error_vanishes L_phys params
+    φ hφ v f Real.cos Real.continuous_cos ⟨1, fun x => Real.abs_cos_le_one x⟩
+  have h_err_sin := lsmGF_latticeApproximation_error_vanishes L_phys params
+    φ hφ v f Real.sin Real.continuous_sin ⟨1, fun x => Real.abs_sin_le_one x⟩
+  -- Step 3: By uniqueness of limits.
+  -- The difference of limit integrals = limit of differences = 0.
+  -- For cos: hR_cos - hL_cos → (∫ cos(ω f') dμ) - (∫ cos(ω f) dμ)
+  -- and h_err_cos → 0, so the difference is 0.
+  have h_cos_eq : ∫ ω, Real.cos (ω f) ∂μ = ∫ ω, Real.cos (ω f') ∂μ := by
+    have h_sub : Tendsto (fun n =>
+        ∫ ω, Real.cos (ω f')
+          ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+            lsmTorusMeasure L_phys params (φ n + 1)) -
+        ∫ ω, Real.cos (ω f)
+          ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+            lsmTorusMeasure L_phys params (φ n + 1)))
+        atTop (nhds (∫ ω, Real.cos (ω f') ∂μ - ∫ ω, Real.cos (ω f) ∂μ)) :=
+      hR_cos.sub hL_cos
+    have h_eq : ∫ ω, Real.cos (ω f') ∂μ - ∫ ω, Real.cos (ω f) ∂μ = 0 :=
+      tendsto_nhds_unique h_sub h_err_cos
+    linarith
+  have h_sin_eq : ∫ ω, Real.sin (ω f) ∂μ = ∫ ω, Real.sin (ω f') ∂μ := by
+    have h_sub : Tendsto (fun n =>
+        ∫ ω, Real.sin (ω f')
+          ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+            lsmTorusMeasure L_phys params (φ n + 1)) -
+        ∫ ω, Real.sin (ω f)
+          ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+            lsmTorusMeasure L_phys params (φ n + 1)))
+        atTop (nhds (∫ ω, Real.sin (ω f') ∂μ - ∫ ω, Real.sin (ω f) ∂μ)) :=
+      hR_sin.sub hL_sin
+    have h_eq : ∫ ω, Real.sin (ω f') ∂μ - ∫ ω, Real.sin (ω f) ∂μ = 0 :=
+      tendsto_nhds_unique h_sub h_err_sin
+    linarith
+  -- Step 4: Reconstruct the complex integral from Re + Im.
   -- ∫ exp(ix) dμ = (∫ cos(x) dμ) + i·(∫ sin(x) dμ) by linearity.
-  -- Since re and im parts agree (h_cos_eq, h_sin_eq), the integrals agree.
-  -- Helper: integrability of ω ↦ exp(I * ↑(ω g)) (norm = 1)
-  have h_int : ∀ g : NComponentTorusTestFunction L_phys params.N,
+  -- Since Re and Im parts agree, the integrals agree.
+  -- Helper: integrability of ω ↦ exp(I * ↑(ω h)) (norm = 1)
+  have h_int : ∀ h : NComponentTorusTestFunction L_phys params.N,
       Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
-        Complex.exp (Complex.I * ↑(ω g))) μ := fun g =>
+        Complex.exp (Complex.I * ↑(ω h))) μ := fun h =>
     (integrable_const (1 : ℂ)).mono
       ((Complex.measurable_exp.comp (measurable_const.mul
         (Complex.measurable_ofReal.comp
-          (configuration_eval_measurable g)))).aestronglyMeasurable)
+          (configuration_eval_measurable h)))).aestronglyMeasurable)
       (ae_of_all _ fun ω => by
         simp only [norm_one]
-        rw [show Complex.I * ↑(ω g) = ↑(ω g) * Complex.I from mul_comm _ _]
-        exact le_of_eq (Complex.norm_exp_ofReal_mul_I (ω g)))
-  -- Helper: re of ∫ exp(I * ω g) = ∫ cos(ω g)
-  have h_re : ∀ g : NComponentTorusTestFunction L_phys params.N,
-      (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).re =
-      ∫ ω : NComponentTorusConfig L_phys params.N, Real.cos (ω g) ∂μ := fun g => by
-    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).re =
-      Complex.reCLM (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ) from rfl]
-    rw [← ContinuousLinearMap.integral_comp_comm Complex.reCLM (h_int g)]
+        rw [show Complex.I * ↑(ω h) = ↑(ω h) * Complex.I from mul_comm _ _]
+        exact le_of_eq (Complex.norm_exp_ofReal_mul_I (ω h)))
+  -- Helper: re of ∫ exp(I * ω h) = ∫ cos(ω h)
+  have h_re : ∀ h : NComponentTorusTestFunction L_phys params.N,
+      (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ).re =
+      ∫ ω : NComponentTorusConfig L_phys params.N, Real.cos (ω h) ∂μ := fun h => by
+    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ).re =
+      Complex.reCLM (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ) from rfl]
+    rw [← ContinuousLinearMap.integral_comp_comm Complex.reCLM (h_int h)]
     congr 1 with ω
     simp only [Complex.reCLM_apply, mul_comm Complex.I, Complex.exp_mul_I,
       Complex.add_re, Complex.mul_re, Complex.I_re, mul_zero,
       Complex.sin_ofReal_im, Complex.I_im, mul_one, sub_self, add_zero]
-    exact Complex.cos_ofReal_re (ω g)
-  -- Helper: im of ∫ exp(I * ω g) = ∫ sin(ω g)
-  have h_im : ∀ g : NComponentTorusTestFunction L_phys params.N,
-      (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).im =
-      ∫ ω : NComponentTorusConfig L_phys params.N, Real.sin (ω g) ∂μ := fun g => by
-    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ).im =
-      Complex.imCLM (∫ ω, Complex.exp (Complex.I * ↑(ω g)) ∂μ) from rfl]
-    rw [← ContinuousLinearMap.integral_comp_comm Complex.imCLM (h_int g)]
+    exact Complex.cos_ofReal_re (ω h)
+  -- Helper: im of ∫ exp(I * ω h) = ∫ sin(ω h)
+  have h_im : ∀ h : NComponentTorusTestFunction L_phys params.N,
+      (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ).im =
+      ∫ ω : NComponentTorusConfig L_phys params.N, Real.sin (ω h) ∂μ := fun h => by
+    rw [show (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ).im =
+      Complex.imCLM (∫ ω, Complex.exp (Complex.I * ↑(ω h)) ∂μ) from rfl]
+    rw [← ContinuousLinearMap.integral_comp_comm Complex.imCLM (h_int h)]
     congr 1 with ω
     simp only [Complex.imCLM_apply, mul_comm Complex.I, Complex.exp_mul_I,
       Complex.add_im, Complex.mul_im, Complex.I_re, Complex.I_im,
