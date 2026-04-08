@@ -43,11 +43,36 @@ def prodConfigInv (T : Configuration (Fin N → E)) : Fin N → Configuration E 
 
 theorem prodConfig_left_inv (T : Fin N → Configuration E) :
     prodConfigInv (prodConfigToFun T) = T := by
-  sorry -- Σⱼ Tⱼ((update 0 i g) j) = Tᵢ(g) by Finset.sum_ite_eq' + map_zero
+  funext i
+  apply ContinuousLinearMap.ext
+  intro g
+  -- Goal: (prodConfigInv (prodConfigToFun T)) i g = T i g
+  -- LHS = ∑ j, T j ((update 0 i g) j)
+  show ∑ j : Fin N, T j (Function.update (0 : Fin N → E) i g j) = T i g
+  rw [Finset.sum_eq_single i]
+  · simp [Function.update_self]
+  · intro j _ hji
+    simp only [Function.update_of_ne hji, Pi.zero_apply, map_zero]
+  · intro hi; exact absurd (Finset.mem_univ i) hi
 
 theorem prodConfig_right_inv (T : Configuration (Fin N → E)) :
     prodConfigToFun (prodConfigInv T) = T := by
-  sorry -- f = Σᵢ update 0 i (f i), then T(f) = Σᵢ T(update 0 i (f i)) by linearity
+  apply ContinuousLinearMap.ext
+  intro f
+  -- Goal: (prodConfigToFun (prodConfigInv T)) f = T f
+  -- LHS = ∑ i, T (update 0 i (f i))
+  show ∑ i : Fin N, T (Function.update (0 : Fin N → E) i (f i)) = T f
+  -- Key: f = ∑ i, update 0 i (f i) in the Pi type Fin N → E
+  have h_decomp : f = ∑ i : Fin N, Function.update (0 : Fin N → E) i (f i) := by
+    ext j
+    simp only [Finset.sum_apply]
+    rw [Finset.sum_eq_single j]
+    · simp [Function.update_self]
+    · intro i _ hij
+      simp only [Function.update_of_ne (Ne.symm hij), Pi.zero_apply]
+    · intro hj; exact absurd (Finset.mem_univ j) hj
+  conv_rhs => rw [h_decomp]
+  rw [map_sum]
 
 end Pphi2N
 

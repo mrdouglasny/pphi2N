@@ -119,12 +119,15 @@ converge weakly to μ. -/
 theorem lsmTorusLimit_exists (params : LSMParams) :
     ∃ (μ : Measure (NComponentTorusConfig L_phys params.N)),
       IsProbabilityMeasure μ ∧
-      -- BC weak convergence from a subsequence of lattice measures
-      (∃ (μseq : ℕ → Measure (NComponentTorusConfig L_phys params.N)),
-        (∀ n, IsProbabilityMeasure (μseq n)) ∧
+      -- BC weak convergence from a subsequence of lattice measures,
+      -- with the subsequence φ explicitly available for OS2
+      (∃ (φ : ℕ → ℕ), StrictMono φ ∧
         ∀ g : NComponentTorusConfig L_phys params.N → ℝ,
           Continuous g → (∃ C, ∀ x, |g x| ≤ C) →
-          Tendsto (fun n => ∫ ω, g ω ∂(μseq n)) atTop (nhds (∫ ω, g ω ∂μ))) := by
+          Tendsto (fun n => ∫ ω, g ω
+            ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+              lsmTorusMeasure L_phys params (φ n + 1)))
+            atTop (nhds (∫ ω, g ω ∂μ))) := by
   -- Define the ℕ-indexed sequence: n ↦ lsmTorusMeasure (n+1)
   -- (n+1 ensures NeZero)
   set μseq : ℕ → Measure (NComponentTorusConfig L_phys params.N) :=
@@ -145,7 +148,9 @@ theorem lsmTorusLimit_exists (params : LSMParams) :
   -- Apply Prokhorov: extract subsequence + limit
   obtain ⟨φ, ν, hφ, hν_prob, hν_conv⟩ :=
     prokhorov_configuration μseq hμseq_prob hμseq_tight
-  exact ⟨ν, hν_prob, ⟨fun n => μseq (φ n), fun n => hμseq_prob (φ n), hν_conv⟩⟩
+  refine ⟨ν, hν_prob, ⟨fun n => φ n, hφ, fun g hg hbdd => ?_⟩⟩
+  -- hν_conv gives convergence of μseq (φ n), which equals lsmTorusMeasure (φ n + 1)
+  exact hν_conv g hg hbdd
 
 /-! ## Analyticity under the integral sign
 
@@ -359,6 +364,37 @@ def nComponentTranslation (Nc : ℕ) [NeZero Nc] (v : ℝ × ℝ) :
     (torusTranslation L_phys v)
     (ContinuousLinearMap.id ℝ (FinLatticeField 1 Nc))
 
+/-- **Lattice-level translation invariance of the generating functional.**
+
+For each lattice size M, the lsmTorusMeasure is translation-invariant:
+∫ g(ω(T_v f)) dμ_M = ∫ g(ω(f)) dμ_M for bounded continuous g : ℝ → ℝ.
+
+Proof chain (all pieces exist, intertwining needs wiring):
+1. `onInteraction_translation_invariant` (proved in LatticeTranslation.lean):
+   V(T_v φ) = V(φ) for the O(N) interaction
+2. The GFF product measure is translation-invariant on the periodic lattice
+   (translation acts as permutation of independent copies)
+3. The torus embedding intertwines: embed(T_v^lat φ)(f) = embed(φ)(T_v^torus f)
+   (equivariance of the evaluation map under lattice translation)
+4. Combined: ∫ g(ω(f)) dμ_M = ∫ g(embed(φ)(f)) · (1/Z)e^{-V(φ)} dν(φ)
+   = ∫ g(embed(T_v φ)(f)) · (1/Z)e^{-V(T_v φ)} dν(T_v φ)  [change of var]
+   = ∫ g(embed(φ)(T_v f)) · (1/Z)e^{-V(φ)} dν(φ)  [intertwine + V-invariance]
+   = ∫ g(ω(T_v f)) dμ_M -/
+theorem lsmTorusMeasure_translation_invariant (params : LSMParams)
+    (M : ℕ) [NeZero M] (v : ℝ × ℝ)
+    (f : NComponentTorusTestFunction L_phys params.N)
+    (g : ℝ → ℝ) (hg : Continuous g) (hg_bdd : ∃ C, ∀ x, |g x| ≤ C) :
+    ∫ ω : NComponentTorusConfig L_phys params.N,
+      g (ω f) ∂(lsmTorusMeasure L_phys params M) =
+    ∫ ω : NComponentTorusConfig L_phys params.N,
+      g (ω (nComponentTranslation L_phys params.N v f))
+      ∂(lsmTorusMeasure L_phys params M) := by
+  -- See docstring for proof chain. Requires:
+  -- (a) embedding-translation intertwining lemma (not yet formalized)
+  -- (b) GFF translation invariance on periodic lattice
+  -- (c) onInteraction_translation_invariant (proved in LatticeTranslation.lean)
+  sorry
+
 /-- **OS2: Translation invariance of the generating functional.**
 
 Z[T_v f] = Z[f] for all v ∈ (ℝ/Lℤ)².
@@ -408,14 +444,20 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
       ∫ ω, Real.cos (ω f')
       ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
         lsmTorusMeasure L_phys params (φ n + 1)) := by
-    sorry -- from lattice translation invariance of the O(N) interaction
+    intro n
+    haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+    exact lsmTorusMeasure_translation_invariant L_phys params (φ n + 1) v f
+      Real.cos Real.continuous_cos ⟨1, fun x => Real.abs_cos_le_one x⟩
   have h_eq_sin : ∀ n, ∫ ω, Real.sin (ω f)
       ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
         lsmTorusMeasure L_phys params (φ n + 1)) =
       ∫ ω, Real.sin (ω f')
       ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
         lsmTorusMeasure L_phys params (φ n + 1)) := by
-    sorry -- from lattice translation invariance of the O(N) interaction
+    intro n
+    haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+    exact lsmTorusMeasure_translation_invariant L_phys params (φ n + 1) v f
+      Real.sin Real.continuous_sin ⟨1, fun x => Real.abs_sin_le_one x⟩
   -- By uniqueness of limits: ∫ cos(ω f) dμ = ∫ cos(ω f') dμ (and sin)
   have h_cos_eq : ∫ ω, Real.cos (ω f) ∂μ = ∫ ω, Real.cos (ω f') ∂μ :=
     tendsto_nhds_unique hL_cos (hR_cos.congr (fun n => (h_eq_cos n).symm))
@@ -493,7 +535,7 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
           Complex.exp (Complex.I * ↑(ω f)) ∂μ =
         ∫ ω, Complex.exp (Complex.I *
           ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ) := by
-  obtain ⟨μ, hμ_prob, μseq, hμseq_prob, hμ_conv⟩ := lsmTorusLimit_exists L_phys params
+  obtain ⟨μ, hμ_prob, φ, hφ_mono, hμ_conv⟩ := lsmTorusLimit_exists L_phys params
   haveI := hμ_prob
   have h_exp : ∀ f, Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
       Real.exp (|ω f|)) μ := by
@@ -510,8 +552,7 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
   · exact lsmTorusLimit_os1 L_phys params μ h_exp h_exp_bound
   · -- OS2: translation invariance via BC convergence
     intro v f
-    -- Use the BC convergence data to apply lsmTorusLimit_os2_translation
-    sorry -- needs: lattice translation invariance at each step of μseq
+    exact lsmTorusLimit_os2_translation L_phys params μ ⟨φ, hφ_mono, hμ_conv⟩ v f
 
 end Pphi2N
 

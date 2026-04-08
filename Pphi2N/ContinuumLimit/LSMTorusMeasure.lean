@@ -79,7 +79,11 @@ instance lsmTorusMeasure_isProbability (params : LSMParams) (M : ℕ) [NeZero M]
   -- onInteractingMeasure is a probability measure (proved)
   -- embed is measurable (proved)
   -- Measure.map of prob under measurable = prob
-  -- Blocked by: Wick constant c=0 is a placeholder (should be G(x,x) > 0)
+  -- Blocked: Wick constant c=0 is a placeholder.
+  -- Needs actual Wick constant G(x,x) > 0 so that the Nelson estimate
+  -- gives Z > 0 and the onInteractingMeasure is well-defined as a
+  -- probability measure. With c=0, the Wick ordering is trivial and
+  -- the Nelson bound may fail for general polynomials.
   sorry
 
 /-- **Main theorem (lattice level):** The LSM measure exists on T²_L
