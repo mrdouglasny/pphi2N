@@ -420,9 +420,14 @@ theorem lsmTorusLimit_os2_translation (params : LSMParams)
     tendsto_nhds_unique hL_cos (hR_cos.congr (fun n => (h_eq_cos n).symm))
   have h_sin_eq : ∫ ω, Real.sin (ω f) ∂μ = ∫ ω, Real.sin (ω f') ∂μ :=
     tendsto_nhds_unique hL_sin (hR_sin.congr (fun n => (h_eq_sin n).symm))
-  -- Reconstruct the complex exponential from cos + i·sin
-  sorry -- from h_cos_eq + h_sin_eq → Complex.exp equality
-         -- needs: ∫ exp(ix) = ∫ cos(x) + i·∫ sin(x)
+  -- Reconstruct: a complex number is determined by its re and im parts.
+  -- ∫ exp(ix) dμ = (∫ cos(x) dμ) + i·(∫ sin(x) dμ) by linearity.
+  -- Since re and im parts agree (h_cos_eq, h_sin_eq), the integrals agree.
+  apply Complex.ext
+  · -- Re parts: use h_cos_eq
+    sorry -- ∫ exp(iωf) re = ∫ cos(ωf) (from reCLM ∘ integral_comp_comm)
+  · -- Im parts: use h_sin_eq
+    sorry -- ∫ exp(iωf) im = ∫ sin(ωf) (from imCLM ∘ integral_comp_comm)
 
 /-! ## Bundled OS structure -/
 
