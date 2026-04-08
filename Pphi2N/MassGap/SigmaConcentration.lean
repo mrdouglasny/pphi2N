@@ -85,10 +85,43 @@ def nThreshold : ℕ :=
   -- i.e., N > 4/(κ · σ*²)
   Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) + 1
 
+-- 1/√a < b when a > 1/b² (for a, b > 0). Avoids sqrt in the hypothesis.
+private theorem inv_sqrt_lt_of_gt {a b : ℝ} (ha : 0 < a) (hb : 0 < b)
+    (h : 1 / b ^ 2 < a) : 1 / Real.sqrt a < b := by
+  have hsqa : 0 < Real.sqrt a := Real.sqrt_pos.mpr ha
+  rw [div_lt_iff₀ hsqa]
+  -- Goal: 1 < b * √a. Square both sides: 1 < b² * a.
+  -- From h: 1/b² < a, so 1 < a * b² = b² * a.
+  have hab : 1 < b ^ 2 * a := by
+    have h' := h; rw [div_lt_iff₀ (sq_pos_of_pos hb)] at h'; linarith
+  calc (1 : ℝ) = Real.sqrt 1 := Real.sqrt_one.symm
+    _ < Real.sqrt (b ^ 2 * a) := Real.sqrt_lt_sqrt (by norm_num) hab
+    _ = Real.sqrt (b ^ 2) * Real.sqrt a := Real.sqrt_mul (sq_nonneg b) a
+    _ = b * Real.sqrt a := by rw [Real.sqrt_sq hb.le]
+
 theorem fluctuationBound_small_of_large_N
     (hN_large : D.nThreshold ≤ D.N) :
     D.fluctuationBound < D.sigma_star / 2 := by
-  sorry -- from the definition of nThreshold: 1/√(κN) < σ*/2 when N > 4/(κσ*²)
+  unfold fluctuationBound nThreshold at *
+  have hκ := D.hkappa; have hσ := D.hsigma_star
+  have hN_pos : (0:ℝ) < D.N := Nat.cast_pos.mpr
+    (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp D.hN))
+  apply inv_sqrt_lt_of_gt (mul_pos hκ hN_pos) (by linarith)
+  -- Goal: 1/(σ*/2)² < κN
+  have : 1 / (D.sigma_star / 2) ^ 2 = 4 / D.sigma_star ^ 2 := by ring
+  rw [this]
+  -- 4/σ² < κN ← κ · (4/(κσ²)) < κN ← 4/(κσ²) < N
+  have hN_gt : 4 / (D.kappa * D.sigma_star ^ 2) < (D.N : ℝ) := by
+    have h1 : (4 / (D.kappa * D.sigma_star ^ 2)) ≤
+        ↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2))) := Nat.le_ceil _
+    have h2 : (Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) : ℝ) <
+        ↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) + 1) := by push_cast; linarith
+    linarith [show (↑(Nat.ceil (4 / (D.kappa * D.sigma_star ^ 2)) + 1) : ℝ) ≤ D.N from
+      Nat.cast_le.mpr hN_large]
+  have hκσ : 0 < D.kappa * D.sigma_star ^ 2 := mul_pos hκ (sq_pos_of_pos hσ)
+  calc 4 / D.sigma_star ^ 2 = D.kappa * (4 / (D.kappa * D.sigma_star ^ 2)) := by
+        field_simp
+    _ < D.kappa * D.N := by nlinarith
 
 /-- **The conditional mass gap.**
 
