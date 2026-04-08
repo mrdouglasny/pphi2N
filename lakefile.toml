@@ -13,5 +13,11 @@ scope = "mrdouglasny"
 git = "https://github.com/mrdouglasny/pphi2.git"
 rev = "4d82a22"
 
+[[require]]
+name = "MarkovSemigroups"
+scope = "mrdouglasny"
+git = "https://github.com/mrdouglasny/markov-semigroups.git"
+rev = "cd28df8"
+
 [[lean_lib]]
 name = "Pphi2N"

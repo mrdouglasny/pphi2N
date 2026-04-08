@@ -13,3 +13,4 @@ import Pphi2N.InteractingMeasure.DensityTransfer
 import Pphi2N.ContinuumLimit.NComponentEmbedding
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
 import Pphi2N.ContinuumLimit.ONTorusLimit
+import Pphi2N.MassGap.SigmaConcentration
