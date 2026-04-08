@@ -17,3 +17,4 @@ import Pphi2N.MassGap.SigmaConcentration
 import Pphi2N.MassGap.HubbardStratonovich
 import Pphi2N.MassGap.TransferOperator
 import Pphi2N.MassGap.LargeNMassGap
+import Pphi2N.MassGap.InfiniteVolume
