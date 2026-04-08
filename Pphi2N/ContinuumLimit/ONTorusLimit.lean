@@ -102,9 +102,201 @@ theorem lsmTorus_tight (params : LSMParams) :
     (fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact inferInstance)
     (fun f ⟨M, hM⟩ => by
       haveI : NeZero M := ⟨by omega⟩
-      -- Integrability of (ω f)²: from exponential moment domination
-      -- (ω f)² ≤ exp(2|ω f|), and exp moments are finite from Nelson
-      sorry)
+      -- Push through the Measure.map to reduce to lattice integrability
+      change Integrable (fun ω : NComponentTorusConfig L_phys params.N => (ω f) ^ 2)
+        (lsmTorusMeasure L_phys params M)
+      -- Unfold lsmTorusMeasure = Measure.map embed (onInteractingMeasure)
+      unfold lsmTorusMeasure nComponentTorusMeasure
+      have hspacing : 0 < L_phys / (M : ℝ) :=
+        div_pos hL.out (Nat.cast_pos.mpr (NeZero.pos M))
+      set sp := L_phys / (M : ℝ) with hsp
+      set P' := params.toONModel.interaction
+      set c' := latticeWickConstant sp params.mass hspacing params.hmass M
+      have hc' : 0 < c' := latticeWickConstant_pos sp params.mass hspacing params.hmass M
+      set μ_sc := scalarLatticeGFF params.mass sp hspacing params.hmass M
+      -- After integrable_map_measure: Integrable (F ∘ embed) (onInteractingMeasure)
+      rw [integrable_map_measure
+        ((configuration_eval_measurable f).pow_const 2).aestronglyMeasurable
+        (nComponentTorusEmbedLift_measurable L_phys params.N M).aemeasurable]
+      -- Abbreviations for the interacting measure components
+      set μ_N := nComponentMeasure params.N μ_sc
+      set bw := onBoltzmannWeight params.N 2 M P' c' sp
+      set Z := onPartitionFunction params.N 2 M P' c' sp μ_sc
+      -- Nelson bound: bw φ ≤ exp(B) for all φ
+      obtain ⟨B, hB⟩ := onNelsonEstimate params.N 2 M P' c' sp hspacing hc'
+      have hbw_pos : ∀ φ, 0 < bw φ := onBoltzmannWeight_pos params.N 2 M P' c' sp
+      have hbw_bound : ∀ φ, bw φ ≤ Real.exp B :=
+        fun φ => Real.exp_le_exp_of_le (by linarith [hB φ])
+      -- Measurability of the Boltzmann weight
+      -- First: local proof that wickMonomial_ON N c k is continuous in t (polynomial)
+      have wickMonomial_cont : ∀ k, Continuous (fun t : ℝ => wickMonomial_ON params.N c' k t) := by
+        suffices h : ∀ k, Continuous (fun t : ℝ => wickMonomial_ON params.N c' k t) ∧
+            Continuous (fun t : ℝ => wickMonomial_ON params.N c' (k + 1) t) from
+          fun k => (h k).1
+        intro k; induction k with
+        | zero =>
+          exact ⟨by simp [wickMonomial_ON]; exact continuous_const,
+                 by show Continuous (fun t : ℝ => t - ↑params.N * c'); fun_prop⟩
+        | succ k ih =>
+          obtain ⟨hk, hk1⟩ := ih
+          exact ⟨hk1, by
+            show Continuous (fun t : ℝ =>
+              (t - wickShiftCoeff params.N (k + 1) * c') * wickMonomial_ON params.N c' (k + 1) t -
+              wickLowerCoeff params.N (k + 1) * c' ^ 2 * wickMonomial_ON params.N c' k t)
+            exact ((continuous_id.sub continuous_const).mul hk1).sub
+              (continuous_const.mul hk)⟩
+      have hbw_meas : Measurable bw := by
+        unfold bw onBoltzmannWeight onInteraction
+        apply Real.measurable_exp.comp
+        apply Measurable.neg
+        apply Measurable.const_mul
+        apply Finset.measurable_sum; intro x _
+        -- wickInteraction_ON is continuous (polynomial in t), hence measurable
+        unfold wickInteraction_ON
+        apply Measurable.add
+        · apply Measurable.const_mul
+          apply (wickMonomial_cont P'.degree).measurable.comp
+          unfold siteNormSq; apply Finset.measurable_sum; intro i _
+          exact ((measurable_pi_apply x).comp (measurable_pi_apply i)).pow_const _
+        · apply Finset.measurable_sum; intro m _
+          apply Measurable.const_mul
+          apply (wickMonomial_cont m).measurable.comp
+          unfold siteNormSq; apply Finset.measurable_sum; intro i _
+          exact ((measurable_pi_apply x).comp (measurable_pi_apply i)).pow_const _
+      -- Integrability of bw under μ_N (bounded by exp(B))
+      have hbw_int : Integrable bw μ_N :=
+        Integrable.of_bound hbw_meas.aestronglyMeasurable (Real.exp B)
+          (ae_of_all _ fun φ => by
+            rw [Real.norm_eq_abs, abs_of_nonneg (le_of_lt (hbw_pos φ))]; exact hbw_bound φ)
+      -- Partition function Z > 0
+      have hZ_pos : 0 < Z := by
+        unfold Z onPartitionFunction
+        rw [integral_pos_iff_support_of_nonneg (fun φ => le_of_lt (hbw_pos φ)) hbw_int]
+        have : Function.support bw = Set.univ := by
+          ext φ; simp [Function.mem_support, (hbw_pos φ).ne']
+        rw [this, measure_univ]; norm_num
+      -- Step 1: Reduce from (1/Z)•(withDensity bw μ_N) to withDensity bw μ_N
+      -- Integrability under withDensity is the main goal:
+      suffices h : Integrable ((fun ω : NComponentTorusConfig L_phys params.N => (ω f) ^ 2) ∘
+          nComponentTorusEmbedLift L_phys params.N M)
+          (μ_N.withDensity (fun φ => ENNReal.ofReal (bw φ))) by
+        unfold onInteractingMeasure
+        exact h.smul_measure (ENNReal.inv_ne_top.mpr ((ENNReal.ofReal_pos.mpr hZ_pos).ne'))
+      -- Step 2: Apply integrable_withDensity_iff to reduce to μ_N
+      have hdens_meas : Measurable (fun φ : Fin params.N → FinLatticeField 2 M =>
+          ENNReal.ofReal (bw φ)) :=
+        ENNReal.measurable_ofReal.comp hbw_meas
+      apply (integrable_withDensity_iff hdens_meas
+        (Filter.Eventually.of_forall (fun _ => ENNReal.ofReal_lt_top))).mpr
+      -- Simplify (ENNReal.ofReal (bw φ)).toReal = bw φ
+      have hbw_toReal : ∀ φ : Fin params.N → FinLatticeField 2 M,
+          (ENNReal.ofReal (bw φ)).toReal = bw φ :=
+        fun φ => ENNReal.toReal_ofReal (le_of_lt (hbw_pos φ))
+      simp_rw [Function.comp, hbw_toReal]
+      -- Goal: Integrable (fun φ => (nComponentTorusEmbedLift φ f)^2 * bw φ) μ_N
+      -- Step 3: GFF integrability of the embedding squared (under the N-component GFF)
+      have hembed_meas : Measurable (fun φ : Fin params.N → FinLatticeField 2 M =>
+          nComponentTorusEmbedLift L_phys params.N M φ f) :=
+        (configuration_eval_measurable f).comp (nComponentTorusEmbedLift_measurable L_phys params.N M)
+      have h_gff_int : Integrable (fun φ : Fin params.N → FinLatticeField 2 M =>
+          (nComponentTorusEmbedLift L_phys params.N M φ f) ^ 2) μ_N := by
+        -- nComponentTorusEmbedLift φ f = Σ_{x,i} φ i x * c_{xi} (c_{xi} = evalNComponentAtSite x i f)
+        -- Cauchy-Schwarz: (Σ a_k * b_k)^2 ≤ (Σ a_k^2) * (Σ b_k^2)
+        -- gives: (embed φ f)^2 ≤ C_f * Σ_{x,i} (φ i x)^2  where C_f = Σ c_{xi}^2
+        -- Then: each (φ i x)^2 is integrable under μ_N via measurePreserving_eval + scalar GFF L²
+        -- Step A: Cauchy-Schwarz bound
+        let C_f : ℝ := ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N,
+            (evalNComponentAtSite L_phys params.N M x i f) ^ 2
+        have hC_f_nn : 0 ≤ C_f := Finset.sum_nonneg fun x _ =>
+          Finset.sum_nonneg fun i _ => sq_nonneg _
+        have hcs : ∀ φ : Fin params.N → FinLatticeField 2 M,
+            (nComponentTorusEmbedLift L_phys params.N M φ f) ^ 2 ≤
+            C_f * (∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N, (φ i x) ^ 2) := by
+          intro φ
+          -- Unfold the embedding to a double sum and apply Cauchy-Schwarz
+          show (∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N,
+              φ i x * evalNComponentAtSite L_phys params.N M x i f) ^ 2 ≤ _
+          -- Rewrite double sum as single sum over product type, apply Cauchy-Schwarz
+          -- Use Finset.sum_product to flatten sums
+          -- Apply Cauchy-Schwarz directly on the product type
+          -- (Σ_{x,i} a_{xi} * b_{xi})^2 ≤ (Σ_{x,i} a_{xi}^2) * (Σ_{x,i} b_{xi}^2)
+          have key := Finset.sum_mul_sq_le_sq_mul_sq (Finset.univ (α := FinLatticeSites 2 M × Fin params.N))
+            (fun xi => evalNComponentAtSite L_phys params.N M xi.1 xi.2 f)
+            (fun xi => φ xi.2 xi.1)
+          -- The LHS "show" unfolded as Σ_{x} Σ_{i} φ i x * c_{xi}; reorganize
+          have hlhs : ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N,
+              φ i x * evalNComponentAtSite L_phys params.N M x i f =
+              ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N),
+              evalNComponentAtSite L_phys params.N M xi.1 xi.2 f * φ xi.2 xi.1 := by
+            rw [← Finset.univ_product_univ, Finset.sum_product]
+            congr 1; ext x; congr 1; ext i; ring
+          have hrhs1 : C_f = ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N),
+              (evalNComponentAtSite L_phys params.N M xi.1 xi.2 f) ^ 2 := by
+            simp only [C_f, ← Finset.univ_product_univ, Finset.sum_product]
+          have hrhs2 : ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N, (φ i x) ^ 2 =
+              ∑ xi ∈ Finset.univ (α := FinLatticeSites 2 M × Fin params.N), (φ xi.2 xi.1) ^ 2 := by
+            rw [← Finset.univ_product_univ, Finset.sum_product]
+          rw [hlhs, hrhs1, hrhs2]
+          linarith [key]
+        -- Step B: Scalar GFF L² integrability: (ψ x)^2 integrable under μ_sc
+        let μ_GFF := latticeGaussianMeasure 2 M sp params.mass hspacing params.hmass
+        let T := latticeCovariance 2 M sp params.mass hspacing params.hmass
+        have h_scalar_int : ∀ x : FinLatticeSites 2 M,
+            Integrable (fun ψ : FinLatticeField 2 M => ψ x ^ 2) μ_sc := by
+          intro x
+          -- μ_sc = μ_GFF.map (evalMapMeasurableEquiv 2 M), so use integrable_map_measure
+          have hμ_sc_eq : μ_sc = μ_GFF.map (evalMapMeasurableEquiv 2 M) := rfl
+          rw [hμ_sc_eq]
+          apply (integrable_map_measure
+            ((measurable_pi_apply x).pow_const 2).aestronglyMeasurable
+            (evalMapMeasurableEquiv 2 M).measurable.aemeasurable).mpr
+          -- Goal: Integrable ((fun ψ => ψ x ^ 2) ∘ evalMapMeasurableEquiv 2 M) μ_GFF
+          -- Simplify: (evalMapMeasurableEquiv ω x) = ω (finLatticeDelta x) by definition
+          have heq : ((fun ψ : FinLatticeField 2 M => ψ x ^ 2) ∘
+              (evalMapMeasurableEquiv 2 M : Configuration (FinLatticeField 2 M) →
+                FinLatticeField 2 M)) =
+              fun ω => (ω (finLatticeDelta 2 M x)) ^ 2 := by
+            ext ω; simp [evalMapMeasurableEquiv, evalMap]
+          rw [heq]
+          exact (pairing_memLp T (finLatticeDelta 2 M x) 2).integrable_sq
+        -- Step C: (φ i x)^2 is integrable under μ_N via measure-preserving projection
+        have h_comp_int : ∀ (x : FinLatticeSites 2 M) (i : Fin params.N),
+            Integrable (fun φ : Fin params.N → FinLatticeField 2 M => (φ i x) ^ 2) μ_N := by
+          intro x i
+          haveI h_prob_sc : IsProbabilityMeasure μ_sc := scalarLatticeGFF_isProbability
+            params.mass sp hspacing params.hmass M
+          -- measurePreserving_eval: (Measure.pi (fun _ => μ_sc)).map (eval i) = μ_sc
+          have hmp_i : MeasurePreserving (fun φ : Fin params.N → FinLatticeField 2 M => φ i)
+              μ_N μ_sc := by
+            have h : MeasurePreserving (Function.eval i)
+                (Measure.pi (fun _ : Fin params.N => μ_sc)) μ_sc :=
+              haveI : ∀ j : Fin params.N, IsProbabilityMeasure ((fun _ : Fin params.N => μ_sc) j) :=
+                fun _ => h_prob_sc
+              measurePreserving_eval (fun _ : Fin params.N => μ_sc) i
+            exact h
+          exact hmp_i.integrable_comp_of_integrable (h_scalar_int x)
+        -- Step D: finite sum of integrable functions is integrable
+        have hsum_int : Integrable (fun φ : Fin params.N → FinLatticeField 2 M =>
+            ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N, (φ i x) ^ 2) μ_N :=
+          integrable_finset_sum _ fun x _ => integrable_finset_sum _ fun i _ => h_comp_int x i
+        -- Step E: dominate (embed φ f)^2 ≤ C_f * (Σ (φ i x)^2), conclude integrability
+        apply (hsum_int.const_mul C_f).mono
+        · exact (hembed_meas.pow_const 2).aestronglyMeasurable
+        · exact ae_of_all _ fun φ => by
+            have h1 : 0 ≤ (nComponentTorusEmbedLift L_phys params.N M φ) f ^ 2 := sq_nonneg _
+            have h2 : 0 ≤ ∑ x : FinLatticeSites 2 M, ∑ i : Fin params.N, (φ i x) ^ 2 :=
+              Finset.sum_nonneg fun x _ => Finset.sum_nonneg fun i _ => sq_nonneg _
+            rw [Real.norm_of_nonneg h1, Real.norm_of_nonneg (mul_nonneg hC_f_nn h2)]
+            exact hcs φ
+      -- Step 4: Bound (embedding)^2 * bw ≤ (embedding)^2 * exp(B), use Nelson
+      apply (h_gff_int.mul_const (Real.exp B)).mono
+      · exact (hembed_meas.pow_const 2).aestronglyMeasurable.mul hbw_meas.aestronglyMeasurable
+      · exact ae_of_all _ fun φ => by
+          simp only [Real.norm_eq_abs]
+          have h1 : 0 ≤ (nComponentTorusEmbedLift L_phys params.N M φ) f ^ 2 := sq_nonneg _
+          rw [abs_of_nonneg (mul_nonneg h1 (le_of_lt (hbw_pos φ))),
+              abs_of_nonneg (mul_nonneg h1 (le_of_lt (Real.exp_pos B)))]
+          exact mul_le_mul_of_nonneg_left (hbw_bound φ) h1)
     (fun f => ⟨C * q f ^ 2,
       fun ⟨M, hM⟩ => by haveI : NeZero M := ⟨by omega⟩; exact h_bound M f⟩)
     ε hε
