@@ -32,6 +32,8 @@ via tightness + Prokhorov.
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
 import GaussianField.Tightness
 import GaussianField.ConfigurationEmbedding
+import Torus.Symmetry
+import Nuclear.TensorProductFunctorAxioms
 
 noncomputable section
 
@@ -333,28 +335,60 @@ theorem lsmTorusLimit_os1 (params : LSMParams)
         rw [one_mul]; apply Real.exp_le_exp_of_le
         linarith [sq_nonneg (q f_re), abs_nonneg (Real.log K)]
 
-/-- **OS2: Translation invariance of the generating functional.**
+/-! ## OS2: Translation invariance
 
 The limit measure is invariant under torus translations:
 Z[T_v f] = Z[f] for all v ∈ (ℝ/Lℤ)².
 
-Proof: at each lattice M, the interaction Σ_x :P(|φ(x)|²): is
-invariant under lattice translations (it's a sum over all sites).
-The torus embedding intertwines lattice and torus translations.
-Taking the limit: both sides converge (BC convergence), so
+At each lattice M, the interaction Σ_x :P(|φ(x)|²): is invariant under
+lattice translations (sum over all sites). The torus embedding intertwines
+lattice and torus translations. Taking the limit via BC convergence:
 Z_∞[T_v f] = lim Z_M[T_v f] = lim Z_M[f] = Z_∞[f].
 
-This is exact at each M (not an approximate symmetry), so no
-anomaly correction is needed (unlike rotation, which only holds
-in the limit). -/
+This is exact at each M (not approximate), so no anomaly correction needed. -/
+
+/-- Translation on the N-component test function space.
+
+Translates the torus factor by v ∈ (ℝ/Lℤ)² and leaves the target
+ℝ^N factor unchanged:
+  T_v(f₁ ⊗ e_i) = (T_v f₁) ⊗ e_i -/
+def nComponentTranslation (Nc : ℕ) [NeZero Nc] (v : ℝ × ℝ) :
+    NComponentTorusTestFunction L_phys Nc →L[ℝ] NComponentTorusTestFunction L_phys Nc :=
+  nuclearTensorProduct_mapCLM
+    (torusTranslation L_phys v)
+    (ContinuousLinearMap.id ℝ (FinLatticeField 1 Nc))
+
+/-- **OS2: Translation invariance of the generating functional.**
+
+Z[T_v f] = Z[f] for all v ∈ (ℝ/Lℤ)².
+
+Proof: at each lattice M, the interaction Σ_x :P(|φ(x)|²): is
+invariant under lattice translations (sum over all sites). The torus
+embedding intertwines lattice and torus translations. Taking the
+limit: Z_M[f] and Z_M[T_v f] both converge to Z_∞[f] = Z_∞[T_v f]
+by BC convergence + the exact finite-M invariance. -/
 theorem lsmTorusLimit_os2_translation (params : LSMParams)
     (μ : Measure (NComponentTorusConfig L_phys params.N))
     [IsProbabilityMeasure μ]
+    -- The limit measure is obtained as a weak limit of lattice measures
+    (hμ_conv : ∃ φ : ℕ → ℕ, StrictMono φ ∧
+      ∀ g : NComponentTorusConfig L_phys params.N → ℝ,
+        Continuous g → (∃ C, ∀ x, |g x| ≤ C) →
+        Tendsto (fun n => ∫ ω, g ω
+          ∂(haveI : NeZero (φ n + 1) := ⟨Nat.succ_ne_zero _⟩
+            lsmTorusMeasure L_phys params (φ n + 1)))
+          atTop (nhds (∫ ω, g ω ∂μ)))
     (v : ℝ × ℝ) (f : NComponentTorusTestFunction L_phys params.N) :
-    -- Z[f] = Z[T_v f] for all translations v
-    -- Proof: exact at each M (translation is a lattice symmetry),
-    -- passes to the limit by BC convergence.
-    True := by trivial -- placeholder: needs NTP translation action on the tensor product
+    ∫ ω : NComponentTorusConfig L_phys params.N,
+      Complex.exp (Complex.I * ↑(ω f)) ∂μ =
+    ∫ ω : NComponentTorusConfig L_phys params.N,
+      Complex.exp (Complex.I * ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ := by
+  -- Strategy (same as pphi2's cylinderPullback_timeTranslation_invariant):
+  -- 1. Both integrands are bounded continuous (|exp(ix)| = 1)
+  -- 2. BC convergence: lim Z_M[f] = Z[f] and lim Z_M[T_v f] = Z[T_v f]
+  -- 3. At each M: Z_M[f] = Z_M[T_v f] (exact lattice translation invariance)
+  -- 4. tendsto_nhds_unique: Z[f] = Z[T_v f]
+  sorry
 
 /-! ## Bundled OS structure -/
 
@@ -374,7 +408,13 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
         (c : ℝ) (_ : 0 < c),
         ∀ (f_re f_im : NComponentTorusTestFunction L_phys params.N),
           ‖∫ ω, Complex.exp (Complex.I * (↑(ω f_re) + Complex.I * ↑(ω f_im))) ∂μ‖ ≤
-          Real.exp (c * (q f_re + q f_im))) := by
+          Real.exp (c * (q f_re + q f_im))) ∧
+      -- OS2: translation invariance
+      (∀ (v : ℝ × ℝ) (f : NComponentTorusTestFunction L_phys params.N),
+        ∫ ω : NComponentTorusConfig L_phys params.N,
+          Complex.exp (Complex.I * ↑(ω f)) ∂μ =
+        ∫ ω, Complex.exp (Complex.I *
+          ↑(ω (nComponentTranslation L_phys params.N v f))) ∂μ) := by
   obtain ⟨μ, hμ_prob⟩ := lsmTorusLimit_exists L_phys params
   haveI := hμ_prob
   have h_exp : ∀ f, Integrable (fun ω : NComponentTorusConfig L_phys params.N =>
@@ -387,9 +427,12 @@ theorem lsmTorusLimit_satisfies_OS (params : LSMParams) :
       ∀ f, ∫ ω : NComponentTorusConfig L_phys params.N,
         Real.exp (|ω f|) ∂μ ≤ K * Real.exp (q f ^ 2) := by
     sorry -- from Nelson's estimate + Cauchy-Schwarz + Gaussian exponential moments
-  refine ⟨μ, hμ_prob, ?_, ?_⟩
+  refine ⟨μ, hμ_prob, ?_, ?_, ?_⟩
   · exact fun n J => lsmTorusLimit_os0 L_phys params μ h_exp n J
   · exact lsmTorusLimit_os1 L_phys params μ h_exp h_exp_bound
+  · -- OS2: translation invariance passes through the weak limit
+    intro v f
+    sorry -- from lsmTorusLimit_os2_translation with the BC convergence data
 
 end Pphi2N
 
