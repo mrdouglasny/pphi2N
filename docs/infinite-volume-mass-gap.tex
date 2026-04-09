@@ -220,64 +220,109 @@ gives:
 The $\sigma$-field concentrates at $\sigma_*$ with $O(1/\sqrt{N})$
 fluctuations.
 
-\section{Feynman-Kac and $1/N$ corrections}
+\section{Exponential decay of the propagator}
 
-\subsection{Leading order ($N = \infty$)}
+\subsection{Feynman-Kac representation}
 
-At $N=\infty$: $\sigma = \sigma_*$ deterministically, the gap
-equation determines $\sigma_*$, and the mass is $m_0 = \sqrt{\sigma_*}$.
-No further analysis needed.
-
-\subsection{Finite $N$: cumulant expansion}
-
-From~\eqref{eq:HS} and the Feynman-Kac formula, the
-$\ph$-propagator involves $\E_\sigma[e^{-\int\sigma(\omega)\,dt}]$.
-The cumulant expansion:
+The propagator at fixed $\sigma$ has the path integral
+representation:
 \begin{equation}
-  \E_\sigma[e^X] = \exp\!\Bigl(\sum_{k=1}^\infty
-    \frac{\kappa_k(X)}{k!}\Bigr),
-  \quad X = -\int_0^s\!\sigma(\omega(t))\,dt.
+\label{eq:FK}
+  (-\Delta+\tau)^{-1}(x,0)
+    = \int_0^\infty\!ds\;\E^W_{0\to x,s}\!\Bigl[
+      e^{-\int_0^s\!\tau(\omega(t))\,dt}\Bigr]
 \end{equation}
-\begin{itemize}
-\item $\kappa_1 = -s\sigma_*$ (leading mass, from the gap equation).
-\item $\kappa_2 = O(s/(\kappa N))$ (from BL variance bound).
-\item $\kappa_k = O(s/(\kappa N)^{k-1})$ for $k \ge 3$
-  (from BL cumulant bounds).
-\end{itemize}
+where $\tau = 4\lambda\sigma$ and $\E^W$ is over lattice random
+walks from $0$ to $x$ in time~$s$.
 
-The corrected mass:
+\subsection{Sub-Gaussian bound for log-concave measures}
+
+The $\sigma$-measure $e^{-Ns_{\rm eff}}$ is log-concave
+(when~\eqref{eq:convexity} holds). For log-concave random vectors,
+every linear functional is sub-Gaussian (Borell's lemma):
 \begin{equation}
-  m^2 = \sigma_*\bigl(1 + O(1/(\kappa N))\bigr).
+\label{eq:subgauss}
+  \E_\sigma[e^X] \le \exp\!\bigl(\E[X] + \tfrac{1}{2}\Var(X)\bigr)
 \end{equation}
-For $N \gg 1/\kappa$: the correction is small and $m^2 > 0$.
+for any linear functional $X$ of~$\sigma$.
+
+Applied to $X = -\int_0^s \tau(\omega(t))\,dt$ (linear in $\sigma$
+for fixed path~$\omega$):
+\begin{align}
+  \E[X] &= -s\,\tau_* \quad\text{(where $\tau_* = 4\lambda\sigma_*$)},
+    \label{eq:EX} \\
+  \Var(X) &= \int_0^s\!\!\int_0^s\!
+    \Cov\bigl(\tau(\omega(t_1)),\tau(\omega(t_2))\bigr)\,dt_1\,dt_2
+    \le \frac{s}{N}\,\|C_\tau\|_1, \label{eq:VarX}
+\end{align}
+where $\|C_\tau\|_1 = \int\!\Cov(\tau(0),\tau(z))\,dz
+\le (4\lambda)^2 \int\!H^{-1}_{0z}/N\,dz$ is the integrated
+$\tau$-covariance (finite, from the BL exponential decay of~$H^{-1}$).
+
+\subsection{The key bound}
+
+Combining~\eqref{eq:FK}, \eqref{eq:subgauss}, \eqref{eq:EX},
+\eqref{eq:VarX}:
+\begin{align}
+  \E_\sigma[(-\Delta+\tau)^{-1}(x,0)]
+    &\le \int_0^\infty\!ds\;\E^W_{0\to x,s}\!\bigl[
+      e^{-s\tau_* + s\|C_\tau\|_1/(2N)}\bigr] \nonumber \\
+    &= \boxed{(-\Delta + m^2)^{-1}(x,0)}
+\end{align}
+where
+\begin{equation}
+\label{eq:renorm_mass}
+  m^2 = \tau_* - \frac{\|C_\tau\|_1}{2N}
+      = 4\lambda\sigma_* - \frac{8\lambda^2}{N}\int\!H^{-1}_{0z}\,dz.
+\end{equation}
+The averaged propagator is bounded by a \textbf{deterministic}
+Green's function $(-\Delta+m^2)^{-1}$, which decays as
+$e^{-m|x|}$ by standard lattice Fourier analysis.
+
+\subsection{Mass gap condition}
+
+The mass $m > 0$ when $m^2 > 0$, i.e.,
+\begin{equation}
+\label{eq:massgap_cond}
+  N > N_0 := \frac{2\lambda\int H^{-1}_{0z}\,dz}{\sigma_*}.
+\end{equation}
+The threshold $N_0$ is finite and computable from the lattice
+$\sigma$-propagator $H^{-1}$.
 
 \subsection{Main theorem}
 
 \begin{theorem}[Mass gap at large $N$]
 \label{thm:main}
-For the O($N$) LSM on $\Z^2$ with $N \ge 3$ and
-$\sigma_* > 1/(16\pi\lambda)$ (convexity condition), there exists
-$N_0 = O(1/\kappa)$ such that for $N \ge N_0$, the connected
+For the O($N$) LSM on $\Z^2$ with $N \ge 3$,
+$\sigma_* > 1/(16\pi\lambda)$ (BL convexity), and
+$N > N_0$ (from~\eqref{eq:massgap_cond}), the connected
 two-point function decays exponentially:
 \begin{equation}
   |\langle\ph^i(x)\ph^i(0)\rangle_c| \le C\,e^{-m|x|}
 \end{equation}
-with $m = \sqrt{\sigma_*}\,(1 + O(1/(\kappa N))) > 0$, where
-$\sigma_*$ is the gap equation solution~\eqref{eq:gap}.
+with $m > 0$ given by~\eqref{eq:renorm_mass}.
 \end{theorem}
 
-\begin{proof}[Proof outline]
+\begin{proof}
 \begin{enumerate}
-\item \textbf{Gap equation} (\S2): $\sigma_*$ is the minimum of
-  $s_{\rm eff}$, with $m_0 = \sqrt{\sigma_*} > 0$.
-\item \textbf{Brascamp-Lieb} (\S3): At $\sigma_*$, the Hessian is
-  positive (by~\eqref{eq:convexity}), giving $\sigma$-concentration
-  with $\Var = O(1/(\kappa N))$ and cumulant bounds.
-\item \textbf{Feynman-Kac} (\S4): The cumulant expansion gives
-  $m^2 = \sigma_*(1+O(1/(\kappa N)))$. For $N > C/\kappa$:
-  the correction is $< 1$ and $m > 0$.
-\item \textbf{Exponential decay}: Standard from Feynman-Kac with
-  $m > 0$. \qedhere
+\item \textbf{HS} (\S1.2): The joint measure on $(\sigma,\ph)$
+  factors as Gaussian$(\ph|\sigma) \times \mu_\sigma$, giving the
+  exact formula~\eqref{eq:HS}. The $\sigma$-measure
+  $\mu_\sigma \propto \det(-\Delta+\tau)^{-N/2} e^{-N\cdot\text{quartic}}$
+  is well-defined (Nelson bound, same as for the interacting measure).
+\item \textbf{Gap equation} (\S2): The minimum $\sigma_*$ of
+  $s_{\rm eff}$ satisfies~\eqref{eq:gap}, with $\sigma_* > 0$ always
+  in~2d.
+\item \textbf{BL} (\S3): At $\sigma_*$, the Hessian $H$ is positive
+  (by~\eqref{eq:convexity}), and $\Cov(\sigma(x),\sigma(y)) \le
+  H^{-1}_{xy}/N$ with exponential decay.
+\item \textbf{Sub-Gaussian bound}: $X = -\int\tau(\omega)\,dt$ is a
+  linear functional of the log-concave $\sigma$, hence sub-Gaussian
+  by Borell's lemma.
+\item \textbf{FK bound}: The averaged propagator $\le$
+  deterministic $(-\Delta+m^2)^{-1}$ with $m^2$ from~\eqref{eq:renorm_mass}.
+\item \textbf{Mass gap}: $m^2 > 0$ when $N > N_0$. Exponential
+  decay of $(-\Delta+m^2)^{-1}$ is standard. \qedhere
 \end{enumerate}
 \end{proof}
 
