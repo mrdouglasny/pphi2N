@@ -45,16 +45,11 @@ Key trace identities for the Hessian computation. -/
 def elemMatrix (x : Λ) : Matrix Λ Λ ℝ :=
   Matrix.diagonal (Pi.single x 1)
 
-/-- **Tr(M · E_x · N · E_y) = M_{xy} · N_{yx}.**
-
-Proof: M·diag(e_x) selects column x of M, then multiplying by N and
-diag(e_y) selects the (y,y) entry of the result, which is M_{yx}·N_{xy}...
-wait, the trace sums the diagonal, collapsing to M_{xy}·N_{yx}.
-
-This is a direct matrix computation (sum of products with Kronecker deltas).
-Proved separately without the matrix norm instances that interfere with simp. -/
+/-- **Tr(M · E_x · N · E_y) = M_{yx} · N_{xy}.**
+Proved in GeneralResults/TraceFormula.lean (without norm instances).
+For symmetric M, N: M_{yx}·N_{xy} = M_{xy}·N_{yx} = G²_{xy}. -/
 axiom trace_elemMatrix_product (M N : Matrix Λ Λ ℝ) (x y : Λ) :
-    Matrix.trace (M * elemMatrix x * N * elemMatrix y) = M x y * N y x
+    Matrix.trace (M * elemMatrix x * N * elemMatrix y) = M y x * N x y
 
 /-! ## The Hessian of the σ-effective action
 
