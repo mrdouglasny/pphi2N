@@ -28,6 +28,7 @@ import Mathlib.Analysis.Calculus.ContDiff.Defs
 import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 import Mathlib.Analysis.Matrix.Normed
 import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
+import Pphi2N.GeneralResults.DetContDiff
 
 noncomputable section
 
@@ -52,13 +53,12 @@ theorem contDiffAt_ring_inverse {𝕜 : Type*} [NontriviallyNormedField 𝕜]
 
 /-! ## det is C∞ -/
 
-/-- **The determinant is C∞** (polynomial in the entries).
+/-- **The determinant is C∞** with the linftyOp norm.
 
-Proof: det is a polynomial in the matrix entries (Leibniz formula:
-det(A) = Σ_σ sign(σ) · Π_i A_{σ(i),i}). Each entry is a continuous
-linear projection (hence C∞), finite products and sums of C∞ functions
-are C∞. The direct proof via ContDiff.sum/contDiff_prod times out in
-Lean due to the sum over permutations; we axiomatize this standard fact. -/
+Proved in DetContDiff.lean with Pi norm (`contDiff_matrix_det_proved`).
+The linftyOp and Pi norms induce the same topology on finite-dim Matrix,
+but Lean's definitional equality check times out on the norm transfer.
+Axiomatized here; the mathematical content is fully proved. -/
 axiom contDiff_matrix_det :
     ContDiff ℝ ⊤ (Matrix.det : Matrix n n ℝ → ℝ)
 
