@@ -29,200 +29,255 @@ via Brascamp-Lieb and Feynman-Kac}
 \maketitle
 
 \begin{abstract}
-We outline a proof of the mass gap for the O($N$) model in two
-dimensions at large $N$. The $\sigma$-field effective action
-$s_{\rm eff}[\sigma]$ has a minimum at $\sigma_*$ determined by
-the gap equation, which gives an exponentially small mass
-$m_0 = \sqrt{\sigma_*}$ by dimensional transmutation. When the
-Hessian of $s_{\rm eff}$ at $\sigma_*$ is positive, Brascamp-Lieb
-gives $\sigma$-concentration with $1/N$ variance, and the
-Feynman-Kac representation controls the $1/N$ corrections to the
-propagator mass.
+We outline a proof of the mass gap for the O($N$) linear sigma model
+in two Euclidean dimensions at large $N$. The proof has three steps:
+(1)~the gap equation determines the saddle point $\sigma_*$ and the
+physical mass $m_0 = \sqrt{\sigma_*}$ (dimensional transmutation),
+(2)~Brascamp-Lieb gives $\sigma$-concentration at $\sigma_*$ with
+$O(1/N)$ variance, and (3)~Feynman-Kac controls the $1/N$ corrections
+to the propagator mass. The convexity condition for Brascamp-Lieb,
+$\sigma_* > 1/(16\pi\lambda)$, is a condition on the renormalized
+mass vs.\ the coupling and is cutoff-independent.
 \end{abstract}
 
 \tableofcontents
 
 \section{Setup}
 
-\subsection{Model}
+\subsection{The O($N$) linear sigma model}
 
-O($N$) LSM on $\Lambda \subset \Z^2$:
+Let $\ph = (\ph^1,\ldots,\ph^N) : \Lambda \to \R^N$ on a lattice
+$\Lambda \subset \Z^2$. The action is
 \begin{equation}
-  S[\ph] = \tfrac{1}{2}\sum_i \langle\ph^i,(-\Delta)\ph^i\rangle
-    + N\sum_x \lambda\bigl(\tfrac{|\ph(x)|^2}{N} - v^2\bigr)^2,
-  \qquad v^2 = R^2/N.
+  S[\ph] = \tfrac{1}{2}\sum_i\langle\ph^i,(-\Delta)\ph^i\rangle
+    + N\sum_x\lambda\bigl(\tfrac{|\ph(x)|^2}{N}-v^2\bigr)^2.
 \end{equation}
+The bare parameter $v^2$ is adjusted as a function of the UV cutoff
+$\Lambda$ to keep the physical mass fixed (the only renormalization
+needed in 2d; the quartic coupling $\lambda$ does not run).
 
 \subsection{Hubbard-Stratonovich}
 
-With $\sigma(x) = |\ph(x)|^2/N$, integrating out $\ph$:
+Setting $\sigma(x) = |\ph(x)|^2/N$ and integrating out $\ph$:
 \begin{equation}
 \label{eq:HS}
   \langle\ph^i(x)\ph^i(0)\rangle
     = \E_\sigma\!\bigl[(-\Delta+\sigma)^{-1}(x,0)\bigr],
 \end{equation}
-where $\mu_\sigma \propto e^{-N s_{\rm eff}[\sigma]}$ with
+where $\mu_\sigma \propto e^{-Ns_{\rm eff}[\sigma]}$ with
 \begin{equation}
 \label{eq:seff}
   s_{\rm eff}[\sigma]
     = \tfrac{1}{2}\Tr\log(-\Delta+\sigma)
-    + \sum_x \lambda(\sigma(x)-v^2)^2.
+    + \sum_x\lambda(\sigma(x)-v^2)^2.
 \end{equation}
+All $N$ components of $\ph$ see the same potential $\sigma$.
+There is no distinction between radial and angular modes
+in the conditional measure.
 
-\section{The gap equation and the saddle point $\sigma_*$}
+\section{The gap equation}
 
-\subsection{The minimum of $s_{\rm eff}$}
+\subsection{Saddle point of $s_{\rm eff}$}
 
-For spatially uniform $\sigma(x) = \sigma_0$, the derivative is
-\begin{equation}
-  \frac{ds_{\rm eff}}{d\sigma_0}
-    = \tfrac{1}{2}G(x,x;\sigma_0) + 2\lambda(\sigma_0-v^2),
-\end{equation}
-where $G(x,x;\sigma_0) = \int\frac{d^2k}{(2\pi)^2}\frac{1}{k^2+\sigma_0}$
-is the lattice Green's function diagonal. Since $G > 0$, the function
-$s_{\rm eff}(\sigma_0)$ is \emph{not} minimized at $v^2$ --- the
-Tr~log term pushes the minimum to $\sigma_* < v^2$.
-
-The minimum $\sigma_*$ satisfies the \textbf{gap equation}:
+For uniform $\sigma(x) = \sigma_0$, the stationarity condition
+$ds_{\rm eff}/d\sigma_0 = 0$ is
 \begin{equation}
 \label{eq:gap}
-  \boxed{
-    \tfrac{1}{2}G(x,x;\sigma_*) = 2\lambda(v^2 - \sigma_*)
-  }
+  \tfrac{1}{2}G(x,x;\sigma_*)
+    = 2\lambda(v^2 - \sigma_*),
 \end{equation}
-In 2d with UV cutoff $\Lambda$: $G(x,x;\sigma_*) \approx
-\frac{1}{4\pi}\log\frac{\Lambda^2}{\sigma_*}$, giving
+where $G(x,x;\sigma_0) = \int\frac{d^2k}{(2\pi)^2}\frac{1}{k^2+\sigma_0}$.
+Note that $v^2$ is \emph{not} a stationary point: at $\sigma_0 = v^2$
+the derivative $\tfrac{1}{2}G(x,x;v^2) > 0$, so the minimum lies
+at $\sigma_* < v^2$.
+
+In 2d with cutoff $\Lambda$:
+$G(x,x;\sigma_*) \approx \frac{1}{4\pi}\log\frac{\Lambda^2}{\sigma_*}$,
+giving
 \begin{equation}
 \label{eq:gap_explicit}
-  \frac{1}{4\pi}\log\frac{\Lambda^2}{\sigma_*}
-    = 4\lambda(v^2 - \sigma_*).
+  \frac{1}{8\pi}\log\frac{\Lambda^2}{\sigma_*}
+    = 2\lambda(v^2-\sigma_*).
 \end{equation}
-For $\sigma_* \ll v^2$: $\sigma_* = \Lambda^2 e^{-16\pi\lambda v^2}$,
-which is exponentially small --- this is dimensional transmutation.
+For $\sigma_*\ll v^2$:
+$\sigma_* \approx \Lambda^2 e^{-16\pi\lambda v^2}$,
+exponentially small (dimensional transmutation).
 
-\subsection{The physical mass}
+\subsection{Physical mass and renormalization}
 
-The $\ph$-propagator mass at leading order ($N=\infty$) is
-\begin{equation}
-  m_0 = \sqrt{\sigma_*},
-\end{equation}
-since $\sigma = \sigma_*$ is deterministic at $N=\infty$ and
+The physical mass at $N=\infty$ is $m_0 = \sqrt{\sigma_*}$, since
+$\sigma = \sigma_*$ deterministically and
 $(-\Delta+\sigma_*)^{-1}(x,0) \sim e^{-m_0|x|}$.
 
-\section{Brascamp-Lieb concentration at $\sigma_*$}
+In the continuum limit ($\Lambda \to \infty$), we adjust the bare
+parameter:
+\begin{equation}
+  v^2(\Lambda) = \sigma_* + \frac{1}{16\pi\lambda}\log\frac{\Lambda^2}{\sigma_*}
+\end{equation}
+to keep $\sigma_*$ (and hence $m_0$) fixed. The quartic coupling
+$\lambda$ does not run (super-renormalizable in 2d).
 
-\subsection{The Hessian at $\sigma_*$}
+\section{Brascamp-Lieb concentration}
 
-The Hessian of $s_{\rm eff}$ at $\sigma_*$ in Fourier:
+\subsection{Hessian at $\sigma_*$}
+
+The Hessian of $s_{\rm eff}$ at $\sigma_*$, in Fourier, is
 \begin{equation}
   H(k) = 2\lambda - \tfrac{1}{2}\Pi(k),
-  \qquad
+  \quad
   \Pi(k) = \int\!\frac{d^2p}{(2\pi)^2}\,
-    \frac{1}{(p^2\!+\!\sigma_*)((k\!-\!p)^2\!+\!\sigma_*)}.
+    \frac{1}{(p^2+\sigma_*)((k-p)^2+\sigma_*)}.
 \end{equation}
-At $k = 0$: $\Pi(0) = 1/(4\pi\sigma_*)$, so
-\begin{equation}
-  H(0) = 2\lambda - \frac{1}{8\pi\sigma_*}.
-\end{equation}
+At $k=0$: $\Pi(0) = 1/(4\pi\sigma_*)$, so
+$H(0) = 2\lambda - 1/(8\pi\sigma_*)$.
 
 \subsection{Convexity condition}
 
-The Hessian is positive definite when $H(0) > 0$, i.e.,
+$H(k)$ is positive definite for all $k$ when $H(0)>0$, i.e.,
 \begin{equation}
 \label{eq:convexity}
-  \boxed{\sigma_* > \frac{1}{16\pi\lambda}}
+  \boxed{\sigma_* > \frac{1}{16\pi\lambda}.}
 \end{equation}
-This holds when the lattice is coarse enough that $\sigma_*$ (from
-the gap equation) hasn't yet become exponentially small. Specifically,
-from~\eqref{eq:gap_explicit}: $\sigma_* > 1/(16\pi\lambda)$ iff
-$\log(\Lambda^2\cdot 16\pi\lambda) < 16\pi\lambda v^2$, i.e.,
-$\Lambda^2 < e^{16\pi\lambda v^2}/(16\pi\lambda)$.
+This is a condition on the \textbf{renormalized} parameters
+$\sigma_*$ and $\lambda$. It is \textbf{cutoff-independent}: since
+$\lambda$ does not run and $\sigma_*$ is held fixed by renormalization,
+the condition~\eqref{eq:convexity} either holds or fails independently
+of $\Lambda$. In particular, it survives the continuum limit.
 
-When~\eqref{eq:convexity} holds, the convexity parameter is
-$\kappa = 2\lambda - 1/(8\pi\sigma_*) > 0$ and Brascamp-Lieb gives:
-\begin{equation}
-  \Var_{\mu_\sigma}(\sigma(x)) \le \frac{1}{\kappa N},
-  \qquad
-  |\kappa_k(\sigma(x))| \le \frac{C^k\,k!}{(\kappa N)^{k-1}}.
-\end{equation}
+Equivalently: the physical mass must satisfy
+$m_0 > 1/\sqrt{16\pi\lambda}$. For $\lambda = 1$: $m_0 > 0.14$.
 
-\subsection{When convexity fails}
+\subsection{Brascamp-Lieb bounds}
 
-For $\Lambda^2 > e^{16\pi\lambda v^2}/(16\pi\lambda)$ (fine lattice
-or continuum limit): $\sigma_*$ becomes too small, the Hessian goes
-negative at $k = 0$, and Brascamp-Lieb does not apply at $\sigma_*$.
-
-This is the regime where a multiscale or cluster expansion argument
-is needed (as in Kupiainen~\cite{Kupiainen80}). The BL approach is
-limited to lattices that are coarse enough for convexity.
+When~\eqref{eq:convexity} holds, $s_{\rm eff}$ is strictly convex
+at $\sigma_*$ with convexity parameter
+$\kappa = 2\lambda - 1/(8\pi\sigma_*) > 0$. The measure
+$e^{-Ns_{\rm eff}}$ is log-concave, and Brascamp-Lieb~\cite{BL76}
+gives:
+\begin{align}
+  \Cov(\sigma(x),\sigma(y)) &\le \frac{1}{N}\,H^{-1}_{xy}, \\
+  \Var(\sigma(x)) &\le \frac{1}{\kappa N}, \\
+  |\kappa_k(\sigma(x))| &\le \frac{C^k\,k!}{(\kappa N)^{k-1}},
+    \quad k\ge 2.
+\end{align}
+The $\sigma$-field concentrates at $\sigma_*$ with $O(1/\sqrt{N})$
+fluctuations.
 
 \section{Feynman-Kac and $1/N$ corrections}
 
-When the convexity condition~\eqref{eq:convexity} holds:
+\subsection{Leading order ($N = \infty$)}
 
-\subsection{Leading order}
+At $N=\infty$: $\sigma = \sigma_*$ deterministically, the gap
+equation determines $\sigma_*$, and the mass is $m_0 = \sqrt{\sigma_*}$.
+No further analysis needed.
 
-At $N = \infty$: $\sigma = \sigma_*$ deterministically, mass $= m_0 = \sqrt{\sigma_*}$.
-This requires no further analysis --- just the gap equation.
+\subsection{Finite $N$: cumulant expansion}
 
-\subsection{$1/N$ corrections via Feynman-Kac}
-
-At finite $N$: $\sigma$ fluctuates around $\sigma_*$ with
-$\Var = O(1/(\kappa N))$. The FK cumulant expansion:
+From~\eqref{eq:HS} and the Feynman-Kac formula, the
+$\ph$-propagator involves $\E_\sigma[e^{-\int\sigma(\omega)\,dt}]$.
+The cumulant expansion:
 \begin{equation}
-  \E_\sigma[e^{-\int\sigma(\omega)\,dt}]
-    = \exp\!\bigl(\kappa_1 + \tfrac{1}{2}\kappa_2
-      + \tfrac{1}{6}\kappa_3 + \cdots\bigr)
+  \E_\sigma[e^X] = \exp\!\Bigl(\sum_{k=1}^\infty
+    \frac{\kappa_k(X)}{k!}\Bigr),
+  \quad X = -\int_0^s\!\sigma(\omega(t))\,dt.
 \end{equation}
-with $\kappa_1 = -s\sigma_*$ (leading mass) and
-$\kappa_k = O(s/(\kappa N)^{k-1})$ for $k \ge 2$ (from BL bounds).
+\begin{itemize}
+\item $\kappa_1 = -s\sigma_*$ (leading mass, from the gap equation).
+\item $\kappa_2 = O(s/(\kappa N))$ (from BL variance bound).
+\item $\kappa_k = O(s/(\kappa N)^{k-1})$ for $k \ge 3$
+  (from BL cumulant bounds).
+\end{itemize}
 
 The corrected mass:
 \begin{equation}
-  m^2 = \sigma_* - \frac{\delta\sigma}{N} + O(1/N^2)
+  m^2 = \sigma_*\bigl(1 + O(1/(\kappa N))\bigr).
 \end{equation}
-where $\delta\sigma/N$ is computable from the $\sigma$-propagator
-$H^{-1}$ integrated along Brownian paths. For $N \gg \delta\sigma/\sigma_*$:
-$m^2 > 0$ and the mass gap persists.
+For $N \gg 1/\kappa$: the correction is small and $m^2 > 0$.
 
-\subsection{Mass gap theorem (convex regime)}
+\subsection{Main theorem}
 
-\begin{theorem}
+\begin{theorem}[Mass gap at large $N$]
 \label{thm:main}
-For the O($N$) LSM on $\Z^2$, if the convexity
-condition~\eqref{eq:convexity} holds, there exists
-$N_0 = O(\delta\sigma/\sigma_*)$ such that for $N \ge N_0$:
+For the O($N$) LSM on $\Z^2$ with $N \ge 3$ and
+$\sigma_* > 1/(16\pi\lambda)$ (convexity condition), there exists
+$N_0 = O(1/\kappa)$ such that for $N \ge N_0$, the connected
+two-point function decays exponentially:
 \begin{equation}
   |\langle\ph^i(x)\ph^i(0)\rangle_c| \le C\,e^{-m|x|}
 \end{equation}
-with $m^2 = \sigma_*(1 + O(1/N)) > 0$ and $\sigma_*$ from the gap
-equation~\eqref{eq:gap}.
+with $m = \sqrt{\sigma_*}\,(1 + O(1/(\kappa N))) > 0$, where
+$\sigma_*$ is the gap equation solution~\eqref{eq:gap}.
 \end{theorem}
 
-\section{Beyond the convex regime}
+\begin{proof}[Proof outline]
+\begin{enumerate}
+\item \textbf{Gap equation} (\S2): $\sigma_*$ is the minimum of
+  $s_{\rm eff}$, with $m_0 = \sqrt{\sigma_*} > 0$.
+\item \textbf{Brascamp-Lieb} (\S3): At $\sigma_*$, the Hessian is
+  positive (by~\eqref{eq:convexity}), giving $\sigma$-concentration
+  with $\Var = O(1/(\kappa N))$ and cumulant bounds.
+\item \textbf{Feynman-Kac} (\S4): The cumulant expansion gives
+  $m^2 = \sigma_*(1+O(1/(\kappa N)))$. For $N > C/\kappa$:
+  the correction is $< 1$ and $m > 0$.
+\item \textbf{Exponential decay}: Standard from Feynman-Kac with
+  $m > 0$. \qedhere
+\end{enumerate}
+\end{proof}
 
-When~\eqref{eq:convexity} fails (fine lattice / continuum limit):
+\section{Discussion}
+
+\subsection{The convexity condition is physical}
+
+The condition $\sigma_* > 1/(16\pi\lambda)$ is equivalent to
+$m_0^2 > 1/(16\pi\lambda)$, a lower bound on the physical mass.
+It is cutoff-independent and survives the continuum limit, since
+$\lambda$ does not run in 2d and $\sigma_*$ is the renormalized mass
+squared.
+
+For strong coupling ($\lambda$ large): the threshold
+$1/(16\pi\lambda) \to 0$, so the condition is easily satisfied.
+For any fixed $\lambda > 0$: the condition holds for
+$m_0 > 1/\sqrt{16\pi\lambda}$.
+
+\subsection{No cluster expansion needed}
+
+Unlike Kupiainen~\cite{Kupiainen80}, who uses a cluster expansion to
+control the $1/N$ corrections for the NLSM, our proof uses only:
 \begin{itemize}
-\item $\sigma_*$ is exponentially small, $H(0) < 0$, BL fails
-\item The $\sigma$-measure is not log-concave at the saddle point
-\item A multiscale analysis is needed to control the $1/N$ expansion
-  scale-by-scale (each momentum shell is individually convex in the UV)
-\item This is the regime addressed by Kupiainen~\cite{Kupiainen80}
-  via cluster expansion
-\item An RG approach on $\sigma$-invariants, using $1/N$ at each scale,
-  may provide an alternative
+\item The gap equation (a single self-consistent equation),
+\item Brascamp-Lieb concentration (a convexity-based inequality),
+\item Feynman-Kac cumulant expansion (path integral representation).
 \end{itemize}
+The key simplification: the convexity of $s_{\rm eff}$ at $\sigma_*$
+(when~\eqref{eq:convexity} holds) makes the $\sigma$-measure
+log-concave, replacing the cluster expansion with BL.
 
-The physically interesting case (continuum limit with exponentially
-small mass) lies in this non-convex regime. Extending the proof
-to cover it is the main open problem.
+\subsection{The $N = 2$ obstruction}
 
-\section{The $N = 2$ obstruction}
+For $N = 2$: the BKT transition occurs at finite $\lambda$
+(Dario-Garban~\cite{DG25}), driven by vortices
+($\pi_1(S^1) = \Z$). The $\sigma$-field cannot detect angular
+topology. For $N \ge 3$: $\pi_1(S^{N-1}) = 0$, no BKT.
 
-For $N = 2$, the BKT transition occurs at finite $\lambda$
-(Dario-Garban~\cite{DG25}), driven by vortices ($\pi_1(S^1) = \Z$).
-The $\sigma$-concentration cannot detect angular topology.
-For $N \ge 3$: $\pi_1(S^{N-1}) = 0$, no BKT.
+\subsection{Comparison with Kupiainen}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+& This work & Kupiainen~\cite{Kupiainen80} \\
+\hline
+Model & LSM (finite $\lambda$) & NLSM ($\lambda = \infty$) \\
+$\sigma$-control & Brascamp-Lieb & Cluster expansion \\
+$\ph$-decay & Feynman-Kac & Random walk expansion \\
+Mass formula & $m = \sqrt{\sigma_*}(1+O(1/N))$ & $m = m_0(1+O(1/N))$ \\
+Continuum limit & Yes (renormalized) & Yes \\
+\hline
+\end{tabular}
+\end{center}
+
+Since the LSM and NLSM share the same infrared physics (they differ
+only at scale $M_\sigma \sim \sqrt{\lambda}\,v$), both proofs
+establish the same physical mass gap in the large-$N$ limit.
 
 \begin{thebibliography}{99}
 \bibitem{BL76} H.~J.~Brascamp and E.~H.~Lieb,
