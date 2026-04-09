@@ -569,6 +569,157 @@ the argument is shorter and cleaner than expected: five steps, each
 using well-established tools, with no cluster expansion.
 \end{enumerate}
 
+\section{Physical analysis of the proof}
+\label{sec:physics}
+
+\subsection{The $N = 2$ claim: consistency with BKT}
+
+The BKT transition for the O(2) NLSM ($\lambda = \infty$) is
+well-established. Our claim of a mass gap at \emph{finite} $\lambda$
+does not contradict this, because the LSM and NLSM are genuinely
+different theories.
+
+At finite $\lambda$, the potential $V(\phi^2) = \lambda(|\phi|^2/N - v^2)^2$
+has a soft bottom: the radial mode $|\phi|$ fluctuates with mass
+$\sim \sqrt{\lambda}$. These fluctuations screen any attempt to create
+long-range angular correlations. Vortices are ``smeared out'' by the
+radial fluctuations --- a vortex configuration requires $|\phi| = 0$
+at its core, which costs energy $\sim \lambda v^4$, exponentially
+suppressed.
+
+\textbf{Lattice Monte Carlo} confirms this picture: the 2D O(2) LSM
+at any finite $\lambda$ is in a single disordered, massive phase.
+There is no phase transition. As $\lambda \to \infty$, one sees a
+sharpening crossover that becomes the BKT transition only in the
+strict limit.
+
+\subsection{The $\lambda \to \infty$ breakdown}
+
+Our bound $\kappa = 2\lambda - g^4/2$ seems to improve as $\lambda \to \infty$.
+But this is misleading: the LogConcaveMeasure framework breaks down
+in this limit.
+
+As $\lambda \to \infty$, the potential forces $|\phi|^2 = Nv^2$ strictly.
+The $\sigma$-measure becomes $\delta(\sigma - \sigma_*)$ --- a delta
+function, not a smooth log-concave measure. The Hessian bound
+$\kappa > 0$ holds at each finite $\lambda$, but the measure itself
+degenerates. Specifically:
+\begin{itemize}
+\item The probability measure $\mu_\sigma$ becomes singular
+\item The integrability conditions for BL fail
+\item The $\sigma$-field effective description breaks down
+\item Angular modes decouple and can become massless (BKT for $N=2$)
+\end{itemize}
+
+The mass gap bound $m \geq \sqrt{\sigma_*} - 1/(\sqrt{\sigma_*} \cdot
+\sqrt{\kappa N})$ is valid for each finite $\lambda$ but is \emph{not}
+uniform in $\lambda$: the implicit constants in the resolvent perturbation
+(which we have axiomatized) depend on $\lambda$.
+
+\subsection{Convergence vs.\ Borel summability of the $1/N$ expansion}
+
+The log-concavity of the $\sigma$-measure gives sub-Gaussian tails
+and controlled moments, which rigorously justify the $1/N$ expansion as
+an \textbf{asymptotic series to all orders}. The stronger claim of
+\textbf{convergence} (not just asymptotic) requires additional analysis:
+
+\begin{itemize}
+\item For \emph{bounded analytic observables}: the sub-Gaussian tail
+  bounds give convergent Taylor expansions when the Taylor radius
+  exceeds $\sim 1/\sqrt{\kappa N}$.
+\item For the \emph{mass gap itself}: the mass gap is an eigenvalue
+  (or exponential decay rate), not a bounded observable. Proving
+  convergence of the $1/N$ expansion for eigenvalues typically
+  requires Borel summability arguments, not direct convergence.
+\item The $1/N$ expansion is likely \textbf{Borel summable}: the
+  log-concavity controls the large-order behavior of the perturbation
+  coefficients, which is exactly what is needed for Borel summability.
+\end{itemize}
+
+We therefore correct our earlier claim: the $1/N$ expansion is
+rigorously asymptotic (from BL), and likely Borel summable, but
+\emph{convergence} for the mass gap specifically requires further analysis.
+
+\subsection{Comparison with Kupiainen (1980)}
+
+Kupiainen \cite{Kupiainen80} proved the mass gap for the O($N$) NLSM
+($\lambda = \infty$) at large $N$, using the Hubbard-Stratonovich
+transformation combined with a \emph{cluster expansion} for the
+$1/N$ corrections. The comparison:
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+& This work & Kupiainen \\
+\hline
+Model & LSM (finite $\lambda$) & NLSM ($\lambda = \infty$) \\
+$N$ range & All $N \geq 1$ & Large $N$ only \\
+Key tool & Brascamp-Lieb & Cluster expansion \\
+Cluster expansion? & No & Yes \\
+BKT compatible? & Yes (finite $\lambda$) & Yes (large $N$, no BKT) \\
+\hline
+\end{tabular}
+\end{center}
+
+The results are \emph{incomparable}: ours applies to all $N$ but
+requires finite $\lambda$; Kupiainen's applies at $\lambda = \infty$
+but requires large $N$. The union covers: (1) all $N$ at finite $\lambda$,
+and (2) large $N$ at any $\lambda \leq \infty$.
+
+The open case is: \emph{small $N$ (especially $N = 2$) at $\lambda = \infty$}.
+This is exactly the BKT regime, where the mass gap can vanish.
+
+\subsection{Why the proof fails in $d > 2$}
+
+In $d > 2$, the O($N$) model ($N \geq 2$) can have spontaneous symmetry
+breaking with $N - 1$ massless Goldstone bosons. The proof must fail,
+and it does:
+
+\begin{itemize}
+\item \textbf{Loss of convexity:} In the broken phase, the symmetric
+  vacuum $\langle\phi\rangle = 0$ is a saddle point (not minimum)
+  of the effective potential. The $\sigma$-effective action
+  $s_{\rm eff}$ ceases to be convex --- the Hessian has negative
+  eigenvalues corresponding to the unstable symmetric vacuum.
+\item \textbf{BL inapplicable:} Without convexity, the Brascamp-Lieb
+  inequality does not apply. The $\sigma$-measure is not log-concave.
+\item \textbf{Wrong vacuum:} The resolvent $(-\Delta + \sigma)^{-1}$
+  computed at the symmetric vacuum does not give the physical
+  propagator, which must be computed around a symmetry-broken vacuum.
+\end{itemize}
+
+In $d = 2$, the Mermin-Wagner theorem forbids SSB for continuous symmetries,
+so the symmetric vacuum is always the correct one. This is why $d = 2$
+is special: the convexity of $s_{\rm eff}$ is \emph{consistent} with
+the absence of SSB.
+
+\subsection{The resolvent perturbation: $L^2$ vs $L^\infty$}
+
+The most delicate point: the resolvent perturbation argument uses $L^2$
+control (variance bound from BL) rather than $L^\infty$ control
+(pointwise bound on $\sigma$, which would diverge in infinite volume).
+
+The key is the ``annealed'' estimate: we bound $\E_\sigma[G(x,0)]$
+(average of the propagator), not $G_\sigma(x,0)$ for a typical $\sigma$
+(which would be ``quenched''). The annealed estimate works because:
+
+\begin{enumerate}
+\item Write $\sigma = \sigma_* + \delta\sigma$ with $\E[\delta\sigma] = 0$
+\item The resolvent series $G = G_0 \sum_n (-\delta\sigma \cdot G_0)^n$
+  averages to $\E[G] = G_0 - G_0 \cdot \E[\delta\sigma \, G] = G_0 + \ldots$
+\item Each term in the averaged series involves $\sigma$-correlators
+  $\langle \delta\sigma(x_1) \cdots \delta\sigma(x_n) \rangle_c$
+\item BL gives: (a) $\langle \delta\sigma(x)^2 \rangle \leq 1/(\kappa N)$,
+  (b) exponential decay of connected correlators with mass $\sqrt{\kappa N}$,
+  (c) sub-Gaussian tail bounds
+\item The series converges when $\Var(\sigma)/\sigma_*^2 = 1/(\kappa N \sigma_*^2) \ll 1$
+\end{enumerate}
+
+This is rigorously justified by the theory of random Schr\"odinger operators
+\cite{AW15}. The $L^2$ control suffices because we are averaging the
+resolvent (not bounding it pointwise), and the BL correlator bounds
+give exponential decay of each term in the averaged series.
+
 \begin{thebibliography}{99}
 \bibitem{BL76} H.~J.~Brascamp and E.~H.~Lieb,
   ``On extensions of the Brunn-Minkowski and Pr\'ekopa-Leindler theorems,
