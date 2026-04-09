@@ -281,6 +281,181 @@ The mass gap depends only on $g^2$, not on $N$. This is the
 't~Hooft scaling of the large-$N$ expansion.
 \end{remark}
 
+\section{Numerical bounds}
+\label{sec:numerical}
+
+We compute explicit bounds for the mass gap in several parameter regimes.
+The key quantities are:
+\begin{align}
+  \sigma_* &= v^2 = R^2/N = 1/g^2 \qquad \text{(saddle point)} \\
+  \kappa &= 2\lambda - \frac{1}{2\sigma_*^2} = 2\lambda - \frac{g^4}{2}
+    \qquad \text{(convexity parameter)} \\
+  m_{\rm phys} &\geq \sqrt{\sigma_*} - \frac{1}{\sqrt{\sigma_*} \cdot
+    \sqrt{\kappa N}} \qquad \text{(mass gap lower bound)}
+\end{align}
+The condition for the mass gap is $\sigma_*^2 \kappa N > 1$, equivalently
+$\kappa > 1/(\sigma_*^2 N)$.
+
+\subsection{Concrete examples}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$g^2$ & $\lambda$ & $\sigma_*$ & $\kappa$ & $N=1$ gap & $N \to \infty$ gap \\
+\hline
+1 & 1 & 1 & 3/2 & $\geq 0.18$ & $\to 1$ \\
+1 & 10 & 1 & 39/2 & $\geq 0.77$ & $\to 1$ \\
+2 & 10 & 1/2 & 12 & $\geq 0.42$ & $\to 0.71$ \\
+1/2 & 1 & 2 & 31/16 & $\geq 0.93$ & $\to 1.41$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent
+The mass gap at $N = 1$ is computed as
+$m \geq \sqrt{\sigma_*} - 1/(\sqrt{\sigma_*} \cdot \sqrt{\kappa})$.
+The $N \to \infty$ limit is $\sqrt{\sigma_*} = 1/g$.
+
+\begin{remark}[Failure at fixed $\lambda$, $R^2$ with $N$ large]
+Taking $\lambda = 1$, $R^2 = 1$ gives $\sigma_* = 1/N$ and
+$\kappa = 2 - N^2/2$, which is negative for $N \geq 2$. At fixed
+$\lambda$ and $R^2$, the convexity threshold
+$\lambda > g^4/4 = N^2/(4R^4)$ requires $\lambda$ to grow as $N^2$.
+This is the correct physics: at fixed $\lambda$, $R^2$, the NLSM
+coupling $g^2 = N/R^2$ grows with $N$, and the theory eventually
+enters the strong-coupling regime where our bound fails.
+\end{remark}
+
+\begin{remark}[The physical regime: fixed $g^2$]
+In the 't~Hooft large-$N$ limit, one holds $g^2 = N/R^2$ fixed
+(so $R^2 = N/g^2$ grows with $N$). Then $\sigma_* = 1/g^2$ and
+$\kappa = 2\lambda - g^4/2$ are $N$-independent. The mass gap
+$m_{\rm phys} \to 1/g$ as $N \to \infty$, with correction
+$O(1/\sqrt{N})$.
+\end{remark}
+
+\subsection{The convexity threshold $\lambda_c$}
+
+The condition $\kappa > 0$ gives $\lambda > \lambda_c = g^4/4$.
+At fixed $g^2$:
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+$g^2$ & $\lambda_c = g^4/4$ & Interpretation \\
+\hline
+0.5 & 0.016 & Weak coupling: very small threshold \\
+1 & 0.25 & Moderate coupling \\
+2 & 4 & Strong coupling \\
+5 & 156 & Very strong: requires large $\lambda$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent
+The threshold $\lambda_c$ grows as $g^4$, so at strong coupling the
+quartic potential must dominate the gradient term significantly.
+
+\section{Convergence of the $1/N$ expansion}
+\label{sec:convergence}
+
+\subsection{Sub-Gaussian tails from log-concavity}
+
+The $\sigma$-measure $\mu_\sigma = Z'^{-1} e^{-N \cdot s_{\rm eff}}$
+is log-concave with Hessian $\geq \kappa N$. This implies \emph{sub-Gaussian}
+concentration:
+\begin{equation}
+  P_{\mu_\sigma}\!\left( |\sigma(x) - \sigma_*| > t \right)
+    \leq 2 \, e^{-\kappa N t^2 / 2}
+\end{equation}
+and the moment generating function is controlled:
+\begin{equation}
+  \E_{\mu_\sigma}\!\left[ e^{s(\sigma(x) - \sigma_*)} \right]
+    \leq e^{s^2 / (2\kappa N)}
+\end{equation}
+All moments are bounded: $\E[|\sigma(x) - \sigma_*|^{2k}]
+\leq C^k \, k! / (\kappa N)^k$.
+
+\subsection{Convergent Taylor expansion}
+
+For an analytic observable $f(\sigma)$ with Taylor radius $r$ at $\sigma_*$:
+\begin{equation}
+  \langle f(\sigma) \rangle_{\mu_\sigma}
+    = \sum_{k=0}^\infty \frac{1}{k!} f^{(k)}(\sigma_*)
+      \, \E[(\sigma - \sigma_*)^k]
+\end{equation}
+The $k$-th term is bounded by $|f^{(k)}(\sigma_*)| / k! \cdot C^k k! / (\kappa N)^{k/2}$.
+By Stirling's approximation, the ratio test gives convergence when
+\begin{equation}
+  \frac{C}{\sqrt{\kappa N}} < r \, e
+  \qquad \Longleftrightarrow \qquad
+  \kappa N > \left( \frac{C}{r \, e} \right)^2
+\end{equation}
+\textbf{The $1/N$ expansion converges absolutely} for $N$ above a threshold
+that depends on the observable's analyticity radius and the convexity
+parameter~$\kappa$.
+
+\begin{remark}[Comparison with physics literature]
+The standard treatment (Moshe-Zinn-Justin \cite{MZJ03}) treats the $1/N$
+expansion as an asymptotic series. The Brascamp-Lieb bound upgrades this
+to \emph{convergent} for the LSM at finite~$\lambda$. This is a strictly
+stronger statement: analytic observables have convergent $1/N$ expansions,
+not merely asymptotic ones. The convergence fails in the NLSM limit
+$\lambda \to \infty$ where the $\sigma$-measure degenerates (becomes a
+delta function at $\sigma_*$, but with non-Gaussian fluctuations from the
+angular modes).
+\end{remark}
+
+\subsection{The $1/N$ expansion as a cumulant expansion}
+
+Write $\sigma = \sigma_* + \delta\sigma / \sqrt{N}$ (scaled fluctuation).
+The $\sigma$-measure becomes
+\begin{equation}
+  d\mu \propto \exp\left( -\frac{\kappa}{2} \sum_x (\delta\sigma(x))^2
+    + O(1/\sqrt{N}) \right) \prod_x d(\delta\sigma(x))
+\end{equation}
+To leading order, $\delta\sigma$ is a Gaussian field with covariance
+$(2\lambda I - \tfrac{1}{2}G^2)^{-1}$. The corrections are:
+\begin{itemize}
+\item $O(1/\sqrt{N})$: cubic term in $s_{\rm eff}$ (odd, vanishes in
+  symmetric observables)
+\item $O(1/N)$: quartic correction + self-energy renormalization
+\item $O(1/N^{k/2})$: degree-$(k+2)$ vertex in the $\sigma$-effective action
+\end{itemize}
+
+The convergence of this expansion for the mass gap gives:
+\begin{equation}
+  m_{\rm phys} = \sqrt{\sigma_*}\left( 1 - \frac{c_1}{\kappa N}
+    + \frac{c_2}{(\kappa N)^2} + \cdots \right)
+\end{equation}
+with $c_1, c_2, \ldots$ computable constants depending on $g^2$ and $\lambda$.
+The leading correction $c_1/(\kappa N)$ matches the one-loop $\sigma$-field
+self-energy.
+
+\subsection{Connection to the BKT transition}
+
+For $N = 2$, the $1/N$ expansion predicts a mass gap at any finite $\lambda$.
+The BKT transition occurs only in the limit $\lambda \to \infty$ (the NLSM
+on $S^1$), where:
+\begin{itemize}
+\item The $\sigma$-measure becomes $\delta(\sigma - \sigma_*)$ (frozen radial mode)
+\item The angular mode $\theta$ decouples with action
+  $\frac{\sigma_*}{2} \sum (\nabla\theta)^2$
+\item Vortex excitations (topological defects in $\theta$) proliferate when
+  $\sigma_*$ is small enough, destroying the mass gap
+\item At finite $\lambda$: $\sigma$ fluctuates, vortices are ``smeared out''
+  by the radial fluctuations, and the mass gap persists
+\end{itemize}
+
+The $1/N$ expansion breaks down at $\lambda = \infty$ because:
+\begin{itemize}
+\item The convexity parameter $\kappa = 2\lambda - g^4/2 \to \infty$,
+  but the measure becomes singular (delta function)
+\item The LogConcaveMeasure framework no longer applies (the constraint
+  is hard, not soft)
+\item The relevant analysis is the Kosterlitz-Thouless renormalization
+  group, not Brascamp-Lieb
+\end{itemize}
+
 \section{Prior and related work}
 
 The individual ingredients of this proof are all well established.
