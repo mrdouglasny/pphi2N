@@ -64,18 +64,33 @@ instance scalarLatticeGFF_isProbability (mass spacing : ℝ)
 
 /-! ## Wick constant
 
-The Wick constant c = G(x,x) = Σ_k 1/(λ_k + m²) / |Λ| is positive.
-It depends on the lattice spacing and mass but not on x (translation
-invariance). For the formalization, we axiomatize its existence and
-positivity — the concrete spectral sum is in gaussian-field. -/
+The Wick constant c = G(x,x) = (1/|Λ|) Σ_k 1/λ_k where λ_k are the
+eigenvalues of the mass operator -Δ_a + m². Since all eigenvalues are
+positive (from `massOperatorMatrix_eigenvalues_pos` in gaussian-field),
+the Wick constant is a sum of positive terms, hence positive. -/
 
-/-- The Wick constant for the lattice GFF. Axiomatized as a positive real. -/
-axiom latticeWickConstant (spacing mass : ℝ) (hspacing : 0 < spacing)
-    (hmass : 0 < mass) (M : ℕ) [NeZero M] : ℝ
+/-- The Wick constant for the lattice GFF: (1/|Λ|) Σ_k 1/λ_k.
 
-axiom latticeWickConstant_pos (spacing mass : ℝ) (hspacing : 0 < spacing)
+This is G(x,x) = the Green's function diagonal, which equals the
+variance of the field at a single site. By translation invariance
+it is independent of x. -/
+noncomputable def latticeWickConstant (spacing mass : ℝ) (hspacing : 0 < spacing)
+    (hmass : 0 < mass) (M : ℕ) [NeZero M] : ℝ :=
+  (1 / Fintype.card (FinLatticeSites 2 M) : ℝ) *
+    ∑ k : FinLatticeSites 2 M,
+      (massEigenvalues 2 M spacing mass k)⁻¹
+
+theorem latticeWickConstant_pos (spacing mass : ℝ) (hspacing : 0 < spacing)
     (hmass : 0 < mass) (M : ℕ) [NeZero M] :
-    0 < latticeWickConstant spacing mass hspacing hmass M
+    0 < latticeWickConstant spacing mass hspacing hmass M := by
+  unfold latticeWickConstant
+  apply mul_pos
+  · apply div_pos one_pos
+    exact Nat.cast_pos.mpr Fintype.card_pos
+  · apply Finset.sum_pos
+    · intro k _
+      exact inv_pos.mpr (massOperatorMatrix_eigenvalues_pos 2 M spacing mass hspacing hmass k)
+    · exact Finset.univ_nonempty
 
 def lsmTorusMeasure (params : LSMParams) (M : ℕ) [NeZero M] :
     Measure (NComponentTorusConfig L_phys params.N) :=
