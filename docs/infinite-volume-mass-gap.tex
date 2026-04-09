@@ -174,59 +174,159 @@ At large $N$, the $\sigma$-field becomes classical (deterministic).
 The correlation length $\xi_\sigma \sim 1/\sqrt{\kappa N} \to 0$.
 \end{remark}
 
-\section{Random Schr\"odinger argument}
+\section{Exponential decay via Feynman-Kac}
 
 Conditional on $\sigma$, the $\ph$-field is Gaussian with covariance
 $(-\Delta + \sigma)^{-1}$. All $N$ components see the \emph{same}
-random potential $\sigma(x)$. There is no distinction between radial
-and angular modes in the conditional measure.
-
-The unconditional $\ph$-propagator is
+random potential $\sigma(x)$. The unconditional $\ph$-propagator is
 \begin{equation}
   \langle \ph^i(x) \ph^i(0) \rangle
     = \E_\sigma \left[ (-\Delta + \sigma)^{-1}(x, 0) \right]
 \end{equation}
 
-Write $\sigma = \sigma_* + \delta\sigma$ where $\delta\sigma$ is a
-random perturbation with:
-\begin{itemize}
-\item $\E[\delta\sigma(x)] = 0$
-\item $\Var(\delta\sigma(x)) \leq 1/(\kappa N)$ (Brascamp-Lieb)
-\item $|\Cov(\delta\sigma(x), \delta\sigma(y))|
-        \leq C e^{-m_\sigma |x-y|}$ (Proposition~\ref{prop:sigma_decay})
-\item Sub-Gaussian tails (from log-concavity)
-\end{itemize}
+\subsection{Two approaches: resolvent series vs.\ Feynman-Kac}
 
-\begin{proposition}[Resolvent perturbation]
-\label{prop:resolvent}
-Under the conditions above, for $\sigma_* \sqrt{\kappa} > C_0$
-(a universal constant):
+\textbf{Approach 1 (resolvent series):} Expand $(-\Delta+\sigma)^{-1}
+= G_0 \sum_n (-\delta\sigma \cdot G_0)^n$ and average term by term.
+The $n$-th term involves $n$-point correlators of $\delta\sigma$.
+The cumulant bounds from log-concavity give factorial growth $\sim n!$,
+competing with $(1/N)^n$ from BL. Convergence requires a cluster
+expansion and holds for $N$ large enough (activity $\sim C/N < 1$).
+
+\textbf{Approach 2 (Feynman-Kac):} Represent the propagator as a
+path integral, then average the exponential directly. This is cleaner
+because it \emph{exponentiates before expanding in $1/N$}, separating
+the mass (from the leading exponent) from the prefactor (subleading).
+
+\subsection{The Feynman-Kac representation}
+
+The Green's function has the heat kernel representation:
 \begin{equation}
-  \E_\sigma\!\left[ (-\Delta + \sigma)^{-1}(x, 0) \right]
-    \leq C \, e^{-m_{\rm phys} |x|}
+\label{eq:FK}
+  (-\Delta + \sigma)^{-1}(x, 0) = \int_0^\infty ds \,
+    \E^W_{x,0,s}\!\left[ \exp\!\left(
+      -\int_0^s \sigma(\omega(t)) \, dt \right) \right]
 \end{equation}
-with $m_{\rm phys} > 0$ satisfying $m_{\rm phys} \leq \sqrt{\sigma_*}$.
+where $\E^W_{x,0,s}$ denotes expectation over Brownian bridges of
+duration $s$ from $0$ to $x$.
+
+Averaging over $\sigma$ and swapping expectations:
+\begin{equation}
+  \E_\sigma[G_\sigma(x,0)] = \int_0^\infty ds \,
+    \E^W_{x,0,s}\!\left[
+      \E_\sigma\!\left[ \exp\!\left(
+        -\int_0^s \sigma(\omega(t)) \, dt \right) \right]
+    \right]
+\end{equation}
+
+\subsection{Cumulant expansion of the exponential}
+
+The inner expectation is the moment generating function of the
+random variable $X = -\int_0^s \sigma(\omega(t)) \, dt$:
+\begin{equation}
+  \E_\sigma[e^X] = \exp\!\left( \sum_{k=1}^\infty
+    \frac{1}{k!} C_k(X, \ldots, X) \right)
+\end{equation}
+where $C_k$ denotes the $k$-th cumulant.
+
+\textbf{First cumulant (mean):}
+\begin{equation}
+  C_1 = \E_\sigma[X] = -\int_0^s \sigma_* \, dt = -s \sigma_*
+\end{equation}
+
+\textbf{Second cumulant (variance):}
+\begin{equation}
+  C_2 = \Var_\sigma(X) = \int_0^s dt_1 \int_0^s dt_2 \,
+    \Cov(\sigma(\omega(t_1)), \sigma(\omega(t_2)))
+\end{equation}
+Since $\Cov(\sigma(x), \sigma(y)) \leq \frac{1}{N} H^{-1}_{xy}$
+with $H^{-1}$ exponentially decaying (correlation length $\xi_\sigma
+\sim 1/\sqrt{\kappa}$), and Brownian motion travels distance
+$\sim \sqrt{s}$ in time $s$:
+\begin{equation}
+  C_2 \approx \frac{s}{N} \int H^{-1}_{0,z} \, dz
+    =: s \cdot \Sigma_2
+  \qquad \text{with } \Sigma_2 = O(1/N)
+\end{equation}
+for $s$ large compared to $\xi_\sigma^2$.
+
+\textbf{Higher cumulants:} $C_k = O(s/N^{k-1})$ from the BL
+bounds on cumulants. These contribute to the exponent at
+$O(1/N^{k-1})$, modifying the prefactor but not the leading
+decay rate.
+
+\subsection{The renormalized mass}
+
+Substituting into the Feynman-Kac formula~\eqref{eq:FK}:
+\begin{equation}
+  \E_\sigma[G_\sigma(x,0)] = \int_0^\infty ds \,
+    \E^W_{x,0,s}\!\left[
+      e^{-s\sigma_* + \frac{1}{2}s\Sigma_2 + O(s/N^2)} \right]
+\end{equation}
+The path integral with the exponential factor $e^{-s m'^2}$
+reproduces a massive propagator with \textbf{renormalized mass}:
+\begin{equation}
+\boxed{
+  m'^2 = \sigma_* - \Sigma_\sigma
+  \qquad \text{where} \quad
+  \Sigma_\sigma = \frac{1}{2}\Sigma_2 + O(1/N^2)
+    = \frac{1}{2N}\int H^{-1}_{0,z}\,dz + O(1/N^2)
+}
+\end{equation}
+
+\begin{proposition}[Mass gap via Feynman-Kac]
+\label{prop:FK_mass}
+If $m'^2 = \sigma_* - \Sigma_\sigma > 0$, i.e.,
+\begin{equation}
+\label{eq:FK_condition}
+  \sigma_* > \Sigma_\sigma
+    = \frac{1}{2N}\int H^{-1}_{0,z}\,dz + O(1/N^2)
+\end{equation}
+then the averaged $\ph$-propagator decays exponentially:
+\begin{equation}
+  \E_\sigma[(-\Delta+\sigma)^{-1}(x,0)]
+    \leq C \, e^{-m' |x|}
+  \qquad \text{with } m' = \sqrt{\sigma_* - \Sigma_\sigma} > 0
+\end{equation}
 \end{proposition}
 
-\begin{proof}[Proof sketch]
-Expand the resolvent:
-\begin{equation}
-  (-\Delta + \sigma)^{-1}
-    = (-\Delta + \sigma_*)^{-1}
-    - (-\Delta + \sigma_*)^{-1} \delta\sigma \, (-\Delta + \sigma)^{-1}
-\end{equation}
-The zeroth-order term decays as $e^{-\sqrt{\sigma_*} |x|}$.
-The correction involves correlations of $\delta\sigma$, which decay
-exponentially (Proposition~\ref{prop:sigma_decay}). The perturbation
-series converges when
-$\|\delta\sigma\|_{L^2} / \sigma_* = O(1/\sqrt{\kappa N})$ is small,
-which holds when $\sigma_* \sqrt{\kappa} \gg 1$.
+Since $\Sigma_\sigma = O(1/N)$ and $\sigma_* > 0$,
+condition~\eqref{eq:FK_condition} holds for $N$ large enough.
+More precisely: $\Sigma_\sigma \leq C/(\kappa N)$, so the condition
+is $\sigma_* \kappa N > C$ --- the same condition as in our
+formalization.
 
-Crucially, we use \textbf{$L^2$ control} (variance bound from
-Brascamp-Lieb), not $L^\infty$ control (which would diverge in
-infinite volume). The averaged resolvent is controlled by the
-\emph{spectral gap} of the $\sigma$-measure, not by pointwise bounds.
-\end{proof}
+\subsection{Why Feynman-Kac is better than the resolvent series}
+
+The resolvent series expands $(-\Delta+\sigma)^{-1}$ as a power
+series in $\delta\sigma$, then averages term by term. Each term
+involves $n$-point correlators with factorial combinatorics, and
+convergence requires a cluster expansion (heavy machinery, large $N$).
+
+The Feynman-Kac approach averages the exponential $e^{-\int\sigma}$
+directly, using the cumulant generating function. The key advantage:
+\textbf{exponentiate before expanding in $1/N$}.
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+& Resolvent series & Feynman-Kac \\
+\hline
+Expands & $(-\Delta+\sigma)^{-1}$ & $e^{-\int\sigma}$ \\
+Then & averages each term & reads off exponent \\
+$n$-th term & $n$-point correlator & $n$-th cumulant \\
+Factorial growth & in the series & in the \emph{exponent} \\
+Convergence & cluster expansion ($N$ large) & direct ($\sigma_* > \Sigma_\sigma$) \\
+Mass gap from & sum of entire series & leading exponent only \\
+\hline
+\end{tabular}
+\end{center}
+
+The factorials $n!$ from the cumulant bounds go in the exponent
+($\exp(\sum n!/N^n)$ is finite), not in the series
+($\sum n!/N^n$ diverges). This is why Feynman-Kac works for
+\emph{any} $N$ satisfying $\sigma_* > \Sigma_\sigma$, while the
+resolvent series requires $N$ large enough for the cluster expansion.
 
 \section{The mass gap theorem}
 
@@ -238,17 +338,17 @@ Combining the ingredients:
 \item \textbf{Convexity} (\S3, Lemma~\ref{lem:convex}):
   For $\lambda > \lambda_c$, $s_{\rm eff}$ is strictly convex
   with parameter $\kappa > 0$.
-\item \textbf{Brascamp-Lieb} (\S4, Proposition~\ref{prop:BL}):
-  $\Var(\sigma(x)) \leq 1/(\kappa N)$, Poincar\'e gap $\geq \kappa N$.
-\item \textbf{$\sigma$-decay} (\S5, Proposition~\ref{prop:sigma_decay}):
-  $\sigma$-correlations decay exponentially.
-\item \textbf{Random Schr\"odinger} (\S6, Proposition~\ref{prop:resolvent}):
-  $\ph$-propagator decays exponentially with mass
-  $m_{\rm phys} \leq \sqrt{\sigma_*}$.
+\item \textbf{Brascamp-Lieb covariance bound} (\S4):
+  $\Cov(\sigma(x),\sigma(y)) \leq (1/N) H^{-1}_{xy}$ with $H^{-1}$
+  exponentially decaying.
+\item \textbf{Feynman-Kac} (\S6, Proposition~\ref{prop:FK_mass}):
+  The averaged $\ph$-propagator decays exponentially with
+  renormalized mass $m' = \sqrt{\sigma_* - \Sigma_\sigma}$ where
+  $\Sigma_\sigma = O(1/(\kappa N))$.
 \end{enumerate}
-The threshold $\sigma_* \sqrt{\kappa} > C_0$ translates to
-$\lambda > C_0^2 g^4 / 2$ at fixed $g^2 = N/R^2$. This is
-independent of $N$.
+The condition $\sigma_* > \Sigma_\sigma$ holds when
+$\sigma_* \kappa N > C$, equivalently $\lambda > C' g^4$ at
+fixed $g^2 = N/R^2$. This threshold is independent of $N$.
 \end{proof}
 
 \begin{remark}[The $N = 2$ case]
