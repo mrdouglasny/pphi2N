@@ -1,19 +1,16 @@
 \contentsline {section}{\numberline {1}Setup}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Model}{2}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}Hubbard-Stratonovich}{2}{subsection.1.2}%
-\contentsline {section}{\numberline {2}Brascamp-Lieb concentration}{2}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Convexity at the bare minimum}{2}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Cumulant bounds}{2}{subsection.2.2}%
-\contentsline {section}{\numberline {3}Feynman-Kac and the gap equation}{3}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Path integral representation}{3}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Cumulant expansion}{3}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}The logarithmic divergence and dimensional transmutation}{3}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}The self-consistent gap equation}{3}{subsection.3.4}%
-\contentsline {section}{\numberline {4}$1/N$ corrections}{4}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Corrections enter the exponent}{4}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Bounding the $k$-th cumulant contribution}{4}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}The mass gap theorem}{5}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Discussion}{5}{section.5}%
-\contentsline {subsection}{\numberline {5.1}No cluster expansion or multiscale RG}{5}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}The $N=2$ obstruction}{5}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Comparison with Kupiainen}{6}{subsection.5.3}%
+\contentsline {section}{\numberline {2}The gap equation and the saddle point $\sigma _*$}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The minimum of $s_{\rm eff}$}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The physical mass}{2}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Brascamp-Lieb concentration at $\sigma _*$}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The Hessian at $\sigma _*$}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Convexity condition}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}When convexity fails}{3}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Feynman-Kac and $1/N$ corrections}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Leading order}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}$1/N$ corrections via Feynman-Kac}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Mass gap theorem (convex regime)}{4}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Beyond the convex regime}{4}{section.5}%
+\contentsline {section}{\numberline {6}The $N = 2$ obstruction}{4}{section.6}%
