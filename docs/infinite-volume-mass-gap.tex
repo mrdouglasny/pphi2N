@@ -56,24 +56,81 @@ The bare parameter $v^2$ is adjusted as a function of the UV cutoff
 $\Lambda$ to keep the physical mass fixed (the only renormalization
 needed in 2d; the quartic coupling $\lambda$ does not run).
 
-\subsection{Hubbard-Stratonovich}
+\subsection{The $\sigma$-field: two definitions}
 
-Setting $\sigma(x) = |\ph(x)|^2/N$ and integrating out $\ph$:
+There are two natural definitions of the $\sigma$-measure, related
+by a Laplace transform.
+
+\medskip\noindent
+\textbf{Definition A (pushforward).}
+Define $s(x) = |\ph(x)|^2/N$ as a measurable function of
+$\ph$, and let $\mu_s$ be the pushforward of the
+interacting measure under~$s$. By the disintegration theorem:
+\begin{equation}
+\label{eq:disint}
+  \langle F(\ph)\rangle = \int\! \E[F(\ph)\,|\,s_\ph=s]\;
+    d\mu_s(s).
+\end{equation}
+Conditional on $s(x) = |\ph(x)|^2/N$, each $\ph(x)$ lives on a
+sphere $S^{N-1}_{\sqrt{Ns(x)}}$, coupled by the kinetic
+term. This is a well-defined positive measure, but the conditional
+expectation $\E[\ph^i(x)\ph^i(0)\,|\,s]$ is \emph{not}
+exactly $(-\Delta+s)^{-1}(x,0)$ --- it is the propagator on
+the product of spheres, not on~$\R^N$.
+
+\medskip\noindent
+\textbf{Definition B (HS auxiliary field).}
+Use the Gaussian identity to linearize the quartic:
+\begin{equation}
+\label{eq:HSident}
+  e^{-N\lambda(u-v^2)^2}
+    = c\!\int\! d\sigma\; e^{-N\lambda\sigma^2+2N\lambda\sigma(u-v^2)}.
+\end{equation}
+Applying this at each site with $u = |\ph(x)|^2/N$, the $\ph$-integral
+becomes Gaussian with covariance $(-\Delta+4\lambda\sigma)^{-1}$.
+Integrating out $\ph$ exactly:
 \begin{equation}
 \label{eq:HS}
   \langle\ph^i(x)\ph^i(0)\rangle
-    = \E_\sigma\!\bigl[(-\Delta+\sigma)^{-1}(x,0)\bigr],
+    = \E_{\sigma}^{\rm HS}\!\bigl[(-\Delta+4\lambda\sigma)^{-1}(x,0)\bigr]
 \end{equation}
-where $\mu_\sigma \propto e^{-Ns_{\rm eff}[\sigma]}$ with
+where $\mu_\sigma^{\rm HS} \propto
+\det(-\Delta+4\lambda\sigma)^{-N/2}
+e^{-N\sum_x[\lambda\sigma^2-2\lambda\sigma v^2]}\,d\sigma$.
+This is \textbf{exact} at every $N$: the $\sigma$-integral reproduces
+the original $\ph$-integral. But $\sigma$ here is an auxiliary
+integration variable, not literally $|\ph|^2/N$.
+
+\medskip\noindent
+\textbf{Relation: Laplace transform.}
+The two definitions are connected by the identity
+\begin{equation}
+\label{eq:laplace}
+  \E_{\rm GFF}\!\bigl[e^{-\alpha\cdot s}\bigr]
+    = \frac{\det(-\Delta+2\alpha/N)^{-N/2}}{\det(-\Delta)^{-N/2}},
+\end{equation}
+which expresses $\det(-\Delta+\tau)^{-N/2}$ (from the HS integral)
+as the moment generating function of the pushforward
+$s(x) = |\ph(x)|^2/N$ under the free GFF, with $\tau = 2\alpha/N$.
+At $N = \infty$ (saddle-point of the Laplace transform), the two
+definitions agree: $s_* = \sigma_* = \langle|\ph|^2/N\rangle$ and
+both produce the propagator $(-\Delta+\sigma_*)^{-1}$. At finite
+$N$, they differ by $O(1/N)$ corrections from the saddle-point
+approximation of the inverse Laplace transform.
+
+\medskip\noindent
+\textbf{Convention.} For the proof, we use Definition~B (HS auxiliary
+field), which gives the exact formula~\eqref{eq:HS}. Rescaling
+$\tau = 4\lambda\sigma$ and absorbing constants into $s_{\rm eff}$:
 \begin{equation}
 \label{eq:seff}
-  s_{\rm eff}[\sigma]
-    = \tfrac{1}{2}\Tr\log(-\Delta+\sigma)
-    + \sum_x\lambda(\sigma(x)-v^2)^2.
+  s_{\rm eff}[\tau]
+    = \tfrac{1}{2}\Tr\log(-\Delta+\tau)
+    + \sum_x V(\tau(x)),
 \end{equation}
-All $N$ components of $\ph$ see the same potential $\sigma$.
-There is no distinction between radial and angular modes
-in the conditional measure.
+where $V(\tau) = \tau^2/(16\lambda) - \tau v^2/2 + \mathrm{const}$,
+and~\eqref{eq:HS} becomes
+$\langle\ph^i\ph^i\rangle = \E_\tau[(-\Delta+\tau)^{-1}]$.
 
 \section{The gap equation}
 
