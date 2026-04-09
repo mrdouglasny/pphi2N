@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  9 APR 2026 14:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  9 APR 2026 14:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -356,15 +356,15 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 30.
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-(./infinite-volume-mass-gap.toc)
+(./infinite-volume-mass-gap.toc
+
+[1
+
+{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}])
 \tf@toc=\write4
 \openout4 = `infinite-volume-mass-gap.toc'.
 
 
-
-[1
-
-{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 47.
@@ -430,72 +430,34 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 
 [4]
 
-LaTeX Warning: Reference `eq:FK' on page 5 undefined on input line 264.
+[5]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 357.
 
 
-LaTeX Warning: Reference `eq:subgauss' on page 5 undefined on input line 264.
-
-
-LaTeX Warning: Reference `eq:EX' on page 5 undefined on input line 264.
-
-
-LaTeX Warning: Reference `eq:VarX' on page 5 undefined on input line 265.
-
-
-LaTeX Warning: Reference `eq:massgap_cond' on page 5 undefined on input line 29
-8.
-
-
-LaTeX Warning: Reference `eq:renorm_mass' on page 5 undefined on input line 303
-.
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 357.
 
 
 
-[5{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
+[6{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 }]
-
-LaTeX Warning: Reference `eq:renorm_mass' on page 6 undefined on input line 323
-.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 357.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 357.
-
-
-
-[6]
 
 [7] (./infinite-volume-mass-gap.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `infinite-volume-mass-gap.out' has changed
-.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `infinite-volume-mass-gap.out':
-(rerunfilecheck)             Before: D2849A6D8250295D286E15704652AD3E;3347
-(rerunfilecheck)             After:  B11D9B5E8918AA5FD0FDE8F2766A3121;3746.
+Package rerunfilecheck Info: File `infinite-volume-mass-gap.out' has not change
+d.
+(rerunfilecheck)             Checksum: B11D9B5E8918AA5FD0FDE8F2766A3121;3746.
  ) 
 Here is how much of TeX's memory you used:
- 9588 strings out of 473190
- 145807 string characters out of 5715801
- 555938 words of memory out of 5000000
- 32686 multiletter control sequences out of 15000+600000
+ 9590 strings out of 473190
+ 145839 string characters out of 5715801
+ 555280 words of memory out of 5000000
+ 32688 multiletter control sequences out of 15000+600000
  572032 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,13n,79p,561b,585s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -518,10 +480,10 @@ ve/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive
 025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/20
 25/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texliv
 e/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on infinite-volume-mass-gap.pdf (7 pages, 248638 bytes).
+Output written on infinite-volume-mass-gap.pdf (7 pages, 249191 bytes).
 PDF statistics:
- 297 PDF objects out of 1000 (max. 8388607)
- 247 compressed objects within 3 object streams
+ 312 PDF objects out of 1000 (max. 8388607)
+ 262 compressed objects within 3 object streams
  64 named destinations out of 1000 (max. 500000)
- 153 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 169 words of extra memory for PDF output out of 10000 (max. 10000000)
 
