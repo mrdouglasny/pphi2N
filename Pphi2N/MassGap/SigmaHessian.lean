@@ -20,6 +20,7 @@ Since -Δ ≥ 0 and σ ≥ σ*: ‖G‖ ≤ 1/σ*, ‖G²‖ ≤ 1/σ*², κ = 2
 -/
 
 import Pphi2N.GeneralResults.MatrixCalculus
+import Pphi2N.GeneralResults.TraceFormula
 import Pphi2N.MassGap.LatticeOperator
 import Pphi2N.MassGap.SigmaConcentration
 
@@ -46,10 +47,10 @@ def elemMatrix (x : Λ) : Matrix Λ Λ ℝ :=
   Matrix.diagonal (Pi.single x 1)
 
 /-- **Tr(M · E_x · N · E_y) = M_{yx} · N_{xy}.**
-Proved in GeneralResults/TraceFormula.lean (without norm instances).
 For symmetric M, N: M_{yx}·N_{xy} = M_{xy}·N_{yx} = G²_{xy}. -/
-axiom trace_elemMatrix_product (M N : Matrix Λ Λ ℝ) (x y : Λ) :
-    Matrix.trace (M * elemMatrix x * N * elemMatrix y) = M y x * N x y
+theorem trace_elemMatrix_product (M N : Matrix Λ Λ ℝ) (x y : Λ) :
+    Matrix.trace (M * elemMatrix x * N * elemMatrix y) = M y x * N x y :=
+  Pphi2N.trace_elemMatrix_product' M N x y
 
 /-! ## The Hessian of the σ-effective action
 
@@ -95,16 +96,10 @@ This holds when ‖G²‖_op ≤ 4(λ - κ/2), i.e., when
 At the saddle point σ = σ*: ‖G‖ ≤ 1/σ* (since -Δ ≥ 0 gives all
 eigenvalues of A ≥ σ*). So ‖G²‖ ≤ 1/σ*² and κ = 2λ - 1/(2σ*²). -/
 
-/-- **Operator norm bound on G = (-Δ+σ)⁻¹.**
-
-When -Δ ≥ 0 (PSD lattice Laplacian) and σ ≥ σ_min > 0:
-all eigenvalues of -Δ + diag(σ) are ≥ σ_min, so
-  ‖(-Δ+diag(σ))⁻¹‖_op ≤ 1/σ_min -/
-axiom green_function_norm_bound
-    (Δ_neg : Matrix Λ Λ ℝ) (hΔ : Δ_neg.PosSemidef)
-    (σ : Λ → ℝ) (σ_min : ℝ) (hσ_min : 0 < σ_min)
-    (hσ : ∀ x, σ_min ≤ σ x) :
-    ‖(Δ_neg + Matrix.diagonal σ)⁻¹‖ ≤ 1 / σ_min
+/-! Note: `green_function_norm_bound` (‖G‖_op ≤ 1/σ_min) was previously
+an axiom here but was never referenced. The l² operator norm bound
+follows from the spectral theorem (all eigenvalues of H ≥ σ_min).
+The bilinear form bound below is the statement we actually need. -/
 
 /-- **The combined Hessian bound for s_eff.**
 
