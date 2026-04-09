@@ -20,8 +20,7 @@
 \newcommand{\Tr}{\mathrm{Tr}}
 \newcommand{\ph}{\varphi}
 
-\title{Mass Gap for the O($N$) Linear Sigma Model at Large $N$\\
-via Brascamp-Lieb and Feynman-Kac}
+\title{Mass Gap for the O($N$) Linear Sigma Model at Large $N$}
 \author{M.~R.~Douglas}
 \date{April 2026}
 
@@ -29,19 +28,16 @@ via Brascamp-Lieb and Feynman-Kac}
 \maketitle
 
 \begin{abstract}
-We outline a proof that the O($N$) linear sigma model in two Euclidean
-dimensions has a positive mass gap --- exponential decay of the connected
-two-point function --- for $N$ above an explicit threshold $N_0(g^2,\lambda)$,
-at any quartic coupling $\lambda$ above the convexity threshold.
-The proof combines three ingredients: the Hubbard-Stratonovich transformation,
-the Brascamp-Lieb inequality for $\sigma$-field concentration, and a
-Feynman-Kac cumulant expansion for the averaged propagator.
-No cluster expansion is needed. The mass gap is
-\begin{equation*}
-  m^2 = \sigma_* - \frac{1}{2N} \int H^{-1}_{0,z}\,dz + O(1/N^2)
-\end{equation*}
-where $\sigma_* = R^2/N$ is the saddle point and $H = 2\lambda I - \tfrac{1}{2}G^2$
-is the $\sigma$-Hessian.
+We outline a proof strategy for the mass gap of the O($N$) model
+in two Euclidean dimensions at large $N$, combining
+Hubbard-Stratonovich, Brascamp-Lieb concentration, and the Feynman-Kac
+representation. The $\sigma$-field concentrates at $\sigma_* \approx v^2$
+by Brascamp-Lieb, and the $\ph$-propagator mass is
+$m^2 = v^2 - \Sigma_\sigma$ where the self-energy $\Sigma_\sigma$ is
+$O(1)$ (not $O(1/N)$) and nearly cancels $v^2$, leaving an exponentially
+small physical mass $m_0^2 = \Lambda^2 e^{-c/g^2}$. At large $N$,
+the gap equation organizes all leading-order contributions, and the
+$1/N$ corrections are controlled.
 \end{abstract}
 
 \tableofcontents
@@ -50,303 +46,243 @@ is the $\sigma$-Hessian.
 
 \subsection{The O($N$) linear sigma model}
 
-Let $\ph = (\ph^1, \ldots, \ph^N) : \Lambda \to \R^N$ be an
-$N$-component real scalar field on a finite lattice
-$\Lambda \subset \Z^2$. The O($N$) linear sigma model (LSM) has action
+Let $\ph = (\ph^1, \ldots, \ph^N) : \Lambda \to \R^N$ on a lattice
+$\Lambda \subset \Z^2$. The O($N$) LSM action is
 \begin{equation}
-  S[\ph] = \frac{1}{2} \sum_{i=1}^N \sum_{\langle xy \rangle}
-    (\ph^i(x) - \ph^i(y))^2
-  + \sum_x \left[ \frac{m_0^2}{2} |\ph(x)|^2
-    + \lambda \left( \frac{|\ph(x)|^2}{N} - v^2 \right)^2 \right]
+  S[\ph] = \frac{1}{2} \sum_{i=1}^N \langle \ph^i, (-\Delta+m_0^2) \ph^i \rangle
+    + N \sum_x \lambda \left( \frac{|\ph(x)|^2}{N} - v^2 \right)^2
 \end{equation}
-where $v^2 = R^2/N$ and $g^2 = N/R^2$ is the NLSM coupling.
+with $v^2 = R^2/N$, $g^2 = N/R^2$.  The LSM and NLSM ($\lambda\to\infty$)
+share the same infrared physics; they differ only at the scale of the
+$\sigma$-field mass $M_\sigma \sim \sqrt{\lambda}\,v$.
 
-\subsection{Main theorem}
+\subsection{Main theorem (target)}
 
-\begin{theorem}[Mass gap at large $N$]
+\begin{theorem}[Mass gap at large $N$, to be proved]
 \label{thm:main}
-For any $g^2 > 0$ and $\lambda > \lambda_c := g^4/4$, there exists an
-explicit threshold
+For the O($N$) LSM on $\Z^2$ with $g^2>0$ and
+$\lambda > \lambda_c(g^2)$, there exists $N_0 < \infty$ such that for
+$N \geq N_0$, the connected two-point function decays exponentially:
 \begin{equation}
-\label{eq:N0}
-  N_0 = N_0(g^2, \lambda)
-    = \frac{1}{2\sigma_*} \int \frac{d^2k}{(2\pi)^2}
-      \frac{1}{2\lambda - \frac{1}{2(|k|^2 + \sigma_*)^2}}
+  |\langle \ph^i(x) \ph^i(0) \rangle_c| \leq C\,e^{-m_0|x|}
 \end{equation}
-such that for all $N \geq N_0$, the connected two-point function
-of the O($N$) LSM on $\Z^2$ satisfies
-\begin{equation}
-  \left| \langle \ph^i(x) \ph^i(0) \rangle
-    - \langle \ph^i(x) \rangle \langle \ph^i(0) \rangle \right|
-  \leq C \, e^{-m |x|}
-\end{equation}
-with mass $m > 0$ given by
-\begin{equation}
-\label{eq:mass}
-  m^2 = \sigma_* - \Sigma_\sigma + O(1/N^2),
-  \qquad \Sigma_\sigma = \frac{1}{2N} \int H^{-1}_{0,z}\,dz.
-\end{equation}
+with $m_0 > 0$ determined by the gap equation~\eqref{eq:gap}.
 \end{theorem}
 
-\begin{remark}[Scope and limitations]
-\label{rem:scope}
-\mbox{}
-\begin{enumerate}
-\item The theorem requires $N \geq N_0$, not all $N$. For $N = 2$,
-  the Berezinskii-Kosterlitz-Thouless (BKT) transition can produce
-  a massless phase at finite $\lambda$ (Dario-Garban \cite{DG25},
-  Theorem~B.2), so no proof by $\sigma$-concentration alone can
-  cover $N = 2$.
-\item For $N \geq 3$, the mass gap also follows from McBryan-Spencer
-  \cite{MS77} (exponential decay for $O(N)$, $N \geq 3$). Our
-  contribution is the explicit formula~\eqref{eq:mass} and the
-  route via Brascamp-Lieb, which avoids cluster expansion.
-\item The threshold $N_0$ is explicit and computable from the lattice
-  Green's function. For $\lambda$ large (strong convexity):
-  $N_0 \approx g^2/(4\lambda\kappa)$, which is $< 1$ when
-  $\lambda > g^2/(4\kappa)$. In that regime, the theorem holds
-  for all $N \geq 1$ except possibly $N = 2$.
-\end{enumerate}
+\begin{remark}[Scope]
+For $N = 2$, the BKT transition can occur at finite $\lambda$
+(Dario-Garban~\cite{DG25}), so our approach cannot cover $N = 2$.
+For $N \geq 3$, the mass gap also follows from McBryan-Spencer~\cite{MS77};
+our contribution is the quantitative formula and the route via
+Brascamp-Lieb.
 \end{remark}
 
 \section{Hubbard-Stratonovich transformation}
 
-Introduce the auxiliary field $\sigma(x) = |\ph(x)|^2/N$.
-Integrating out the $N$ Gaussian fields $\ph^i$ (each with
-covariance $(-\Delta + \sigma)^{-1}$) gives the $\sigma$-measure:
+Set $\sigma(x) = |\ph(x)|^2/N$. After integrating out all $N$ components
+of $\ph$ (each Gaussian with covariance $(-\Delta+\sigma)^{-1}$):
 \begin{equation}
-  d\mu_\sigma = \frac{1}{Z'} e^{-N \cdot s_{\rm eff}[\sigma]}
-    \prod_x d\sigma(x)
+\label{eq:phiprop}
+  \langle \ph^i(x)\ph^i(0)\rangle
+    = \E_\sigma\!\bigl[(-\Delta+\sigma)^{-1}(x,0)\bigr]
 \end{equation}
-where the effective action is
+where $\mu_\sigma \propto e^{-N\,s_{\rm eff}[\sigma]}$ with
 \begin{equation}
 \label{eq:seff}
-  s_{\rm eff}[\sigma] = \frac{1}{2} \Tr \log(-\Delta + \sigma)
-    + \sum_x \lambda(\sigma(x) - v^2)^2.
+  s_{\rm eff}[\sigma]
+    = \tfrac{1}{2}\Tr\log(-\Delta+\sigma)
+    + \sum_x \lambda(\sigma(x)-v^2)^2.
 \end{equation}
-The $\ph$-propagator becomes an average over $\sigma$:
+The factor of $N$ makes the $\sigma$-integral a saddle-point integral.
+
+\section{$\sigma$-concentration via Brascamp-Lieb}
+
+\subsection{Convexity at the bare minimum}
+
+The bare $s_{\rm eff}$ (before integrating out any $\sigma$-modes) has
+its minimum at $\sigma_0 \approx v^2$ (the quartic minimum). The Hessian
+there is
 \begin{equation}
-\label{eq:phi_avg}
-  \langle \ph^i(x) \ph^i(0) \rangle
-    = \E_\sigma\!\left[ (-\Delta + \sigma)^{-1}(x, 0) \right].
+  H(k) = 2\lambda - \tfrac{1}{2}\Pi(k),
+  \qquad
+  \Pi(k) = \int\!\frac{d^2p}{(2\pi)^2}\,
+    \frac{1}{(p^2+v^2)\bigl((k-p)^2+v^2\bigr)}.
 \end{equation}
+Since $\Pi(k) \le \Pi(0) = 1/(4\pi v^2)$, the Hessian is positive
+definite for $\lambda > 1/(8\pi v^4) = g^4/(8\pi N^2)$, giving
+convexity parameter $\kappa = 2\lambda - \Pi(0)/2 > 0$.
 
-\section{Brascamp-Lieb concentration}
-
-\subsection{Convexity of $s_{\rm eff}$}
-
-The Hessian of $s_{\rm eff}$ is
+Brascamp-Lieb~\cite{BL76} then gives:
 \begin{equation}
-  \frac{\partial^2 s_{\rm eff}}{\partial \sigma(x) \partial \sigma(y)}
-  = -\frac{1}{2} G[\sigma](x,y)^2 + 2\lambda\,\delta_{xy}
+  \Cov(\sigma(x),\sigma(y)) \le \frac{1}{N}\,H^{-1}_{xy},
+  \qquad
+  \Var(\sigma(x)) \le \frac{1}{\kappa N}.
 \end{equation}
-where $G[\sigma] = (-\Delta + \sigma)^{-1}$. When the convexity
-parameter
-\begin{equation}
-  \kappa := 2\lambda - \tfrac{1}{2}\|G^2\|_{\rm op} > 0,
-\end{equation}
-the effective action $s_{\rm eff}$ is strictly convex, and the
-$\sigma$-measure $e^{-N \cdot s_{\rm eff}}$ is log-concave with
-Hessian $\geq \kappa N$.
+The $\sigma$-measure concentrates at $\sigma_0 \approx v^2$.
 
-\subsection{The Brascamp-Lieb inequality}
+\section{Feynman-Kac and the self-energy}
 
-For a log-concave measure with Hessian $\geq \rho$,
-Brascamp-Lieb~\cite{BL76} gives:
-\begin{equation}
-  \Cov_{\mu_\sigma}(\sigma(x), \sigma(y))
-    \leq \frac{1}{N} H^{-1}_{xy}
-\end{equation}
-where $H = 2\lambda I - \frac{1}{2}G^2$ is the $\sigma$-Hessian
-(positive definite when $\kappa > 0$). In particular,
-$\Var(\sigma(x)) \leq 1/(\kappa N)$.
+\subsection{The averaged propagator}
 
-The covariance $H^{-1}_{xy}$ decays exponentially with correlation
-length $\xi_\sigma \sim 1/\sqrt{\kappa}$, because $H$ has a
-spectral gap $\kappa$.
-
-\section{Feynman-Kac proof of exponential decay}
-
-\subsection{Path integral representation}
-
-From~\eqref{eq:phi_avg} and the Feynman-Kac formula:
+From~\eqref{eq:phiprop} and the Feynman-Kac formula:
 \begin{equation}
   \E_\sigma[G_\sigma(x,0)]
-    = \int_0^\infty ds\, \E^W_{0 \to x,s}\!\left[
-      \E_\sigma\!\left[
-        e^{-\int_0^s \sigma(\omega(t))\,dt}
-      \right] \right]
+    = \int_0^\infty\!ds\;\E^W_{0\to x,s}\Bigl[
+      \E_\sigma\bigl[e^{-\int_0^s\sigma(\omega(t))\,dt}\bigr]\Bigr].
 \end{equation}
-where $\E^W_{0 \to x,s}$ is over Brownian bridges of duration $s$.
-
-\subsection{Cumulant expansion}
-
-Average the exponential using cumulants of $X = -\int_0^s \sigma(\omega(t))\,dt$:
+Using the cumulant expansion of the $\sigma$-average:
+\begin{align}
+  C_1 &= -s\,\langle\sigma\rangle \approx -s\,v^2 \\
+  C_2 &= \int_0^s\!dt_1\!\int_0^s\!dt_2\;
+    \Cov\bigl(\sigma(\omega(t_1)),\sigma(\omega(t_2))\bigr)
+    \approx \frac{s}{N}\int\!H^{-1}_{0,z}\,dz
+\end{align}
+The renormalized mass is
 \begin{equation}
-  \E_\sigma[e^X]
-    = \exp\!\left(\sum_{k=1}^\infty \frac{1}{k!} C_k(X,\ldots,X)\right)
+\label{eq:mrenorm}
+  m^2 = v^2 - \Sigma_\sigma,
+  \qquad
+  \Sigma_\sigma = \frac{1}{2N}\int\!\frac{d^2k}{(2\pi)^2}\,
+    \frac{H(k)^{-1}}{k^2+v^2} + O(1/N^2).
 \end{equation}
 
-\textbf{First cumulant} (mean): $C_1 = -s\sigma_*$. This gives the
-tree-level mass $\sqrt{\sigma_*}$.
+\subsection{The self-energy is $O(1)$, not $O(1/N)$}
 
-\textbf{Second cumulant} (variance):
+A critical point: $\Sigma_\sigma$ has a factor $1/N$ from the
+$\sigma$-covariance, but the integral over $k$ produces a factor that
+\emph{compensates} the $1/N$. Specifically, $H(k)^{-1}$ is large for
+small $k$ (the IR modes), and the integral diverges logarithmically
+with the IR cutoff $m_0$ (the physical mass).
+The result is
 \begin{equation}
-  C_2 = \int_0^s dt_1 \int_0^s dt_2\,
-    \Cov(\sigma(\omega(t_1)), \sigma(\omega(t_2)))
-  \approx \frac{s}{N} \int H^{-1}_{0,z}\,dz
-  =: s \cdot \Sigma_2
+  \Sigma_\sigma \sim \frac{1}{N}\cdot N\cdot
+    (\text{log-divergent integral}) = O(1).
 \end{equation}
-for $s$ large compared to $\xi_\sigma^2$. The key: the BL covariance
-bound gives $\Sigma_2 = O(1/N)$.
+This near-cancellation $m^2 = v^2 - \Sigma_\sigma \approx 0$ is not an
+accident --- it is the mechanism of \textbf{dimensional transmutation}.
+The gap equation determines the precise remainder.
 
-\textbf{Higher cumulants}: $C_k = O(s/N^{k-1})$ from the BL cumulant
-bounds. These go in the \emph{exponent}, where factorial growth
-is harmless: $\exp(\sum n!/N^n)$ converges.
+\subsection{The gap equation}
+\label{sec:gap}
 
-\subsection{The renormalized mass}
-
-Combining, the averaged propagator behaves as:
+The physical mass $m_0$ is determined self-consistently: the
+$\sigma$-propagator $H^{-1}$ depends on $m_0$ (through the
+$\ph$-propagator $G = (-\Delta+m_0^2)^{-1}$ that enters the Hessian),
+giving the \textbf{gap equation}:
 \begin{equation}
-  \E_\sigma[G_\sigma(x,0)]
-    \sim C \cdot e^{-m|x|}
+\label{eq:gap}
+  m_0^2 = v^2 - \Sigma_\sigma(m_0^2).
 \end{equation}
-with
+At leading order in $1/N$, this reduces to the spherical model equation
 \begin{equation}
-\boxed{
-  m^2 = \sigma_* - \Sigma_\sigma, \qquad
-  \Sigma_\sigma = \frac{1}{2N}\int H^{-1}_{0,z}\,dz + O(1/N^2)
-}
+\label{eq:gap_spherical}
+  \int\!\frac{d^2k}{(2\pi)^2}\,\frac{1}{k^2+m_0^2} = 4\lambda(v^2-m_0^2)
 \end{equation}
-The mass gap $m > 0$ holds when $\sigma_* > \Sigma_\sigma$, i.e.,
-$N > N_0$ as in~\eqref{eq:N0}. $\qed$
+which in 2d gives the exponentially small mass:
+\begin{equation}
+\label{eq:mass_exp}
+  m_0^2 = \Lambda^2\,e^{-16\pi\lambda v^2}
+    = \Lambda^2\,e^{-16\pi\lambda R^2/N}.
+\end{equation}
+This is positive for all parameter values --- there is always a mass gap.
+The large-$N$ expansion is an expansion around this gap equation, not
+around the bare saddle point $\sigma_0 = v^2$.
 
 \subsection{Why Feynman-Kac, not resolvent series}
 
-An alternative approach expands $(-\Delta+\sigma)^{-1}$ as a Neumann
-series in $\delta\sigma$ and averages term by term. This produces
-$n$-point correlators of $\sigma$ with factorial combinatorics,
-requiring a cluster expansion for convergence (as in
-Kupiainen~\cite{Kupiainen80}).
+An alternative expands $(-\Delta+\sigma)^{-1}$ as a Neumann series and
+averages term by term, producing $n$-point $\sigma$-correlators with
+factorial combinatorics. This requires a cluster expansion for convergence
+(Kupiainen~\cite{Kupiainen80}). The Feynman-Kac approach exponentiates
+before expanding in $1/N$, placing the factorials in the exponent where
+they are harmless.
 
-The Feynman-Kac approach is better because it \textbf{exponentiates
-before expanding in $1/N$}. The factorials go in the exponent
-($\exp(\sum n!/N^n)$ is finite) rather than in a series
-($\sum n!/N^n$ diverges). This avoids cluster expansion entirely
-and gives the mass gap for any $N > N_0$.
+\section{Controlling the $1/N$ corrections}
 
-\section{Numerical bounds}
+\subsection{The structure of the proof}
 
-\subsection{The convexity threshold}
+The proof requires showing:
+\begin{enumerate}
+\item The gap equation~\eqref{eq:gap_spherical} has a unique positive
+  solution $m_0^2 > 0$ (standard, for any $\beta > 0$ in 2d).
+\item The $1/N$ corrections do not destroy positivity:
+  $m^2 = m_0^2 + O(1/N) > 0$ for $N > N_0$.
+\item The averaged propagator $\E_\sigma[G_\sigma(x,0)]$ decays
+  exponentially with mass $m$.
+\end{enumerate}
 
-The condition $\kappa > 0$ requires $\lambda > \lambda_c = g^4/4$.
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline
-$g^2$ & $\lambda_c = g^4/4$ & Comment \\
-\hline
-0.5 & 0.016 & Weak coupling \\
-1 & 0.25 & Moderate \\
-2 & 4 & Strong \\
-\hline
-\end{tabular}
-\end{center}
+Step~1 is a property of the gap equation. Step~3 follows from the
+Feynman-Kac representation once $m^2 > 0$ is established. The hard
+step is~2: controlling the $O(1/N)$ corrections to the near-cancellation
+$m_0^2 = v^2 - \Sigma_\sigma$.
 
-\subsection{Mass gap values}
+\subsection{The role of large $N$}
 
-At fixed $g^2 = 1$, $\lambda = 1$ ($\kappa = 3/2$, $\sigma_* = 1$):
-\begin{align}
-  m^2 &= 1 - \frac{1}{2N}\int H^{-1}\,dz + O(1/N^2) \\
-  m &\approx 1 - \frac{C}{N} + O(1/N^2)
-\end{align}
-where $C$ is a computable lattice integral. For large $N$: $m \to 1 = 1/g$.
+At each order in $1/N$, the corrections are organized by Feynman diagrams
+of the $\sigma$-field. The key: the $\sigma$-propagator $H^{-1}/N$ carries
+a factor $1/N$, so each $\sigma$-loop contributes $O(1/N)$. The gap
+equation sums all contributions at leading order (``cactus diagrams''),
+and the $1/N$ corrections are the higher-loop diagrams.
 
-\subsection{The threshold $N_0$}
-
-For large $\lambda$: $N_0 \approx g^2/(4\lambda\kappa) \ll 1$, so the
-theorem applies for all $N \geq 3$.
-
-For $\lambda$ near $\lambda_c$: $\kappa \to 0$, $N_0 \to \infty$,
-and the theorem requires very large $N$.
-
-\section{The $N = 2$ obstruction and BKT}
-
-\subsection{Dario-Garban theorem}
-
-Dario and Garban~\cite{DG25} prove (Theorem~B.2) that the
-two-component $\Phi^4$ model on $\Z^2$ with single-site measure
-$d\rho(S) = e^{-g|S|^4 - h|S|^2}\,dS$ has a BKT phase at
-\emph{finite} quartic coupling $g > 0$: for $\beta > \beta_{\rm BKT}(g,h)$,
+The condition $N > N_0$ ensures that the $O(1/N)$ correction to $m^2$ is
+smaller than $m_0^2$ itself. Since $m_0^2$ is exponentially small, $N_0$
+must be large enough to resolve this:
 \begin{equation}
-  \langle S_x \cdot S_y \rangle \geq \frac{c}{|x - y|}.
+  N_0 \sim C \cdot |\log m_0| \sim C\cdot\lambda v^2.
 \end{equation}
-This power-law decay (not exponential) means the mass gap
-vanishes. The proof uses Wells' inequality to compare with an XY
-model with annealed disorder.
 
-\subsection{Why $\sigma$-concentration fails for $N = 2$}
+\subsection{Multi-scale analysis}
 
-The BL inequality controls $\sigma = |\ph|^2/N$ but not the
-angular field $\theta$ (the phase of $\ph = |\ph|e^{i\theta}$).
-For $N = 2$, the fundamental group $\pi_1(S^1) = \Z$ allows vortices
-(topological defects in $\theta$). Vortex proliferation drives the
-BKT transition, and the $\sigma$-concentration bound cannot detect
-or prevent this. The self-energy $\Sigma_\sigma$ computed from
-Gaussian $\sigma$-fluctuations misses the vortex contribution.
+The $O(1/N)$ control can be organized as a multi-scale (RG) analysis on
+the $\sigma$-field:
+\begin{enumerate}
+\item Decompose $\sigma$ into momentum shells: $\sigma = \sum_j \sigma_j$
+  with $\sigma_j$ supported on $|k| \sim 2^{-j} \Lambda$.
+\item At each scale $j$: integrate out $\sigma_j$. The $\sigma$-Hessian
+  $H(k)$ is positive at this scale (UV convexity), so the integration
+  is perturbative with error $O(1/N^2)$.
+\item The effective action for the remaining modes flows: the effective
+  mass runs from $v^2$ (UV) to $m_0^2$ (IR).
+\item After $L \sim \log(\Lambda/m_0)$ steps: the accumulated error is
+  $O(L/N^2)$, controlled for $N \gg L$.
+\end{enumerate}
 
-For $N \geq 3$: $\pi_1(S^{N-1}) = 0$, no vortices exist, and
-the $\sigma$-concentration argument captures all the relevant
-physics. This is consistent with McBryan-Spencer~\cite{MS77}
-(exponential decay for $N \geq 3$).
+This is the Wilsonian RG applied to the $\sigma$-invariant, with $1/N$
+as the small parameter at each scale. It avoids cluster expansion by
+using the UV convexity of $s_{\rm eff}$ at each step.
 
-\section{Comparison with prior work}
+\section{The $N=2$ obstruction}
 
-\textbf{Kupiainen (1980)}~\cite{Kupiainen80}: Proved the mass gap
-for the O($N$) NLSM ($\lambda = \infty$) at large $N$ using HS
-transformation + cluster expansion. Our approach replaces the
-cluster expansion with Brascamp-Lieb + Feynman-Kac, and works at
-finite $\lambda$.
+Dario-Garban~\cite{DG25} prove BKT for the two-component $\Phi^4$
+model at finite $\lambda$: the angular field $\theta$ has topological
+defects ($\pi_1(S^1) = \Z$) that drive a phase transition. The
+$\sigma$-concentration captures the radial mode but not the angular
+winding. For $N \geq 3$: $\pi_1(S^{N-1}) = 0$, no vortices, no BKT.
 
-\textbf{Brascamp-Lieb (1976)}~\cite{BL76}: The BL inequality for
-log-concave measures was developed in convex geometry. Its
-application to the $\sigma$-effective action for QFT mass gaps
-appears to be new.
+\section{Comparison}
 
-\textbf{McBryan-Spencer (1977)}~\cite{MS77}: Proved exponential
-decay for $O(N)$ models with $N \geq 3$ via correlation
-inequalities. Our result gives the explicit mass formula
-\eqref{eq:mass} which they do not.
+\textbf{Kupiainen~\cite{Kupiainen80}:} NLSM mass gap at large $N$
+via HS + cluster expansion. Our approach replaces cluster expansion
+with BL + Feynman-Kac + multi-scale RG on $\sigma$.
 
-\textbf{Dario-Garban (2025)}~\cite{DG25}: Proved BKT at finite
-$\lambda$ for $N = 2$, confirming that $\sigma$-concentration
-alone cannot cover all $N$.
+\textbf{Brascamp-Lieb~\cite{BL76}:} Gives $\sigma$-concentration at
+the bare minimum $v^2$. This is the starting point, not the endpoint.
+The physical mass comes from the self-energy (near-cancellation).
+
+\textbf{McBryan-Spencer~\cite{MS77}:} Mass gap for $N \geq 3$ via
+correlation inequalities. Does not give the quantitative mass formula.
 
 \begin{thebibliography}{99}
 \bibitem{BL76} H.~J.~Brascamp and E.~H.~Lieb,
-  ``On extensions of the Brunn-Minkowski and Pr\'ekopa-Leindler theorems,''
   J.~Funct.~Anal.~\textbf{22} (1976) 366--389.
-
-\bibitem{GJ87} J.~Glimm and A.~Jaffe,
-  \textit{Quantum Physics: A Functional Integral Point of View},
-  Springer, 1987.
-
 \bibitem{Kupiainen80} A.~Kupiainen,
-  ``On the $1/N$ expansion for the $N$-vector model,''
   Comm.~Math.~Phys.~\textbf{73} (1980) 273--294.
-
 \bibitem{MS77} O.~A.~McBryan and T.~Spencer,
-  ``On the decay of correlations in $\mathrm{so}(n)$-symmetric
-  ferromagnets,'' Comm.~Math.~Phys.~\textbf{53} (1977) 299--302.
-
+  Comm.~Math.~Phys.~\textbf{53} (1977) 299--302.
 \bibitem{DG25} P.~Dario and C.~Garban,
-  ``Phase transitions for the XY model in non-uniformly elliptic
-  and Poisson-Voronoi environments,''
   Comm.~Math.~Phys.~(2025); arXiv:2311.16546.
-
 \bibitem{MZJ03} M.~Moshe and J.~Zinn-Justin,
-  ``Quantum field theory in the large $N$ limit: a review,''
   Phys.~Rep.~\textbf{385} (2003) 69--228.
-
 \bibitem{AW15} M.~Aizenman and S.~Warzel,
   \textit{Random Operators}, AMS, 2015.
 \end{thebibliography}

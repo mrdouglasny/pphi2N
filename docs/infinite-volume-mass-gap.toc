@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}The model and main result}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The O($N$) linear sigma model}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Main theorem (target)}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Hubbard-Stratonovich transformation}{2}{section.2}%
+\contentsline {section}{\numberline {3}$\sigma $-concentration via Brascamp-Lieb}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Convexity at the bare minimum}{3}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Feynman-Kac and the self-energy}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The averaged propagator}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}The self-energy is $O(1)$, not $O(1/N)$}{3}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}The gap equation}{4}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Why Feynman-Kac, not resolvent series}{4}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Controlling the $1/N$ corrections}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}The structure of the proof}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}The role of large $N$}{5}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Multi-scale analysis}{5}{subsection.5.3}%
+\contentsline {section}{\numberline {6}The $N=2$ obstruction}{5}{section.6}%
+\contentsline {section}{\numberline {7}Comparison}{5}{section.7}%
