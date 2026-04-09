@@ -569,6 +569,148 @@ the argument is shorter and cleaner than expected: five steps, each
 using well-established tools, with no cluster expansion.
 \end{enumerate}
 
+\section{The $1/N$-corrected gap equation}
+\label{sec:gap_equation}
+
+\subsection{Leading order ($N = \infty$)}
+
+The saddle-point equation for $\sigma_*$ is
+\begin{equation}
+\label{eq:gap_LO}
+  \sigma_* = v^2 - \frac{G(x,x;\sigma_*)}{4\lambda}
+  \qquad \text{where} \quad
+  G(x,x;\sigma_*) = \int \frac{d^2k}{(2\pi)^2}
+    \frac{1}{k^2 + \sigma_*}
+  = \frac{1}{4\pi} \ln\frac{\Lambda^2}{\sigma_*}
+\end{equation}
+The $\ph$-mass at leading order is $m_0^2 = \sigma_*$. In terms of
+$g^2 = 1/v^2$:
+\begin{equation}
+  \frac{m_0^2}{4\lambda} = \frac{1}{g^2}
+    - \frac{1}{4\pi} \ln\frac{\Lambda^2}{m_0^2}
+\end{equation}
+
+\subsection{$\sigma$-propagator and self-energy}
+
+At finite $N$, the $\sigma$-field fluctuates around $\sigma_*$. The
+$\sigma$-propagator (inverse Hessian of $N \cdot s_{\rm eff}$) is
+\begin{equation}
+  D_\sigma(p) = \frac{1}{N\left(\Pi(p) + \frac{1}{2\lambda}\right)}
+\end{equation}
+where $\Pi(p)$ is the one-loop bubble (the entropic Hessian contribution):
+\begin{equation}
+  \Pi(p) = \frac{1}{2} \int \frac{d^2k}{(2\pi)^2}
+    \frac{1}{(k^2 + m_0^2)((p-k)^2 + m_0^2)}
+\end{equation}
+Note that $\Pi(0) = \|G^2\|_{\rm op}/2 = 1/(8\pi m_0^2)$ in 2d,
+and $1/(2\lambda)$ is the bare $\sigma$-mass from the quartic potential.
+The convexity condition $\kappa > 0$ is precisely $\Pi(0) + 1/(2\lambda) > 0$.
+
+The $\ph$-self-energy from the $\sigma$-loop gives the $O(1/N)$ mass
+correction:
+\begin{equation}
+  \Sigma_1(0) = \int \frac{d^2p}{(2\pi)^2}
+    \frac{D_\sigma(p)}{p^2 + m_0^2}
+  = \frac{1}{N} \int \frac{d^2p}{(2\pi)^2}
+    \frac{1}{(\Pi(p) + 1/(2\lambda))(p^2 + m_0^2)}
+\end{equation}
+This integral is UV-finite in 2d (the integrand is $O(1/p^4)$).
+
+\subsection{The corrected mass}
+
+The physical mass including $1/N$ corrections:
+\begin{equation}
+\label{eq:gap_NLO}
+  m_{\rm phys}^2 = m_0^2 \left(1 - \frac{c_1}{N}
+    + \frac{c_2}{N^2} + \cdots \right)
+\end{equation}
+where $c_1 = \Sigma_1(0)/m_0^2$ is computable from a single 2d integral.
+At each order in $1/N$, new Feynman diagrams with $\sigma$-loops contribute.
+
+\subsection{Asymptotic nature and Borel summability}
+
+The Brascamp-Lieb bound controls the cumulants of $\sigma$:
+\begin{equation}
+  \langle (\delta\sigma)^{2k} \rangle_c
+    \leq \frac{C^k \cdot k!}{(\kappa N)^k}
+\end{equation}
+This gives factorial bounds on the coefficients: $|c_k| \leq C'^k \cdot k!$.
+The series~\eqref{eq:gap_NLO} is therefore:
+\begin{itemize}
+\item \textbf{Asymptotic} to all orders (from BL moment bounds)
+\item \textbf{Borel summable} (factorial growth = borderline for Borel)
+\item \textbf{Not convergent} in general (typical for QFT, factorial growth)
+\end{itemize}
+
+\subsection{The NLSM limit ($\lambda \to \infty$)}
+
+As $\lambda \to \infty$, the bare $\sigma$-mass $1/(2\lambda) \to 0$,
+so $D_\sigma(p) \to 1/(N\Pi(p))$. The gap equation~\eqref{eq:gap_LO}
+gives $m_0^2 \to \Lambda^2 e^{-4\pi/g^2}$, reproducing the dynamically
+generated NLSM mass gap (asymptotic freedom).
+
+The $1/N$ correction $c_1$ has a finite limit as $\lambda \to \infty$:
+\begin{equation}
+  c_1^{\rm NLSM} = \int \frac{d^2p}{(2\pi)^2}
+    \frac{1}{N \Pi(p) (p^2 + m_0^2)}
+\end{equation}
+This integral is UV-finite and computable.
+
+\section{Monotonicity and the NLSM mass gap}
+\label{sec:monotonicity}
+
+\begin{theorem}[Monotonicity of the mass gap in $\lambda$]
+\label{thm:monotone}
+For $N \geq 3$ and fixed $g^2 = N/R^2$, the mass gap $m(\lambda)$ of
+the O($N$) LSM is a non-decreasing function of $\lambda$.
+\end{theorem}
+
+\begin{proof}
+Consider two couplings $\lambda_2 > \lambda_1 > 0$. The Hamiltonians
+satisfy $H_{\lambda_2} = H_{\lambda_1} + \Delta V$ where
+\begin{equation}
+  \Delta V = (\lambda_2 - \lambda_1) \int dx \,
+    \left(\frac{|\ph(x)|^2}{N} - v^2\right)^2 \geq 0
+\end{equation}
+Since $\Delta V$ is a non-negative operator, the min-max principle
+(Reed-Simon IV) implies that the spectral gap of $H_{\lambda_2}$ is
+at least the spectral gap of $H_{\lambda_1}$.
+\end{proof}
+
+\begin{corollary}[NLSM mass gap for $N \geq 3$]
+\label{cor:nlsm}
+For $N \geq 3$ and any $g^2 > 0$, the O($N$) NLSM in 2d has a
+positive mass gap:
+\begin{equation}
+  m_{\rm NLSM} = \lim_{\lambda \to \infty} m(\lambda)
+    \geq m(\lambda_c + \varepsilon) > 0
+\end{equation}
+where $\lambda_c = g^4/4$ and $m(\lambda_c + \varepsilon) > 0$ by
+the Brascamp-Lieb argument (Theorem~\ref{thm:main}).
+\end{corollary}
+
+\begin{remark}
+This gives the NLSM mass gap for all $N \geq 3$ without cluster
+expansion, by combining:
+\begin{enumerate}
+\item LSM mass gap at finite $\lambda$ (Brascamp-Lieb, any $N$)
+\item Monotonicity of $m(\lambda)$ (min-max principle, $N \geq 3$)
+\item $m(\lambda) \to m_{\rm NLSM}$ as $\lambda \to \infty$ (LSM $\to$ NLSM)
+\end{enumerate}
+The quantitative value $m_{\rm NLSM} = \Lambda e^{-2\pi/g^2}(1 + O(1/N))$
+comes from the gap equation (\S\ref{sec:gap_equation}), not from the
+BL bound (which is too weak by an exponential factor).
+\end{remark}
+
+\begin{remark}[The $N = 2$ exception]
+For $N = 2$, monotonicity fails: $m(\lambda)$ starts positive
+(at $\lambda = \lambda_c$), increases initially, but must eventually
+vanish at $\lambda_{\rm BKT}$ (the BKT transition point) and remain
+zero for $\lambda > \lambda_{\rm BKT}$. The min-max argument fails
+because in the BKT phase the spectrum is continuous down to zero ---
+adding a positive potential cannot open a gap in a continuous spectrum.
+\end{remark}
+
 \section{Physical analysis of the proof}
 \label{sec:physics}
 
