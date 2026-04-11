@@ -1,169 +1,132 @@
 # pphi2N Status
 
-**0 sorries, 7 axioms, 3195 jobs, 0 errors.**
+**1 sorry, 11 axioms, 32 files, 0 errors.**
 
-## Main theorems (all proved, 0 sorries)
+## Main results
+
+### Continuum limit (proved, 0 sorries)
 
 | Theorem | File | Statement |
 |---------|------|-----------|
 | `lsmTorusLimit_satisfies_OS` | ONTorusLimit.lean | O(N) LSM continuum limit on T²_L satisfies OS0+OS1+OS2 |
-| `lsm_massGap_largeN` | LargeNMassGap.lean | Spectral gap m ≥ √(σ*/2) for N ≥ N₀ (finite volume) |
-| `infiniteVolume_massGap_largeN` | InfiniteVolume.lean | Mass gap m > 0 in infinite volume for N ≥ N₀ |
-| `infiniteVolume_massGap_allN` | InfiniteVolume.lean | Mass gap m > 0 in infinite volume for ALL N ≥ 1 (large λ) |
 
-### Informal proof summaries
+### Mass gap (in progress)
 
-**Theorem 1: `lsmTorusLimit_satisfies_OS`** — The O(N) Linear Sigma Model
-on the torus T²_L has a UV continuum limit (lattice spacing a = L/M → 0)
-satisfying the Osterwalder-Schrader axioms OS0–OS2. The proof constructs
-N-component lattice measures via `Measure.pi` (N independent scalar GFFs),
-applies the Boltzmann weight exp(-V)/Z with V = Σ_x :P(|φ(x)|²): (Wick-ordered,
-bounded below by formal polynomial + EVT), embeds into the continuum via
-`evalCLM` componentwise, establishes tightness from uniform second moment
-bounds (density transfer + Green's function bound), extracts a subsequential
-limit by Prokhorov's theorem, and verifies:
-- **OS0** (analyticity): `analyticOnNhd_integral` from pphi2 + exponential
-  moment domination (truncation + MCT for the limit).
-- **OS1** (regularity): Triangle inequality + exponential moment bound.
-- **OS2** (translation invariance): Exact lattice translation invariance
-  (via `Fintype.sum_equiv (Equiv.addRight v)`) + lattice approximation of
-  arbitrary translations (nearest lattice vector → v as a → 0) +
-  `tendsto_nhds_unique` to transfer invariance to the limit.
+The mass gap proof uses HS with imaginary coupling + steepest descent
+contour rotation + Brascamp-Lieb. See `docs/mass-gap-v2.tex`.
 
-**Theorem 2: `lsm_massGap_largeN`** — For N ≥ N₀ = ⌈4/(κσ*²)⌉+1, the
-transfer matrix has spectral gap ≥ √(σ*/2). The proof uses
-`SigmaConvexityData` (κ = convexity parameter, σ* = saddle point) and
-shows: 1/√(κN) < σ*/2 for N ≥ N₀ (arithmetic via `inv_sqrt_lt_of_gt`),
-so σ-fluctuations are smaller than σ*/2, giving σ(x) ≥ σ*/2 w.h.p., and
-the conditional operator -Δ + σ has gap ≥ σ*/2.
+| Result | File | Status |
+|--------|------|--------|
+| HS identity | HSIdentity.lean | **Proved** (from Mathlib `fourierIntegral_gaussian`) |
+| Multi-site HS | MultiSiteHS.lean | **Proved** (product of 1-site identities) |
+| Contour rotation lemmas | ContourRotation.lean | **Proved** (|exp(iθ)|=1, exponent real after rotation) |
+| HS equivalence | Equivalence.lean | **1 sorry** (complex arithmetic, routine) |
+| FK bound → mass gap | FKBound.lean | **Proved** (from FK axioms) |
 
-**Theorem 3: `infiniteVolume_massGap_largeN`** — The mass gap persists in
-infinite volume for N ≥ N₀. The finite-volume argument (Chebyshev + union
-bound) fails when |Λ| = ∞. Instead: Brascamp-Lieb Poincaré inequality
-(spectral gap ≥ κN for the σ-measure) → exponential decay of σ-correlations
-with mass √(κN) → resolvent perturbation theory controls the averaged
-φ-propagator → exponential decay with m_phys ≈ √σ* > 0.
+### N=1 test case
 
-**Theorem 4: `infiniteVolume_massGap_allN`** — For ALL N ≥ 1 (including
-N = 2) with λ large enough that σ*·√κ > 1, the φ-field has mass gap m > 0.
-The random Schrödinger argument: conditional on σ, all N components of φ
-are Gaussian with covariance (-Δ+σ)⁻¹. When σ is concentrated near σ* > 0
-(Poincaré), -Δ+σ ≈ -Δ+σ* has gap σ*, and the perturbation δσ = σ-σ*
-has variance O(1/(κN)) with exponential correlation decay. The BKT transition
-for N=2 only occurs at λ=∞ (strict NLSM constraint); at finite λ,
-σ-fluctuations regularize vortices and all modes remain massive.
+| Result | File | Status |
+|--------|------|--------|
+| N=1 setup | N1Test.lean | HS identity, gap equation, connection to P(φ)₂ |
 
-## Proved results (formerly axioms)
+## Axioms (11)
 
-### Hubbard-Stratonovich (2 → 0 axioms)
+### Continuum limit (4)
 
-| Theorem | File | Proof method |
-|---------|------|-------------|
-| `sigma_measure_from_HS` | HubbardStratonovich.lean:85 | Define σ(x) = (1/N)Σᵢ φⁱ(x)², prove measurable via `measurable_pi_lambda` + `Finset.measurable_sum`, σ-measure = pushforward under `sigmaFieldMap`, probability by `isProbabilityMeasure_map` |
-| `sigma_BL_variance_bound` | HubbardStratonovich.lean:110 | `varianceBound = 1/(κN) > 0` already proved as `varianceBound_pos` (div_pos + mul_pos from κ>0, N≥1) |
+| Axiom | File | Proof source |
+|-------|------|-------------|
+| `nComponentGreen_uniform_bound` | EmbeddingBound.lean | Port from gaussian-field |
+| `lsmDensityTransferConstant` | ONTorusLimit.lean | Nelson bound + Jensen |
+| `lsmGF_latticeApproximation_error_vanishes` | ONTorusLimit.lean | Port from pphi2 |
+| `nComponentGFF_exp_moment_uniform` | ONTorusLimit.lean | Gaussian MGF |
 
-### Other key proved results
+### Matrix calculus (3)
 
-| Result | File | Proof method |
-|--------|------|-------------|
-| `onInteractingMeasure_isProbability` | ONTorusMeasure.lean | Boltzmann weight exp(-V) > 0 a.e., integrability from V bounded below, normalization |
-| `wickInteraction_bounded_below` | ONTorusMeasure.lean | Formal polynomial representation + extreme value theorem on [0,∞) |
-| `onInteraction_translation_invariant` | LatticeTranslation.lean | `Fintype.sum_equiv (Equiv.addRight v)` reindexes lattice sum |
-| `density_transfer_general` | DensityTransfer.lean | Cauchy-Schwarz (Hölder p=q=2) on weighted measures |
-| `nComponent_independent` | ProductGFF.lean | `iIndepFun_pi` for product measure `Measure.pi` |
-| `wickMonomial_ON_polynomial_in_N` | ONWick.lean | Pair induction on three-term Laguerre recursion |
-| `fluctuationBound_small_of_large_N` | SigmaConcentration.lean | `inv_sqrt_lt_of_gt` + ceiling arithmetic |
+| Axiom | File | Proof source |
+|-------|------|-------------|
+| `contDiff_matrix_det` | MatrixCalculus.lean | Proved with Pi norm (DetContDiff.lean), axiom due to norm transfer |
+| `fderiv_log_det` | MatrixCalculus.lean | Jacobi's formula (chain rule for det) |
+| `hessian_log_det` | MatrixCalculus.lean | Second derivative of log det |
 
-## pphi2N axioms (7)
+### Contour shift (2)
 
-### Continuum limit (6)
+| Axiom | File | Proof source |
+|-------|------|-------------|
+| `rectangle_integral_vanishes` | ContourShift.lean | Mathlib `integral_boundary_rect_eq_zero` |
+| `vertical_contour_shift` | ContourShift.lean | PNT project `HolomorphicOn.vanishesOnRectangle` |
 
-| # | Axiom | File | Difficulty | Statement and proof strategy |
-|---|-------|------|-----------|------------------------------|
-| 1 | `latticeWickConstant` | LSMTorusMeasure:73 | Easy | The Wick constant c = G(x,x) = (1/\|Λ\|)Σ_k 1/(λ_k+m²) on the lattice, where λ_k are Laplacian eigenvalues. Just define the concrete spectral sum. |
-| 2 | `latticeWickConstant_pos` | LSMTorusMeasure:76 | Easy | Each term 1/(λ_k+m²) > 0 since λ_k ≥ 0, m² > 0. Sum of positive terms is positive. |
-| 3 | `nComponentGreen_uniform_bound` | EmbeddingBound:73 | Medium | Uniform second moment: E[(embed φ)(f)²] ≤ C·q(f)² for all lattice sizes M. Decomposes into N scalar bounds: each E[G_M(fᵢ,fᵢ)] ≤ (1/m²)·\|embed fᵢ\|² ≤ q(fᵢ)² from gaussian-field's `torusGreen_uniform_bound` + `embed_l2_uniform_bound`. Port componentwise. |
-| 4 | `lsmDensityTransferConstant` | ONTorusLimit:73 | Medium | Density transfer: ∫F dμ_int ≤ D·∫F dμ_GFF with D = exp(B)/Z uniform in M. Nelson bound gives exp(-V) ≤ exp(B) with B = L^d·\|C_P\| (uniform since a^d·\|Λ\| = L^d). Jensen gives Z = E[exp(-V)] ≥ exp(-E[V]) ≥ 1 for Wick-ordered V (E_GFF[V] ≤ 0). So D ≤ exp(B). |
-| 5 | `lsmGF_latticeApproximation_error_vanishes` | ONTorusLimit:724 | Medium | Translation approximation error → 0 as a → 0. Choose nearest lattice vector w_n with \|v - w_n\| ≤ a√2 → 0. Exact lattice invariance gives zero error for w_n. Bound remainder by \|T_v f - T_{w_n} f\| → 0 (continuity of translation action). Port from pphi2 (~130 lines, fully proved there). |
-| 6 | `nComponentGFF_exp_moment_uniform` | ONTorusLimit:891 | Medium | Gaussian MGF: (embed φ)(f) is Gaussian with variance σ²(f) = G(f,f). Then E[exp(\|X\|)] ≤ E[exp(X)] + E[exp(-X)] = 2exp(σ²/2). Combined with σ²(f) ≤ C·q(f)² (axiom 3): K_exp = 2, q_exp = √(C/2)·q. |
+### FK bound (2)
 
-### Mass gap — σ-measure Hessian (1)
+| Axiom | File | Proof source |
+|-------|------|-------------|
+| `green_function_monotone` | FKBound.lean | Spectral theorem for PSD matrices |
+| `feynmanKac_subGaussian_bound` | FKBound.lean | FK representation + Borell sub-Gaussian |
 
-| # | Axiom | File | Difficulty | Statement and proof strategy |
-|---|-------|------|-----------|------------------------------|
-| 7 | `sigma_logConcave` | SigmaLogConcave:81 | Medium-Hard | The σ-measure exp(-N·s_eff) admits a `LogConcaveMeasure` structure with Hessian ≥ κN. Requires: Hessian of Tr log(-Δ+σ) = -G², so Hess(N·s_eff) = N(-½G²+2λI) ≥ κN when 2λ > ½\|G²\|. Matrix calculus for log-det derivative. Refs: Brézin-Zinn-Justin (1976) §II. |
+## File inventory (32 files)
 
-### Mass gap — resolvent perturbation (0) — PROVED
+### Model (3 files, 0 axioms)
+- Model/ONModel.lean — O(N) model structure
+- Model/Interaction.lean — O(N)-invariant polynomial
+- Model/LSM.lean — Linear Sigma Model parameters
 
-`resolvent_perturbation_bound` is now a theorem derived from `sigma_logConcave`
-(which bundles both the Hessian bound and the resolvent mass bound).
+### LatticeField (4 files, 0 axioms)
+- LatticeField/NComponentField.lean — φ : Λ → ℝ^N
+- LatticeField/ONGaussian.lean — Wick constant, rising factorial
+- LatticeField/ProductGFF.lean — N-component GFF via Measure.pi
+- LatticeField/ProductConfiguration.lean — Configuration isomorphism
 
-#### Proof roadmap for `resolvent_perturbation_bound`
+### WickOrdering (1 file, 0 axioms)
+- WickOrdering/ONWick.lean — Laguerre recursion, polynomial-in-N
 
-| Fact | Status | Statement | Proof strategy |
-|------|--------|-----------|----------------|
-| Fact 1: -Δ ≥ 0 | **PROVED** (`LatticeOperator.lean`) | `laplacian_nonneg_general`: v^T L v ≥ 0 for any graph Laplacian | From Mathlib `posSemidef_lapMatrix` |
-| Fact 1b: -Δ+c ≥ c | **PROVED** (`LatticeOperator.lean`) | `psd_add_scalar_bound`: v^T(H+cI)v ≥ c·\|v\|² when H PSD | From Fact 1 + algebra |
-| Fact 2: BL variance | **PROVED** (`SigmaLogConcave.lean`) | `sigma_variance_from_BL`: Var(σ(x)) ≤ 1/(κN) | From `sigma_logConcave` axiom (Hessian ≥ κN) + `brascampLieb_poincare` + ∥coord proj∥ ≤ 1 + ∫1 dμ = 1 |
-| Fact 3: Resolvent mass | Axiom | Averaged propagator mass ≥ √σ*-δ | Irreducible: resolvent identity + Neumann series (Mathlib `inverse_one_sub`) + Combes-Thomas. Refs: Kirsch (2007) §5; Aizenman-Warzel (2015) Ch. 5 |
+### SigmaMeasure (1 file, 0 axioms)
+- SigmaMeasure/Basic.lean — σ-field effective action
 
-### Mass gap — proved (formerly 3 axioms → 0)
+### InteractingMeasure (4 files, 0 axioms)
+- ONLatticeAction.lean — O(N) interaction V(φ)
+- ONTorusMeasure.lean — Boltzmann weight, probability measure, Nelson estimate
+- LatticeTranslation.lean — V(T_v φ) = V(φ) via Fintype.sum_equiv
+- DensityTransfer.lean — Cauchy-Schwarz density transfer
 
-| Theorem | File | Proof method |
-|---------|------|-------------|
-| `conditionalSpectralGap` | TransferOperator:90 | Trivial: ∃ gap ≥ σ_min ∧ gap > 0 is witnessed by gap = σ_min |
-| `laplacian_nonneg_general` | LatticeOperator.lean | From Mathlib `posSemidef_lapMatrix` (graph Laplacian PSD) |
-| `psd_add_scalar_bound` | LatticeOperator.lean | H PSD → v^T(H+cI)v ≥ c·\|v\|² (algebra from PSD) |
-| `sigma_variance_from_BL` | SigmaLogConcave.lean | From `sigma_logConcave` (Hessian ≥ κN) + `brascampLieb_poincare` + ∥coord proj∥ ≤ 1 + ∫1 dμ = 1 |
-| `resolvent_perturbation_bound` | InfiniteVolume.lean | From `resolvent_perturbation_bound_from_BL` (extracts mass bound from `sigma_logConcave`) |
-| `infiniteVolume_massGap_largeN` | InfiniteVolume:130 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_large_N` (σ*²κN > 4 > 1 for N ≥ N₀) |
-| `infiniteVolume_massGap_allN` | InfiniteVolume:149 | From `resolvent_perturbation_bound` + `physicalMassLowerBound_pos_of_strong_coupling` (σ*²κ = (σ*√κ)² > 1) |
-| `physicalMassLowerBound_pos_of_large_N` | SigmaConcentration:211 | Arithmetic: N ≥ ⌈4/(κσ*²)⌉+1 → κN > 4/σ*² → σ*²κN > 4 > 1 → √σ* > δ |
-| `physicalMassLowerBound_pos_of_strong_coupling` | SigmaConcentration:241 | Arithmetic: σ*√κ > 1 → (σ*√κ)² = σ*²κ > 1 → σ*²κN > 1 → √σ* > δ |
+### ContinuumLimit (5 files, 4 axioms)
+- NComponentTestFunction.lean — NTP test functions
+- NComponentEmbedding.lean — Componentwise embedding
+- EmbeddingBound.lean — Green's function bound (1 axiom)
+- LSMTorusMeasure.lean — LSM measure, Wick constant (proved)
+- ONTorusLimit.lean — OS0-OS2 (3 axioms)
 
-## Dependency axioms
+### GeneralResults (3 files, 3 axioms)
+- MatrixCalculus.lean — det/inv/log-det smoothness (3 axioms)
+- DetContDiff.lean — det C∞ with Pi norm (proved)
+- TraceFormula.lean — Tr(M·E_x·N·E_y) (proved)
 
-pphi2N imports from pphi2, gaussian-field, and markov-semigroups.
-However, **none of the dependency axioms are in pphi2N's dependency chain.**
+### MassGap (4 files, 0 axioms)
+- SigmaConcentration.lean — SigmaConvexityData, arithmetic
+- HubbardStratonovich.lean — Pushforward σ-measure (proved)
+- MassGapDef.lean — HasCorrelationDecay, HasSpectralGap
+- LatticeOperator.lean — Graph Laplacian PSD (from Mathlib)
 
-| Dependency | Axioms in repo | Axioms we use | What we import |
-|-----------|---------------|--------------|----------------|
-| pphi2 | 23 | **0** | `analyticOnNhd_integral` (proved theorem, 0 axioms) |
-| gaussian-field | 9 | **0** | Configuration, GFF, torus embedding, Prokhorov (all proved) |
-| markov-semigroups | 3 | **0** | BrascampLieb.lean imported but no theorems called |
+### HSEquivalence (7 files, 4 axioms, 1 sorry)
+- HSIdentity.lean — HS Gaussian identity (proved from Mathlib)
+- MultiSiteHS.lean — Per-site HS + boundedness (proved)
+- ContourRotation.lean — Contour rotation lemmas (proved)
+- ContourShift.lean — Rectangle + vertical shift (2 axioms)
+- FKBound.lean — FK + Borell → mass gap (2 axioms, theorem proved)
+- Equivalence.lean — Z_original = Z_HS (1 sorry)
+- N1Test.lean — N=1 test case
 
-**Total axioms pphi2N depends on: exactly 7 (all in pphi2N itself).**
+## Proof plan (docs/mass-gap-v2.tex)
 
-The dependency repos' own axioms (23 + 9 + 3 = 35) are for OTHER
-theorems in those repos that we don't use. The gaussian-field and pphi2
-theorems we import are all fully proved.
+1. HS with imaginary coupling (exact, proved in HSIdentity)
+2. Gap equation determines σ* and mass m₀ (standard in 2d)
+3. Steepest descent contour rotation σ → iσ'
+4. Brascamp-Lieb for the rotated (real, log-concave) measure
+5. Renormalized Borell/FK bound with self-energy subtraction
+6. N₀ ~ √(λ/g²) threshold
 
-## File inventory (22 Lean files)
+## References
 
-| File | Lines | Axioms | Sorries | Key content |
-|------|-------|--------|---------|-------------|
-| Model/ONModel.lean | ~80 | 0 | 0 | O(N) model structure |
-| Model/Interaction.lean | ~70 | 0 | 0 | O(N)-invariant polynomial |
-| Model/LSM.lean | ~190 | 0 | 0 | LSM parameters, saddle point, gap equation |
-| LatticeField/NComponentField.lean | ~60 | 0 | 0 | φ : Λ → ℝ^N, \|φ(x)\|² |
-| LatticeField/ONGaussian.lean | ~100 | 0 | 0 | Wick constant, rising factorial (polynomial in N) |
-| LatticeField/ProductGFF.lean | ~120 | 0 | 0 | Measure.pi, independence, marginal |
-| LatticeField/ProductConfiguration.lean | ~80 | 0 | 0 | Configuration(Fin N → E) ≅ Fin N → Configuration E |
-| WickOrdering/ONWick.lean | ~150 | 0 | 0 | Laguerre recursion, polynomial-in-N |
-| SigmaMeasure/Basic.lean | ~160 | 0 | 0 | σ-field effective action |
-| InteractingMeasure/ONLatticeAction.lean | ~90 | 0 | 0 | Lattice interaction V(φ) |
-| InteractingMeasure/ONTorusMeasure.lean | ~340 | 0 | 0 | Boltzmann weight, probability measure, polynomial bounded below |
-| InteractingMeasure/LatticeTranslation.lean | ~90 | 0 | 0 | V(T_v φ) = V(φ) via Fintype.sum_equiv |
-| InteractingMeasure/DensityTransfer.lean | ~180 | 0 | 0 | Cauchy-Schwarz density transfer (Hölder p=q=2) |
-| ContinuumLimit/NComponentTestFunction.lean | ~50 | 0 | 0 | NTP(TorusTestFunction, ℝ^N) |
-| ContinuumLimit/NComponentEmbedding.lean | ~110 | 0 | 0 | Componentwise embedding + measurability |
-| ContinuumLimit/EmbeddingBound.lean | ~90 | 1 | 0 | Uniform Green's function bound |
-| ContinuumLimit/LSMTorusMeasure.lean | ~100 | 2 | 0 | LSM measure, Wick constant, probability instance |
-| ContinuumLimit/ONTorusLimit.lean | ~950 | 3 | 0 | Tightness, Prokhorov, OS0-OS2, exp moments |
-| MassGap/SigmaConcentration.lean | ~290 | 0 | 0 | σ-concentration, threshold, fluctuation bound, massCorrection, physicalMassLowerBound |
-| MassGap/HubbardStratonovich.lean | ~138 | 0 | 0 | HS transformation, σ-measure (proved), BL variance (proved) |
-| MassGap/LatticeOperator.lean | ~80 | 0 | 0 | Graph Laplacian PSD (from Mathlib), -Δ+c ≥ c |
-| MassGap/SigmaLogConcave.lean | ~150 | 1 | 0 | BL bridge: σ-measure Hessian axiom → Var(σ(x)) ≤ 1/(κN) (proved) |
-| MassGap/TransferOperator.lean | ~155 | 0 | 0 | Conditional spectral gap (proved), unconditional gap |
-| MassGap/LargeNMassGap.lean | ~180 | 0 | 0 | Main mass gap theorem, explicit bounds |
-| MassGap/InfiniteVolume.lean | ~175 | 0 | 0 | Resolvent perturbation (proved from sigma_logConcave), infinite-volume mass gap |
+- Kupiainen (1980a), "On the 1/n expansion" (NLSM) — `docs/Kupiainen1980.pdf`
+- Kupiainen (1980b), "1/n expansion for a QFT model" (LSM) — `docs/Kupiainen1980b.pdf`
+- Dario-Garban (2025), BKT for N=2 Φ⁴ — arXiv:2311.16546
+- Brascamp-Lieb (1976), J. Funct. Anal. 22
+- PNT project: github.com/AlexKontorovich/PrimeNumberTheoremAnd
