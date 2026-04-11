@@ -320,6 +320,128 @@ $m^2 = m_0^2(1 - O(\lambda/(g^2 N^2)))$.
 \end{enumerate}
 \end{proof}
 
+\section{Test case: $N = 1$ ($P(\ph)_2$ theory)}
+
+The $N=1$ case is the scalar $P(\ph)_2$ theory, where the mass
+gap is already proved~\cite{GJS74}. We use it to test the HS +
+contour rotation machinery.
+
+\subsection{The $P(\ph)_2$ theory on $T^2_L$}
+
+For $N=1$: $\ph : T^2_L \to \R$, $u = \ph^2$, and the action is
+\begin{equation}
+  S[\ph] = \tfrac{1}{2}\langle\ph,(-\Delta)\ph\rangle
+    + \int_{T^2_L}\lambda(\ph(x)^2-v^2)^2\,dx.
+\end{equation}
+This is $P(\ph)_2$ with $P(t) = \lambda(t - v^2)^2$ (after Wick
+ordering, absorbing divergences into mass renormalization).
+
+\subsection{HS transformation: degree reduction}
+
+The HS identity~\eqref{eq:HS} with $a(x) = \ph(x)^2 - v^2$ gives:
+\begin{equation}
+  e^{-\lambda\int(\ph^2-v^2)^2}
+    = c\!\int\!D\sigma\;e^{-\int\sigma^2/(4\lambda)
+      + i\int\sigma(\ph^2-v^2)}.
+\end{equation}
+The $\ph$-action becomes \textbf{quadratic}:
+$\tfrac{1}{2}\langle\ph,(-\Delta+i\sigma)\ph\rangle + \text{const}$.
+Integrating out $\ph$:
+\begin{equation}
+\label{eq:N1partition}
+  Z_{P(\ph)_2} = c'\!\int\!D\sigma\;
+    \det(-\Delta+i\sigma)^{-1/2}\,
+    e^{-\int[\sigma^2/(4\lambda)+i\sigma v^2]}.
+\end{equation}
+The degree-4 interaction $\lambda\ph^4$ has been traded for a
+degree-2 coupling $i\sigma\ph^2$ plus the $\sigma$-integral.
+
+\subsection{Gap equation for $N = 1$}
+
+The saddle point $\sigma = 0$ (with $m_0^2$ absorbing the saddle
+value) satisfies
+\begin{equation}
+  \tfrac{1}{2}(-\Delta+m_0^2)^{-1}_{xx} + 2\lambda(m_0^2-v^2) = 0
+  \quad\Longrightarrow\quad
+  m_0^2 = v^2 - \frac{G(x,x;m_0^2)}{4\lambda}.
+\end{equation}
+This is the \textbf{same gap equation} as for general $N$, now with
+$N=1$. The Wick constant $G(x,x) = \int dk/(k^2+m_0^2)$ gives the
+mass renormalization. On the torus $T^2_L$ with UV cutoff $\Lambda$:
+\begin{equation}
+  m_0^2 = v^2 - \frac{1}{16\pi\lambda}\log\frac{\Lambda^2}{m_0^2}.
+\end{equation}
+
+\subsection{Contour rotation for $N = 1$}
+
+Rotate $\sigma \to i\sigma'$ as in \S3. The Hessian flips from
+$-B^{-1}$ to $+B^{-1}$ (same structure, just $N=1$). The rotated
+measure is real and positive in the saddle neighborhood.
+
+After rotation, the $\ph$-propagator is:
+\begin{equation}
+  \langle\ph(x)\ph(0)\rangle
+    = \bigl\langle(-\Delta+m_0^2+2\sigma'z)^{-1}(x,0)
+      \bigr\rangle_{\mu'}
+\end{equation}
+with $z = 1$ (since $N=1$, $z = N^{-1/2} = 1$) and $\mu'$ the
+rotated $\sigma'$-measure.
+
+\subsection{What changes at $N = 1$}
+
+\begin{itemize}
+\item \textbf{No large-$N$ suppression}: The $\sigma'$-fluctuations
+  are $O(1)$ (not $O(1/\sqrt{N})$). The Borell correction to the
+  mass is $O(1)$, not $O(1/N^2)$.
+\item \textbf{Self-energy subtraction still needed}: The gap equation
+  absorbs the leading self-energy, and the remainder is the $O(1)$
+  correction that determines the physical mass.
+\item \textbf{No BKT}: $N=1$ has $\Z_2$ symmetry (not continuous),
+  so no BKT transition in any dimension.
+\item \textbf{Convexity}: The condition $m_0^2 > 1/(16\pi\lambda)$
+  is the same; for moderate couplings it holds.
+\end{itemize}
+
+\subsection{Comparison with known $P(\ph)_2$ results}
+
+The mass gap for $P(\ph)_2$ is proved by
+Glimm-Jaffe-Spencer~\cite{GJS74} via cluster expansion. Their mass
+gap is the spectral gap of the transfer matrix $T = e^{-aH}$, where
+$H$ is the $P(\ph)_2$ Hamiltonian.
+
+Our HS approach at $N=1$ should give the \textbf{same mass} because:
+\begin{enumerate}
+\item The HS identity~\eqref{eq:N1partition} is exact: $Z_{P(\ph)_2}$
+  is unchanged.
+\item The correlators are unchanged: $\langle\ph(x)\ph(0)\rangle$ is
+  the same function whether computed from the $\ph$-integral or the
+  $\sigma$-integral.
+\item The mass $m_0$ from the gap equation is the same as the
+  Wick-renormalized mass in $P(\ph)_2$.
+\end{enumerate}
+
+The \textbf{test}: at $N=1$, the renormalized Borell bound (\S5.4)
+should give a mass $m^2 > 0$ that is consistent with the known
+$P(\ph)_2$ mass gap. If the self-energy subtraction works correctly,
+the Borell mass equals the GJS mass (up to higher-order corrections).
+
+This provides a \textbf{cross-check} of the contour rotation $+$
+renormalized Borell machinery before applying it at large~$N$.
+
+\subsection{Formalization in Lean}
+
+The $N=1$ case connects to the pphi2 project:
+\begin{itemize}
+\item pphi2 already has the $P(\ph)_2$ interacting measure,
+  probability instance, transfer matrix, and Jentzsch theorem.
+\item The HS identity at each lattice size is a finite-dimensional
+  Gaussian integral --- provable in Lean.
+\item The equivalence $Z_{P(\ph)_2} = Z_{\rm HS}$ at each lattice
+  size would be a theorem connecting the two constructions.
+\item The continuum limit (torus limit $M \to \infty$) is already
+  handled in pphi2 via Prokhorov extraction.
+\end{itemize}
+
 \section{Discussion}
 
 \subsection{Comparison with Kupiainen}
@@ -362,6 +484,8 @@ the vortex sector). For $N \ge 3$: $\pi_1(S^{N-1}) = 0$, no BKT.
   Comm.~Math.~Phys.~\textbf{74} (1980) 199--222.
 \bibitem{DG25} P.~Dario and C.~Garban,
   Comm.~Math.~Phys.~(2025); arXiv:2311.16546.
+\bibitem{GJS74} J.~Glimm, A.~Jaffe, and T.~Spencer,
+  Ann.~Math.~\textbf{100} (1974) 585--632.
 \bibitem{MZJ03} M.~Moshe and J.~Zinn-Justin,
   Phys.~Rep.~\textbf{385} (2003) 69--228.
 \end{thebibliography}
