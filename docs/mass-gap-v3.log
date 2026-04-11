@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  11 APR 2026 10:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  11 APR 2026 10:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -440,50 +440,53 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 [6]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 346.
+(hyperref)                removing `math shift' on input line 391.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\to' on input line 346.
+(hyperref)                removing `\to' on input line 391.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 346.
+(hyperref)                removing `math shift' on input line 391.
+
+
+
+[7]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 402.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 357.
+(hyperref)                removing `math shift' on input line 402.
 
 
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 357.
-
-
-Overfull \hbox (1.89296pt too wide) in paragraph at lines 383--385
+Overfull \hbox (1.89296pt too wide) in paragraph at lines 428--430
 []\OT1/cmr/m/n/12 Contour shift (Cauchy's the-o-rem for rect-an-gles): prov-abl
 e from Math-lib + PNT project. 
  []
 
 
 
-[7]
+[8]
 
-[8] (./mass-gap-v3.aux)
+[9] (./mass-gap-v3.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `mass-gap-v3.out' has not changed.
-(rerunfilecheck)             Checksum: 28B16802C46170C47D0FF419845731CC;5186.
+(rerunfilecheck)             Checksum: 5B08D392CD951D0150327BE104D87B0D;5845.
  ) 
 Here is how much of TeX's memory you used:
- 9582 strings out of 473190
- 145172 string characters out of 5715801
- 554564 words of memory out of 5000000
- 32680 multiletter control sequences out of 15000+600000
+ 9592 strings out of 473190
+ 145299 string characters out of 5715801
+ 554567 words of memory out of 5000000
+ 32684 multiletter control sequences out of 15000+600000
  574042 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,9n,79p,548b,528s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,9n,79p,548b,557s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -504,10 +507,10 @@ ve/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive
 25/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive
 /2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on mass-gap-v3.pdf (8 pages, 246297 bytes).
+Output written on mass-gap-v3.pdf (9 pages, 252065 bytes).
 PDF statistics:
- 337 PDF objects out of 1000 (max. 8388607)
- 284 compressed objects within 3 object streams
- 62 named destinations out of 1000 (max. 500000)
- 233 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 366 PDF objects out of 1000 (max. 8388607)
+ 311 compressed objects within 4 object streams
+ 68 named destinations out of 1000 (max. 500000)
+ 265 words of extra memory for PDF output out of 10000 (max. 10000000)
 

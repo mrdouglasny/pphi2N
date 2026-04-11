@@ -18,12 +18,16 @@
 \contentsline {subsection}{\numberline {5.1}The gap equation}{6}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}The saddle-point Gaussian}{6}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}The oscillatory corrections}{6}{subsection.5.3}%
-\contentsline {section}{\numberline {6}Proof strategies}{6}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Strategy A: NLSM (Kupiainen)}{6}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Strategy B: LSM saddle-point}{6}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Strategy C: LSM $\to $ NLSM equivalence}{7}{subsection.6.3}%
-\contentsline {section}{\numberline {7}The $N = 2$ obstruction}{7}{section.7}%
-\contentsline {section}{\numberline {8}Current status}{7}{section.8}%
-\contentsline {subsection}{\numberline {8.1}What is proved (in Lean)}{7}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}What is axiomatized}{7}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Open questions}{8}{subsection.8.3}%
+\contentsline {section}{\numberline {6}What Kupiainen proved}{6}{section.6}%
+\contentsline {subsection}{\numberline {6.1}NLSM (1980a): mass gap}{6}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}LSM (1980b): pressure only}{6}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Implications}{7}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Proof strategies}{7}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Strategy A: NLSM (Kupiainen)}{7}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Strategy B: LSM saddle-point}{7}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Strategy C: LSM $\to $ NLSM equivalence}{7}{subsection.7.3}%
+\contentsline {section}{\numberline {8}The $N = 2$ obstruction}{8}{section.8}%
+\contentsline {section}{\numberline {9}Current status}{8}{section.9}%
+\contentsline {subsection}{\numberline {9.1}What is proved (in Lean)}{8}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}What is axiomatized}{8}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Open questions}{8}{subsection.9.3}%

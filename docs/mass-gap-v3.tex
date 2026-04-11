@@ -313,6 +313,51 @@ Key scales (at the saddle):
 For $N \gg \sqrt{|\La|}$: oscillations are negligible within the
 saddle-point width. The saddle-point approximation is accurate.
 
+\section{What Kupiainen proved}
+
+\subsection{NLSM (1980a): mass gap}
+
+Kupiainen~\cite{Kupiainen80} proved the mass gap for the lattice
+NLSM at large~$N$: exponential decay of correlations in the odd
+sector, with mass $m(\beta,n) \to m_0(\beta)$ as $n \to \infty$.
+
+The proof uses the constraint trick ($m_0^2$ added for free), the
+dual representation with complex measure, reflection positivity,
+chessboard estimates, and a random walk expansion. The threshold
+is $n > a_1 m_0^{-a_2}$ with $a_2 = 6(d+2)+1 = 25$ in $d = 2$.
+
+\subsection{LSM (1980b): pressure only}
+
+Kupiainen~\cite{Kupiainen80b} studied the continuum $(\ph^2)_2^2$
+model (the LSM) and proved a \textbf{weaker} result: the $1/n$
+expansion for the \textbf{pressure} (vacuum energy) is asymptotic:
+\begin{equation}
+  p = \sum_{j=0}^{m-1} p_j n^{-j} + R_m,
+  \qquad |R_m| \le (3m)!\,\lambda^4\alpha^m
+    \Bigl(\frac{\lambda^\beta}{n}\Bigr)^m.
+\end{equation}
+The effective small parameter is $\lambda^\beta/n$ (with $\beta$
+close to~10), not $e^{c\lambda}/n$.
+
+\textbf{He did NOT prove the mass gap for the LSM.} The paper
+works in the $\ph$-representation (integration by parts, no HS)
+and in the dual representation (complex nonlocal measure, same
+sign problem). He mentions that the mass gap would need ``a new
+cluster expansion which explicitly cancels the diverging pressure
+factors'' --- left as future work that was apparently never published.
+
+\subsection{Implications}
+
+\begin{itemize}
+\item The \textbf{NLSM mass gap} at large $N$ is proved (Kupiainen 1980a).
+\item The \textbf{LSM mass gap} at large $N$ is \textbf{open} ---
+  only the pressure expansion is known (Kupiainen 1980b).
+\item Proving the LSM mass gap would be a \textbf{genuinely new result},
+  not a reformalization of existing work.
+\item The LSM and NLSM share the same IR physics, so the mass gap
+  ``should'' transfer. But making this rigorous is nontrivial.
+\end{itemize}
+
 \section{Proof strategies}
 
 \subsection{Strategy A: NLSM (Kupiainen)}
