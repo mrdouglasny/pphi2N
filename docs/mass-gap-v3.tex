@@ -205,6 +205,69 @@ FK bound & Works ($|G| \le G_{m_0}$) & \textbf{Fails} \\
 \end{tabular}
 \end{center}
 
+\section{Comparison across dimensions}
+
+The sign problem and mass gap structure depend strongly on dimension.
+
+\subsection{$d = 0$ (matrix model)}
+
+One site ($|\La|=1$). The $\sigma$-integral is one-dimensional:
+$\int_{-\infty}^\infty e^{-\sigma^2/(4\lambda)+i\sigma a}\,d\sigma$.
+The saddle-point Gaussian is exact up to $O(1/N)$ corrections.
+Oscillations are $O(1/N^2)$ --- negligible. No sign problem.
+
+The Green's function $C = 1/m_0^2$ is a number. The self-energy
+$\Sigma = O(1/N)$. The mass is perturbative: $m = m_{\rm bare}(1+O(1/N))$.
+No dimensional transmutation.
+
+\subsection{$d = 1$ (quantum mechanics)}
+
+$|\La| = L/a$ sites (discretized time). The Green's function
+$C(t,t) = 1/(2m_0)$ is \textbf{finite} (no UV divergence).
+The self-energy $\Sigma = O(1/N)$ (no log divergence).
+
+Oscillations at the saddle width: $\sim L/(aN^2)$.
+For fixed $L, a$ and large $N$: oscillations vanish.
+The saddle-point expansion converges for $N > C\cdot L/a$.
+The mass gap is perturbative.
+
+\subsection{$d = 2$ (QFT)}
+
+$|\La| = (L/a)^2$ sites. The Green's function
+$C(x,x) = \frac{1}{4\pi}\log\frac{\La^2}{m_0^2}$ \textbf{diverges}
+logarithmically with the UV cutoff.
+
+The self-energy:
+$\Sigma \sim \frac{1}{N}\cdot\log\frac{\La}{m_0} \sim \frac{1}{N}\cdot N = O(1)$.
+The $1/N$ from BL is compensated by the log divergence ---
+\textbf{dimensional transmutation}. The gap equation gives
+$m_0 \sim \La\,e^{-c/g^2}$ (exponentially small).
+
+Oscillations at the saddle width: $\sim |\La|/N^2 = L^2/(a^2 N^2)$.
+For the continuum limit $a \to 0$: oscillations grow, sign problem
+becomes severe.
+
+\subsection{Summary}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+& $d=0$ & $d=1$ & $d=2$ \\
+\hline
+$C(x,x)$ & $1/m_0^2$ & $1/(2m_0)$ & $\frac{1}{4\pi}\log\frac{\La}{m_0}$ \\
+UV divergence & none & none & \textbf{log} \\
+Self-energy $\Sigma$ & $O(1/N)$ & $O(1/N)$ & $\mathbf{O(1)}$ \\
+Gap equation & trivial & perturbative & \textbf{dim.\ transmutation} \\
+Oscillation at width & $O(1/N^2)$ & $O(L/(aN^2))$ & $O(L^2/(a^2N^2))$ \\
+Sign problem & none & mild & \textbf{severe} \\
+\hline
+\end{tabular}
+\end{center}
+
+The fundamental difference: in $d=2$, the log divergence of $C(x,x)$
+makes the self-energy $O(1)$ instead of $O(1/N)$, producing dimensional
+transmutation and making the sign problem unavoidable.
+
 \section{The saddle-point structure}
 
 Despite the difference in operator structure, both models share
