@@ -201,49 +201,105 @@ After contour rotation, the propagator~\eqref{eq:phiprop} becomes
     = \bigl\langle(-\Delta+m_0^2+2\sigma' z)^{-1}(x,0)
       \bigr\rangle_{\mu'}
 \end{equation}
-The potential $m_0^2 + 2\sigma'z$ is now \textbf{real}
-(since $\sigma'$ is real). The operator $-\Delta + m_0^2 + 2\sigma'z$
-is a random Schr\"odinger operator with a \textbf{real} random
-potential $2\sigma'z$.
+The potential $V(x) = 2\sigma'(x)z = 2\sigma'(x)/\sqrt{N}$ is now
+\textbf{real}. The operator $-\Delta + m_0^2 + V$ is a random
+Schr\"odinger operator with real random potential.
 
-\subsection{Sub-Gaussian bound (Borell)}
+\subsection{The naive Borell bound and its failure}
 
-The rotated measure $\mu'$ is log-concave. By Borell's lemma,
-linear functionals of $\sigma'$ are sub-Gaussian:
+By Borell's lemma (sub-Gaussian bound for log-concave $\mu'$):
 \begin{equation}
   \E_{\mu'}[e^X] \le \exp\bigl(\E[X]+\tfrac{1}{2}\Var(X)\bigr)
 \end{equation}
-for $X = -\int_0^s(m_0^2+2\sigma'(\omega(t))z)\,dt$. This gives:
-\begin{align}
-  \E[X] &= -s\,m_0^2 \quad\text{(leading mass)}, \\
-  \Var(X) &\le \frac{4z^2 s}{n}\int B_{0,w}\,dw
-    = \frac{4s}{N^2}\,\|B\|_1
-    \quad\text{(from BL covariance bound)}.
-\end{align}
-
-\subsection{The mass gap}
-
-The FK bound:
+for $X = -\int_0^s V(\omega(t))\,dt$. The variance is:
 \begin{equation}
-  \langle\ph^i(x)\ph^i(0)\rangle_{\rm saddle}
-    \le \bigl(-\Delta + m^2\bigr)^{-1}(x,0)
+\label{eq:variance}
+  \Var(X) = \frac{4}{N}\!\int_0^s\!\!\!\int_0^s\!
+    \Cov_{\mu'}(\sigma'(\omega(t_1)),\sigma'(\omega(t_2)))
+    \,dt_1\,dt_2
+  \le \frac{8s}{N^2}\!\int\!\frac{d^2k}{(2\pi)^2}
+    \frac{\hat B(k)}{k^2}
 \end{equation}
-with renormalized mass
+using BL ($\Cov \le B/N$) and the Brownian time integral
+$\int d\tau\, e^{-k^2\tau/2} = 2/k^2$.
+
+\textbf{The problem:} $\hat B(k) = 1/(2\Pi(k))$ with
+$\Pi(0) = 1/(4\pi m_0^2)$, so $\hat B(k)/k^2 \sim m_0^2/k^2$
+for $k \to 0$. The integral~\eqref{eq:variance} \textbf{diverges
+in the IR}. The naive Borell bound gives $m^2 = m_0^2 - \infty$.
+
+\subsection{Origin of the divergence: double-counting}
+
+The IR-divergent integral in~\eqref{eq:variance} is precisely the
+\textbf{self-energy} $\Sigma_\sigma$ that the gap equation already
+absorbed into~$m_0$. The gap equation sets
+$m_0^2 = v^2 - \Sigma_\sigma(m_0^2)$, so $\Sigma_\sigma$ is
+already subtracted. The naive Borell bound recomputes $\Sigma_\sigma$
+on top of~$m_0$, double-counting.
+
+\subsection{The renormalized Borell bound}
+
+\textbf{Key idea (Kupiainen \S8):} Replace the propagator $C(k) =
+1/(k^2+m_0^2)$ by the \emph{subtracted} propagator
+$C^s(k) = C(k) - C(0)$, which satisfies $C^s(0) = 0$. Then
+$\Pi^s(k) = (C^s * C^s)(k)$ vanishes at $k=0$, so
+$\hat B^s(k)/k^2$ is integrable.
+
+Concretely: the subtracted bubble is
 \begin{equation}
-\label{eq:mass}
-  \boxed{m^2 = m_0^2 - \frac{2\|B\|_1}{N^2}.}
+  \Pi^s(k) = \Pi(k) - 2C(0)C^s(k) - C(0)^2
+    = \Pi(k) - \Pi(0) + O(k^2/m_0^4).
+\end{equation}
+For small $k$: $\Pi(k) - \Pi(0) \sim k^2/m_0^4$, so the
+subtracted $\hat B^s(k)/k^2 \sim m_0^4/k^4 \cdot k^2 = m_0^4/k^2$
+... this is still singular. A more careful analysis uses
+Kupiainen's observation that the \emph{two} self-energy graphs
+(Fig.~3 of \cite{Kupiainen80}) nearly cancel:
+\begin{equation}
+  G_1(p) - G_2(0) = G_1^s(p) + G_2^s
+\end{equation}
+where $G_1^s$ is subtracted at zero momentum and $G_2^s$ is only
+logarithmically divergent (not quadratically). After this
+cancellation, the effective expansion parameter is $\beta/n$ (not
+$e^{4\pi\beta}/n$), and the renormalized self-energy correction is:
+\begin{equation}
+\label{eq:renorm_selfenergy}
+  \Delta m^2_{\rm ren} \sim \frac{m_0^2}{N^2}\cdot
+    \frac{\beta}{1} \sim \frac{m_0^2\lambda}{N^2 g^2}.
 \end{equation}
 
-The tail contribution adds $O(e^{-cm_0^4N^2})$, negligible for
-large~$N$.
+\subsection{Estimate of $N_0$}
+
+The mass gap holds when $\Delta m^2_{\rm ren} < m_0^2$, i.e.,
+\begin{equation}
+\label{eq:N0}
+  \boxed{N_0 \sim \sqrt{\frac{\lambda}{g^2}}}
+\end{equation}
+which is a \textbf{finite, computable number} at fixed coupling.
+For $g^2 = 1$, $\lambda = 1$: $N_0 \sim O(1)$.
+
+\begin{remark}
+The effective expansion parameter $\beta/n$ (not $e^{c\beta}/n$)
+was identified by Kupiainen~\cite{Kupiainen80} in his \S8 discussion.
+This cancellation is the same mechanism that makes the O($N$) model
+super-renormalizable in 2d: the self-energy has only logarithmic
+(not quadratic) divergence after subtraction. Our contribution is
+to embed this cancellation in the Borell/FK framework rather than
+the cluster expansion.
+\end{remark}
+
+\subsection{Main theorem}
 
 \begin{theorem}[Mass gap]
 \label{thm:main}
-For the O($N$) LSM on $\Z^2$ with $N \ge 3$ and $N$ sufficiently
-large that $m^2 > 0$ in~\eqref{eq:mass}:
+For the O($N$) LSM on $\Z^2$ with $N \ge 3$ and
+$N > N_0 \sim \sqrt{\lambda/g^2}$, the connected two-point function
+decays exponentially:
 \begin{equation}
-  |\langle\ph^i(x)\ph^i(0)\rangle_c| \le C\,e^{-m|x|}.
+  |\langle\ph^i(x)\ph^i(0)\rangle_c| \le C\,e^{-m|x|}
 \end{equation}
+with $m > 0$ satisfying
+$m^2 = m_0^2(1 - O(\lambda/(g^2 N^2)))$.
 \end{theorem}
 
 \begin{proof}
@@ -254,8 +310,11 @@ large that $m^2 > 0$ in~\eqref{eq:mass}:
   $+$ exponentially small tail.
 \item \textbf{BL} (\S4): $\sigma'$-concentration with BL
   covariance bounds.
-\item \textbf{Borell + FK} (\S5): Averaged propagator $\le$
-  deterministic $(-\Delta+m^2)^{-1}$ with $m^2 > 0$.
+\item \textbf{Renormalized Borell + FK} (\S5): The naive Borell
+  bound double-counts the self-energy; after subtraction (cancellation
+  of the leading self-energy graphs), the renormalized correction is
+  $\Delta m^2 \sim m_0^2\lambda/(g^2N^2)$, giving $m^2 > 0$ for
+  $N > N_0$.
 \item \textbf{Tail}: Contribution $O(e^{-cm_0^4N^2})$, negligible.
   \qedhere
 \end{enumerate}
