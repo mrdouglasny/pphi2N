@@ -55,16 +55,12 @@ theorem hs_exponent_after_rotation (lam a σ' : ℝ) :
   push_cast
   ring
 
-/-- **Cauchy's theorem for vertical contour shift** (axiom).
+/-! ## Contour shift axiom
 
-∫_ℝ f(x) dx = ∫_ℝ f(x + iy₀) dx for f entire + decaying.
-
-Standard complex analysis; could be proved from Mathlib's
-`DiffContOnCl.integral_boundary_rect_eq_zero`. -/
-axiom cauchy_vertical_shift
-    (f : ℂ → ℂ) (y₀ : ℝ)
-    (hf : Differentiable ℂ f) :
-    ∫ x : ℝ, f (x : ℂ) = ∫ x : ℝ, f ((x : ℂ) + I * (y₀ : ℂ))
+See `ContourShift.lean` for the precise axioms with proper
+hypotheses, matching Mathlib's `integral_boundary_rect_eq_zero`
+and the PNT project's rectangle integral infrastructure.
+  https://github.com/AlexKontorovich/PrimeNumberTheoremAnd -/
 
 end Pphi2N
 
