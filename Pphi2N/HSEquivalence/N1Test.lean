@@ -33,6 +33,7 @@ gives det(-Δ+iσ)^{-1/2}.
 import Pphi2N.InteractingMeasure.ONTorusMeasure
 import Pphi2N.MassGap.HubbardStratonovich
 import Pphi2N.ContinuumLimit.LSMTorusMeasure
+import Pphi2N.HSEquivalence.HSIdentity
 
 noncomputable section
 
@@ -94,19 +95,13 @@ This is the Fourier representation of the Gaussian. -/
 
 /-- The HS identity for a single real variable.
 
-  exp(-λa²) = √(1/(4πλ)) ∫_{-∞}^{∞} exp(-σ²/(4λ) + iσa) dσ
+  ∫ exp(iaσ - σ²/(4λ)) dσ = √(4πλ) · exp(-λa²)
 
-This is the Fourier transform of the Gaussian exp(-σ²/(4λ)):
-  F[exp(-·²/(4λ))](a) = √(4πλ) exp(-λa²)
-
-Proof: completing the square in σ gives a shifted Gaussian.
-The integral is over the IMAGINARY shift, which doesn't change
-the value (by Cauchy's theorem / Gaussian integral formula). -/
-axiom hs_identity_n1 (lam : ℝ) (hlam : 0 < lam) (a : ℝ) :
-    Real.exp (-lam * a ^ 2) =
-    Real.sqrt (1 / (4 * Real.pi * lam)) *
-      ∫ σ : ℝ, Real.exp (-σ ^ 2 / (4 * lam)) *
-        Complex.re (Complex.exp (Complex.I * σ * a))
+Proved in HSIdentity.lean from Mathlib's fourierIntegral_gaussian. -/
+theorem hs_identity_n1 (lam : ℝ) (hlam : 0 < lam) (a : ℝ) :
+    ∫ σ : ℝ, Complex.exp (Complex.I * ↑a * ↑σ - (1/(4*↑lam)) * ↑σ ^ 2) =
+    (4 * ↑Real.pi * ↑lam) ^ (1/2 : ℂ) * Complex.exp (-(↑lam) * (↑a)^2) :=
+  hs_identity_combined lam hlam a
 
 /-! ## The gap equation for N=1
 
