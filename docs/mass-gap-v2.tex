@@ -108,15 +108,26 @@ a maximum of $\mathrm{Re}(nF)$ on the real axis.
 
 \subsection{Rotation to the imaginary axis}
 
-Set $\sigma = i\sigma'$ with $\sigma' \in \R^{|\La|}$. Then:
+Set $\sigma = i\sigma'$ with $\sigma' \in \R^{|\La|}$. The rotation
+is applied to the \textbf{full exponent} $nF(\sigma)$ (which includes
+the $\Tr\log$ from integrating out~$\ph$), \emph{not} to the bare
+HS kernel $-\sigma^2/(4\lambda)+i\sigma a$. The bare kernel alone
+gives $+\sigma'^2/(4\lambda)-\sigma' a$ (growing, not decaying!).
+The $\Tr\log$ term provides the necessary decay: after rotation,
+$-\tfrac{n}{2}\Tr\log(1+2zC\sigma') \approx
+-\tfrac{n}{2}(\sigma',B^{-1}\sigma')$ (Gaussian decay).
+
+The combined effect at $\sigma'=0$:
 \begin{itemize}
 \item The Hessian of $nF(i\sigma')$ at $\sigma'=0$ is $+nB^{-1}$
-  (\textbf{positive definite}).
+  (\textbf{positive definite}), combining $+1/(2\lambda)$ from the
+  bare kernel with $+nB^{-1}_{\Tr\log}$ from the determinant.
 \item $\exp(nF(i\sigma'))$ is \textbf{real and positive} near the
   saddle (the imaginary phases cancel).
 \item The measure becomes
   $\propto\exp(-\tfrac{n}{2}(\sigma',B^{-1}\sigma')+\ldots)\,d\sigma'$,
-  which is \textbf{log-concave}.
+  which is \textbf{log-concave} (the $\Tr\log$ decay dominates the
+  bare kernel growth).
 \end{itemize}
 
 \subsection{The deformed contour}
