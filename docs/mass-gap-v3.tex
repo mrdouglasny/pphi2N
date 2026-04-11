@@ -358,7 +358,99 @@ factors'' --- left as future work that was apparently never published.
   ``should'' transfer. But making this rigorous is nontrivial.
 \end{itemize}
 
-\section{Proof strategies}
+\section{Strategy: steepest descent contour}
+
+The right contour deformation is not a rotation to the imaginary
+axis (which diverges), but the \textbf{steepest descent contour}:
+the level set $\mathrm{Im}\,f = 0$ through the saddle $\sigma = 0$.
+
+\subsection{The steepest descent contour}
+
+The exponent $f(\sigma)$ is complex-valued and analytic. The saddle
+$\sigma = 0$ has $f(0) = 0$ (real). The steepest descent contour
+$\Gamma$ is defined by:
+\begin{equation}
+  \Gamma = \{\sigma \in \C^{|\La|} : \mathrm{Im}\,f(\sigma) = 0,\;
+    \text{connected to } \sigma = 0\}.
+\end{equation}
+On $\Gamma$:
+\begin{itemize}
+\item $\mathrm{Im}\,f = 0$: the integrand $e^f$ is \textbf{real
+  and positive}. No oscillations!
+\item $\mathrm{Re}\,f$ decreases away from the saddle: the integral
+  \textbf{converges}.
+\item By Cauchy's theorem: $\int_\R e^f\,d\sigma = \int_\Gamma e^f\,d\sigma$
+  (provided $\Gamma$ avoids singularities of~$f$).
+\end{itemize}
+
+\subsection{Shape of $\Gamma$ near the saddle}
+
+Near $\sigma = 0$: $f \approx -\tfrac{1}{2}(\sigma,H\sigma)$ with
+$H = B^{-1} + 1/(2\lambda)\cdot I > 0$ (real, positive definite).
+So $\mathrm{Im}\,f = 0$ on the \textbf{real axis} locally. The
+steepest descent contour \emph{starts} on the real axis.
+
+The cubic term $f''' \sim O(z) = O(1/\sqrt{N})$ introduces
+$\mathrm{Im}\,f \ne 0$ at order $\sigma^3$. The contour
+$\Gamma$ \emph{curves away} from the real axis to compensate,
+with deviation $O(\sigma^3/\sqrt{N})$.
+
+At the saddle width $\sigma \sim 1/\sqrt{N}$: the deviation is
+$O(1/N^2)$ --- the contour is \textbf{nearly real} within the
+Gaussian peak.
+
+\subsection{Properties of the integral over $\Gamma$}
+
+On $\Gamma$, the measure $e^{f(\sigma)}\,d\sigma$ (with the
+appropriate orientation) is:
+\begin{enumerate}
+\item \textbf{Real and positive} (since $\mathrm{Im}\,f = 0$
+  and $e^{\mathrm{Re}\,f} > 0$).
+\item \textbf{Log-concave near the saddle}: $\mathrm{Re}\,f
+  \approx -\tfrac{1}{2}(\sigma,H\sigma)$ (Gaussian, $H > 0$).
+\item \textbf{Decaying}: $\mathrm{Re}\,f \to -\infty$ along
+  $\Gamma$ away from the saddle (by the steepest descent property).
+\end{enumerate}
+This is exactly the setting where Brascamp-Lieb applies: a real,
+positive, log-concave measure.
+
+\subsection{Plan}
+
+\begin{enumerate}
+\item \textbf{Existence of $\Gamma$}: Show the level set
+  $\mathrm{Im}\,f = 0$ through $\sigma = 0$ is a smooth
+  $|\La|$-dimensional manifold in $\C^{|\La|}$.
+\item \textbf{Singularity avoidance}: $\Gamma$ stays away from
+  $\det(1-2izC\sigma) = 0$ (at distance $\ge m_0^2\sqrt{N}/2$
+  from the saddle).
+\item \textbf{Cauchy's theorem}: The deformation from $\R^{|\La|}$
+  to $\Gamma$ is valid (no singularities crossed).
+\item \textbf{BL on $\Gamma$}: The measure $e^{\mathrm{Re}\,f}$
+  restricted to $\Gamma$ is log-concave near the saddle. Apply
+  BL for $\sigma$-concentration.
+\item \textbf{FK bound}: On $\Gamma$, the $\ph$-propagator
+  $(-\Delta + m_0^2 + \text{potential from }\sigma)^{-1}$ has a
+  real potential (since $\sigma \in \Gamma$ makes $f$ real, the
+  coupling becomes real after the deformation). The sub-Gaussian
+  bound gives exponential decay.
+\item \textbf{Mass gap}: $m > 0$ for $N > N_0$.
+\end{enumerate}
+
+\begin{remark}
+The steepest descent contour $\Gamma$ is \emph{not} a simple
+geometric object (not a line, plane, or rotation of the real axis).
+It is a curved manifold determined by the global analytic structure
+of~$f$. Characterizing $\Gamma$ explicitly is a nontrivial problem
+in several complex variables. However, near the saddle, $\Gamma$
+is well-approximated by the real axis, and the curvature corrections
+are $O(1/N)$.
+
+For the $N = 1$ test case ($d = 0$): $\Gamma$ is a curve in $\C$,
+which can be computed explicitly and compared with the known
+P($\ph$)$_2$ mass gap.
+\end{remark}
+
+\section{Other strategies for comparison}
 
 \subsection{Strategy A: NLSM (Kupiainen)}
 
