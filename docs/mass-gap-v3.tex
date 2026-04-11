@@ -29,15 +29,19 @@
 \maketitle
 
 \begin{abstract}
-We analyze the Hubbard-Stratonovich approach to the mass gap for
-the O($N$) model in two dimensions. The HS identity for the
-Euclidean quartic requires imaginary coupling (sign problem).
-For the NLSM, Kupiainen's trick adds a real mass $m_0^2$ for
-free via the constraint, giving decay for each $\sigma$-value.
-For the LSM, no such trick exists: the real mass cancels after HS,
-and the mass gap must emerge entirely from the oscillatory
-$\sigma$-average. We compare the two settings and discuss the
-implications for a formal proof at large~$N$.
+We analyze the Hubbard-Stratonovich approach to proving the mass
+gap for the O($N$) model in two dimensions at large~$N$. The HS
+identity for the Euclidean quartic requires imaginary coupling,
+creating a sign problem. We compare the NLSM (where Kupiainen's
+constraint trick gives a real mass $m_0^2$ in the operator, enabling
+a direct FK bound for each $\sigma$-value) with the LSM (where the
+real mass cancels after HS, and the mass gap must emerge from the
+oscillatory $\sigma$-average). A comparison across $d=0,1,2$ shows
+that the sign problem is specific to $d=2$: the logarithmic UV
+divergence of the Green's function promotes the self-energy from
+$O(1/N)$ to $O(1)$, causing dimensional transmutation and making
+the oscillatory cancellations essential. We discuss three proof
+strategies and the current status of the Lean formalization.
 \end{abstract}
 
 \tableofcontents

@@ -12,20 +12,20 @@
 \contentsline {subsection}{\numberline {4.2}Brascamp-Lieb bounds}{4}{subsection.4.2}%
 \contentsline {section}{\numberline {5}Feynman-Kac bound with real potential}{4}{section.5}%
 \contentsline {subsection}{\numberline {5.1}The propagator in rotated variables}{4}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}The naive Borell bound and its failure}{4}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.2}The naive Borell bound and its failure}{5}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Origin of the divergence: double-counting}{5}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}The renormalized Borell bound}{5}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}Estimate of $N_0$}{5}{subsection.5.5}%
 \contentsline {subsection}{\numberline {5.6}Main theorem}{6}{subsection.5.6}%
 \contentsline {section}{\numberline {6}Test case: $N = 1$ ($P(\varphi )_2$ theory)}{6}{section.6}%
 \contentsline {subsection}{\numberline {6.1}The $P(\varphi )_2$ theory on $T^2_L$}{6}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}HS transformation: degree reduction}{6}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.2}HS transformation: degree reduction}{7}{subsection.6.2}%
 \contentsline {subsection}{\numberline {6.3}Gap equation for $N = 1$}{7}{subsection.6.3}%
 \contentsline {subsection}{\numberline {6.4}Contour rotation for $N = 1$}{7}{subsection.6.4}%
 \contentsline {subsection}{\numberline {6.5}What changes at $N = 1$}{7}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}Comparison with known $P(\varphi )_2$ results}{7}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.6}Comparison with known $P(\varphi )_2$ results}{8}{subsection.6.6}%
 \contentsline {subsection}{\numberline {6.7}Formalization in Lean}{8}{subsection.6.7}%
 \contentsline {section}{\numberline {7}Discussion}{8}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Comparison with Kupiainen}{8}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}The $N = 2$ obstruction}{8}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}What remains to be proved}{8}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.2}The $N = 2$ obstruction}{9}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}What remains to be proved}{9}{subsection.7.3}%
